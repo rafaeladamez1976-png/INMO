@@ -26,6 +26,16 @@ export const PRINCIPALES: Enlace[] = [
 /** El resto, en el desplegable. */
 export const SECUNDARIOS: Enlace[] = [
   {
+    href: '/obra-nueva',
+    texto: 'Obra nueva',
+    descripcion: 'Promociones a estrenar en Madrid, Toledo y Badajoz',
+  },
+  {
+    href: '/alertas',
+    texto: 'Avisos de inmuebles',
+    descripcion: 'Que te escribamos cuando entre lo que buscas',
+  },
+  {
     href: '/alquiler-vitalicio',
     texto: 'Alquiler vitalicio',
     descripcion: 'Cobra por tu vivienda y sigue viviendo en ella',

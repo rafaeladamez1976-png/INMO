@@ -1,0 +1,537 @@
+---
+import Base from '../layouts/Base.astro';
+import { INMUEBLES, TIPOS } from '../data/inmuebles';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+
+const zonas = [...new Set(INMUEBLES.map((i) => i.zona))].sort();
+const tipos = Object.entries(TIPOS) as [keyof typeof TIPOS, string][];
+
+/**
+ * Alertas de inmuebles.
+ *
+ * Lo que hacen todos los portales: dices qué buscas y te avisan cuando entra
+ * algo. Aquí no hay servidor ni base de datos, así que el formulario compone un
+ * mensaje de WhatsApp con los criterios y la oficina te apunta a mano.
+ *
+ * Se dice en pantalla tal cual. Prometer un aviso automático que no existe es
+ * la clase de cosa que se descubre a la tercera semana sin recibir nada.
+ *
+ * De propina, la página cuenta en vivo cuántos inmuebles encajan ya con lo que
+ * pides: si hay tres ahora mismo, no hace falta esperar a ninguna alerta.
+ */
+---
+
+<Base
+  titulo="Avisos de inmuebles | Umbral Inmobiliaria"
+  descripcion="Dinos qué buscas y te avisamos por WhatsApp en cuanto entre algo que encaje. Sin registro y sin dejar el correo."
+>
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Avisos</p>
+      <h1 class="portadilla__titulo">
+        Que te avisemos<br /><span class="acento">cuando entre</span>
+      </h1>
+      <p class="portadilla__entrada">
+        Lo bueno se va en días. Dinos qué buscas y te escribimos en cuanto entre
+        algo que encaje, antes de que salga publicado.
+      </p>
+    </header>
+
+    <div class="alerta">
+      <form class="alerta__campos" data-alerta>
+        <fieldset class="grupo">
+          <legend class="grupo__titulo">Qué buscas</legend>
+
+          <div class="grupo__fila">
+            <label class="campo">
+              <span class="campo__nombre">Operación</span>
+              <select class="campo__control" name="operacion">
+                <option value="venta">Comprar</option>
+                <option value="alquiler">Alquilar</option>
+              </select>
+            </label>
+
+            <label class="campo">
+              <span class="campo__nombre">Tipo</span>
+              <select class="campo__control" name="tipo">
+                <option value="">Cualquiera</option>
+                {tipos.map(([id, nombre]) => <option value={id}>{nombre}</option>)}
+              </select>
+            </label>
+
+            <label class="campo">
+              <span class="campo__nombre">Dormitorios mínimos</span>
+              <select class="campo__control" name="habitaciones">
+                <option value="">Los que sean</option>
+                <option value="1">1 o más</option>
+                <option value="2">2 o más</option>
+                <option value="3">3 o más</option>
+                <option value="4">4 o más</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend class="grupo__titulo">Dónde</legend>
+          <p class="grupo__pista">
+            Marca las que te valgan. Si no marcas ninguna, te avisamos de todas.
+          </p>
+          <div class="zonas">
+            {
+              zonas.map((zona) => (
+                <label class="zona">
+                  <input type="checkbox" name="zona" value={zona} />
+                  <span>{zona}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend class="grupo__titulo">Hasta cuánto</legend>
+          <label class="campo campo--precio">
+            <span class="campo__fila">
+              <span class="campo__nombre">Precio máximo</span>
+              <output class="campo__valor" data-salida-precio></output>
+            </span>
+            <input type="range" name="precio" min="0" max="600000" step="10000" value="250000" />
+          </label>
+        </fieldset>
+      </form>
+
+      <aside class="resumen">
+        <p class="resumen__etiqueta">Ahora mismo tenemos</p>
+        <p class="resumen__cifra" data-encajan role="status">0</p>
+        <p class="resumen__texto" data-encajan-texto>que encajan con lo que pides</p>
+
+        <a class="boton boton--laton resumen__cta" data-enviar href="#">
+          Avisadme por WhatsApp
+        </a>
+
+        <a class="resumen__ver" data-ver href="/venta">Ver los que hay ya</a>
+
+        <p class="resumen__letra">
+          El mensaje llega a la oficina y te apuntamos a mano. No es un sistema
+          automático: te escribe una persona, y puedes decirle que te demos de
+          baja cuando quieras. No guardamos tu número en ningún otro sitio.
+        </p>
+      </aside>
+    </div>
+
+    <section class="pasos" data-revelar>
+      <h2 class="pasos__titulo">Cómo funciona</h2>
+      <ol class="pasos__lista">
+        <li>
+          <span class="paso__numero">01</span>
+          <h3 class="paso__titulo">Nos dices qué buscas</h3>
+          <p>Sin registro, sin correo y sin contraseñas que recordar.</p>
+        </li>
+        <li>
+          <span class="paso__numero">02</span>
+          <h3 class="paso__titulo">Lo apuntamos en la oficina</h3>
+          <p>
+            Tu petición entra en la lista de la oficina que lleva esa zona, que
+            es quien primero se entera de lo que va a salir.
+          </p>
+        </li>
+        <li>
+          <span class="paso__numero">03</span>
+          <h3 class="paso__titulo">Te escribimos antes de publicarlo</h3>
+          <p>
+            Entre que un propietario nos encarga la venta y sale el anuncio pasan
+            unos días. Ahí es donde ganas tú.
+          </p>
+        </li>
+      </ol>
+    </section>
+
+    <aside class="ayuda" data-revelar>
+      <h2 class="ayuda__titulo">¿Prefieres contarlo hablando?</h2>
+      <p>
+        A veces lo que buscas no cabe en un formulario. Llámanos y lo apuntamos
+        mientras hablamos.
+      </p>
+      <a class="boton" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+        Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+      </a>
+    </aside>
+  </div>
+</Base>
+
+<script>
+  import { INMUEBLES, TIPOS } from '../data/inmuebles';
+  import { EMPRESA, enlaceWhatsApp } from '../data/empresa';
+
+  function activarAlertas() {
+    const formulario = document.querySelector<HTMLFormElement>('[data-alerta]');
+    if (!formulario) return;
+
+    const salidaPrecio = document.querySelector<HTMLOutputElement>('[data-salida-precio]')!;
+    const cifra = document.querySelector<HTMLElement>('[data-encajan]')!;
+    const texto = document.querySelector<HTMLElement>('[data-encajan-texto]')!;
+    const enviar = document.querySelector<HTMLAnchorElement>('[data-enviar]')!;
+    const ver = document.querySelector<HTMLAnchorElement>('[data-ver]')!;
+
+    const euros = (n: number) => `${n.toLocaleString('es-ES')} €`;
+
+    const leer = () => {
+      const datos = new FormData(formulario);
+      return {
+        operacion: String(datos.get('operacion') ?? 'venta'),
+        tipo: String(datos.get('tipo') ?? ''),
+        habitaciones: Number(datos.get('habitaciones') ?? 0),
+        precio: Number(datos.get('precio') ?? 0),
+        zonas: datos.getAll('zona').map(String),
+      };
+    };
+
+    const refrescar = () => {
+      const c = leer();
+
+      // El tope de un alquiler no se mide en cientos de miles: la misma barra
+      // sirve para los dos casos cambiando la escala.
+      const tope = c.operacion === 'alquiler' ? 3000 : 600000;
+      const barra = formulario.elements.namedItem('precio') as HTMLInputElement;
+      if (Number(barra.max) !== tope) {
+        barra.max = String(tope);
+        barra.step = c.operacion === 'alquiler' ? '50' : '10000';
+        barra.value = String(Math.round(tope * 0.42));
+        c.precio = Number(barra.value);
+      }
+
+      salidaPrecio.textContent =
+        euros(c.precio) + (c.operacion === 'alquiler' ? ' al mes' : '');
+
+      const encajan = INMUEBLES.filter(
+        (i) =>
+          i.operacion === c.operacion &&
+          (!c.tipo || i.tipo === c.tipo) &&
+          (!c.habitaciones || i.habitaciones >= c.habitaciones) &&
+          i.precio <= c.precio &&
+          (c.zonas.length === 0 || c.zonas.includes(i.zona)),
+      );
+
+      cifra.textContent = String(encajan.length);
+      texto.textContent =
+        encajan.length === 1
+          ? 'que encaja con lo que pides'
+          : 'que encajan con lo que pides';
+
+      ver.href = c.operacion === 'alquiler' ? '/alquiler' : '/venta';
+      ver.hidden = encajan.length === 0;
+
+      // El mensaje va escrito en cristiano: quien lo recibe en la oficina
+      // tiene que poder apuntarlo sin descifrar nada.
+      const partes = [
+        c.operacion === 'alquiler' ? 'alquilar' : 'comprar',
+        c.tipo ? TIPOS[c.tipo as keyof typeof TIPOS].toLowerCase() : 'lo que sea',
+        c.habitaciones ? `de ${c.habitaciones} dormitorios o más` : '',
+        `hasta ${euros(c.precio)}${c.operacion === 'alquiler' ? ' al mes' : ''}`,
+        c.zonas.length ? `en ${c.zonas.join(', ')}` : 'en cualquiera de vuestras zonas',
+      ].filter(Boolean);
+
+      enviar.href = enlaceWhatsApp(
+        EMPRESA.whatsappCitas,
+        `Hola, quiero que me aviséis cuando entre algo. Busco ${partes.join(', ')}. Gracias.`,
+      );
+    };
+
+    formulario.addEventListener('input', refrescar);
+    formulario.addEventListener('change', refrescar);
+    refrescar();
+  }
+
+  activarAlertas();
+  document.addEventListener('astro:after-swap', activarAlertas);
+</script>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    max-width: 40rem;
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .alerta {
+    display: grid;
+    gap: var(--e-8);
+  }
+
+  @media (min-width: 56rem) {
+    .alerta {
+      grid-template-columns: 1fr 20rem;
+      gap: var(--e-12);
+      align-items: start;
+    }
+  }
+
+  .grupo {
+    padding: 0;
+    border: 0;
+    margin-bottom: var(--e-8);
+  }
+
+  .grupo__titulo {
+    margin-bottom: var(--e-4);
+    padding: 0;
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .grupo__pista {
+    margin-top: -0.6em;
+    margin-bottom: var(--e-4);
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .grupo__fila {
+    display: grid;
+    gap: var(--e-4);
+  }
+
+  @media (min-width: 40rem) {
+    .grupo__fila {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .campo {
+    display: block;
+  }
+
+  .campo__nombre {
+    display: block;
+    margin-bottom: var(--e-2);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .campo__control {
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--e-2) var(--e-4);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: var(--papel);
+    font: inherit;
+    font-size: var(--t-pequeno);
+  }
+
+  .campo__control:focus-visible {
+    outline: 2px solid var(--laton);
+    outline-offset: 2px;
+  }
+
+  .campo__fila {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-3);
+    margin-bottom: var(--e-3);
+  }
+
+  .campo__valor {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .campo--precio input {
+    width: 100%;
+    accent-color: var(--laton);
+  }
+
+  .zonas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-2);
+  }
+
+  /* La casilla se esconde y la etiqueta entera hace de botón: en el móvil se
+     acierta mucho mejor que con un cuadradito de doce píxeles. */
+  .zona input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .zona span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.6rem;
+    padding-inline: var(--e-4);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-pildora);
+    font-size: var(--t-pequeno);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-corta) var(--curva),
+      border-color var(--dur-corta) var(--curva),
+      color var(--dur-corta) var(--curva);
+  }
+
+  .zona input:checked + span {
+    background: var(--grafito);
+    border-color: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .zona input:focus-visible + span {
+    outline: 2px solid var(--laton);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    .zona span:hover {
+      border-color: var(--laton);
+    }
+  }
+
+  .resumen {
+    padding: var(--e-6);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  @media (min-width: 56rem) {
+    .resumen {
+      position: sticky;
+      top: 7rem;
+    }
+  }
+
+  .resumen__etiqueta {
+    font-size: var(--t-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--laton-claro);
+  }
+
+  .resumen__cifra {
+    margin-block: var(--e-1);
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 3.4rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .resumen__texto {
+    margin-bottom: var(--e-6);
+    font-size: var(--t-pequeno);
+    color: #cfc9bd;
+  }
+
+  .resumen__cta {
+    width: 100%;
+  }
+
+  .resumen__ver {
+    display: block;
+    margin-top: var(--e-4);
+    font-size: var(--t-pequeno);
+    text-align: center;
+    color: var(--laton-claro);
+  }
+
+  .resumen__letra {
+    margin-top: var(--e-6);
+    padding-top: var(--e-5);
+    border-top: 1px solid rgba(244, 240, 233, 0.18);
+    font-size: var(--t-micro);
+    line-height: 1.6;
+    color: #9a948a;
+  }
+
+  .pasos {
+    margin-top: var(--e-24);
+  }
+
+  .pasos__titulo {
+    margin-bottom: var(--e-8);
+    font-size: var(--t-titulo);
+  }
+
+  .pasos__lista {
+    display: grid;
+    gap: var(--e-8);
+    border-top: 1px solid var(--arena-honda);
+    padding-top: var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .pasos__lista {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--e-10);
+    }
+  }
+
+  .paso__numero {
+    display: block;
+    margin-bottom: var(--e-3);
+    font-family: var(--fuente-titular);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--laton);
+  }
+
+  .paso__titulo {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .pasos__lista p {
+    color: var(--texto-suave);
+  }
+
+  .ayuda {
+    margin-top: var(--e-16);
+    padding: var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--arena-honda);
+    text-align: center;
+  }
+
+  .ayuda__titulo {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .ayuda p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+  }
+</style>

@@ -1,0 +1,833 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import {
+  PROMOCIONES,
+  ESTADOS,
+  desdePromocion,
+  disponibilidad,
+} from '../../data/promociones';
+import {
+  OFICINAS,
+  EMPRESA,
+  telefonoLegible,
+  enlaceTelefono,
+  enlaceWhatsApp,
+} from '../../data/empresa';
+import { calcular, euros } from '../../lib/hipoteca';
+
+export function getStaticPaths() {
+  return PROMOCIONES.map((promocion) => ({
+    params: { id: promocion.id },
+    props: { promocion },
+  }));
+}
+
+const { promocion } = Astro.props;
+
+const fotos = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/inmuebles/*.{jpg,jpeg,png,webp}',
+  { eager: true },
+);
+
+const galeria = promocion.galeria
+  .map((nombre) => ({ nombre, imagen: fotos[`../../assets/inmuebles/${nombre}.jpg`]?.default }))
+  .filter((f) => f.imagen);
+
+const estado = ESTADOS[promocion.estado];
+const oficina = OFICINAS.find((o) => o.id === promocion.oficina) ?? OFICINAS[0];
+const desde = desdePromocion(promocion);
+const d = disponibilidad(promocion);
+
+/**
+ * Obra nueva: IVA del 10 % más actos jurídicos documentados, en lugar del ITP
+ * del 6 % de la segunda mano. Es la diferencia que más sorprende al comprador.
+ */
+const IVA_OBRA_NUEVA = 0.1;
+const AJD_MADRID = 0.0075;
+const impuestos = desde * (IVA_OBRA_NUEVA + AJD_MADRID);
+
+const hipoteca = calcular({ precio: desde, entrada: desde * 0.2, anios: 25, interes: 3.2 });
+
+const mensaje = `Hola, me interesa la promoción ${promocion.nombre} (${promocion.zona}). Quería información y visitar la obra.`;
+---
+
+<Base
+  titulo={`${promocion.nombre}, obra nueva en ${promocion.zona} | Umbral Inmobiliaria`}
+  descripcion={promocion.descripcion.slice(0, 155)}
+>
+  <div class="contenedor">
+    <nav class="miga" aria-label="Dónde estás">
+      <a href="/">Inicio</a>
+      <span aria-hidden="true">›</span>
+      <a href="/obra-nueva">Obra nueva</a>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">{promocion.nombre}</span>
+    </nav>
+
+    <section class="galeria" aria-label="Imágenes de la promoción">
+      {
+        galeria.map((foto, i) => (
+          <figure class:list={['galeria__hueco', { 'galeria__hueco--principal': i === 0 }]}>
+            <Image
+              src={foto.imagen!}
+              alt={`${promocion.nombre} en ${promocion.zona}`}
+              widths={[600, 1000, 1600]}
+              sizes={i === 0 ? '(max-width: 60rem) 92vw, 60vw' : '(max-width: 60rem) 46vw, 20vw'}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              class="galeria__imagen"
+            />
+          </figure>
+        ))
+      }
+    </section>
+
+    <div class="detalle">
+      <div class="detalle__principal">
+        <header class="cabeza">
+          <p class="cabeza__zona">
+            Obra nueva · {promocion.zona}, {promocion.provincia}
+          </p>
+          <h1 class="cabeza__titulo">{promocion.nombre}</h1>
+          <p class="cabeza__estado">
+            <span class:list={['sello', `sello--${estado.tono}`]}>{estado.nombre}</span>
+            {estado.explica}
+          </p>
+        </header>
+
+        <section class="descripcion">
+          <h2 class="apartado">La promoción</h2>
+          <p>{promocion.descripcion}</p>
+          <p class="aviso">
+            <strong>Lo que conviene saber:</strong>
+            {promocion.aviso}
+          </p>
+        </section>
+
+        <section class="tipologias">
+          <h2 class="apartado">Qué queda</h2>
+          <p class="tipologias__entrada">
+            Precios desde, sin garaje ni trastero salvo que se indique en lo que
+            incluye. Los metros son construidos.
+          </p>
+
+          <div class="tabla">
+            <div class="tabla__cabeza" aria-hidden="true">
+              <span>Vivienda</span>
+              <span>Superficie</span>
+              <span>Desde</span>
+              <span>Quedan</span>
+            </div>
+
+            <ul>
+              {
+                promocion.tipologias.map((t) => (
+                  <li class:list={['fila', { 'fila--pocas': t.disponibles <= 2 }]}>
+                    <span class="fila__nombre">
+                      {t.dormitorios} dormitorios
+                      <em>
+                        {t.banos} baños
+                        {t.exterior ? ` · terraza de ${t.exterior} m²` : ''}
+                      </em>
+                    </span>
+                    <span class="fila__dato">
+                      <span class="fila__movil">Superficie</span>
+                      {t.metros} m²
+                    </span>
+                    <span class="fila__dato fila__dato--precio">
+                      <span class="fila__movil">Desde</span>
+                      {euros(t.desde)}
+                    </span>
+                    <span class="fila__dato">
+                      <span class="fila__movil">Quedan</span>
+                      {t.disponibles} de {t.total}
+                      {t.disponibles <= 2 && <em class="fila__ultimas">últimas</em>}
+                    </span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </section>
+
+        <section class="incluye">
+          <h2 class="apartado">Qué incluye</h2>
+          <ul class="incluye__lista">
+            {promocion.incluye.map((cosa) => <li>{cosa}</li>)}
+          </ul>
+        </section>
+
+        <section class="numeros">
+          <h2 class="apartado">Los números de la más barata</h2>
+          <p class="numeros__entrada">
+            Sobre {euros(desde)}, que es la vivienda más económica que queda.
+          </p>
+
+          <div class="numeros__suma">
+            <div class="numeros__linea">
+              <span>Precio</span>
+              <span>{euros(desde)}</span>
+            </div>
+            <div class="numeros__linea">
+              <span>IVA (10 %) y actos jurídicos documentados</span>
+              <span>{euros(impuestos)}</span>
+            </div>
+            <div class="numeros__linea numeros__linea--total">
+              <span>Desembolso total</span>
+              <span>{euros(desde + impuestos)}</span>
+            </div>
+          </div>
+
+          <p class="numeros__cuota">
+            Con un 20 % de entrada a 25 años al 3,2 %, la cuota rondaría los
+            <strong>{euros(hipoteca.cuota)} al mes</strong>.
+            <a href="/calculadora-hipotecaria">Calcular con tus números</a>
+          </p>
+        </section>
+      </div>
+
+      <aside class="lateral">
+        <div class="tarjeta">
+          <p class="tarjeta__etiqueta">Desde</p>
+          <p class="tarjeta__precio">{euros(desde)}</p>
+
+          <dl class="tarjeta__datos">
+            <div>
+              <dt>Entrega</dt>
+              <dd>{promocion.entrega}</dd>
+            </div>
+            <div>
+              <dt>Promotora</dt>
+              <dd>{promocion.promotora}</dd>
+            </div>
+            <div>
+              <dt>Energía</dt>
+              <dd>Certificación {promocion.energia}</dd>
+            </div>
+            <div>
+              <dt>Disponibles</dt>
+              <dd>{d.quedan} de {d.total}</dd>
+            </div>
+          </dl>
+
+          <a class="boton boton--laton tarjeta__cta" href={enlaceWhatsApp(EMPRESA.whatsappCitas, mensaje)}>
+            Pedir información
+          </a>
+
+          <a class="boton boton--linea tarjeta__llamar" href={enlaceTelefono(oficina.telefonos[0])}>
+            Llamar a {oficina.nombre}
+          </a>
+
+          <div class="tarjeta__oficina">
+            <p class="tarjeta__pie-etiqueta">La comercializa</p>
+            <p class="tarjeta__nombre">
+              <a href={`/oficina/${oficina.id}`}>Oficina de {oficina.nombre}</a>
+            </p>
+            <a class="tarjeta__telefono" href={enlaceTelefono(oficina.telefonos[0])}>
+              {telefonoLegible(oficina.telefonos[0])}
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="otras">
+      <h2 class="otras__titulo" data-titular>Otras promociones</h2>
+      <ul class="otras__lista">
+        {
+          PROMOCIONES.filter((p) => p.id !== promocion.id).map((otra) => (
+            <li>
+              <a class="otra" href={`/promocion/${otra.id}`}>
+                <span class="otra__nombre">{otra.nombre}</span>
+                <span class="otra__zona">
+                  {otra.zona} · desde {euros(desdePromocion(otra))}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+
+  <!-- Misma barra de móvil que en la ficha de inmueble: en pantalla pequeña
+       la tarjeta de contacto queda al final de una página larga. -->
+  <div class="acciones">
+    <div>
+      <p class="acciones__cifra">Desde {euros(desde)}</p>
+      <p class="acciones__nota">{d.quedan} disponibles</p>
+    </div>
+    <div class="acciones__botones">
+      <a class="acciones__llamar" href={enlaceTelefono(oficina.telefonos[0])} aria-label="Llamar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 5.2 2 2 0 0 1 6.5 3Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+      <a class="acciones__info" href={enlaceWhatsApp(EMPRESA.whatsappCitas, mensaje)}>
+        Información
+      </a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .miga {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-2);
+    padding-block: var(--e-6) var(--e-4);
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  .miga a {
+    text-decoration: none;
+  }
+
+  .miga a:hover {
+    color: var(--laton-hondo);
+  }
+
+  .galeria {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--e-2);
+    margin-bottom: var(--e-12);
+  }
+
+  @media (min-width: 56rem) {
+    .galeria {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .galeria__hueco--principal {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  }
+
+  .galeria__hueco {
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radio);
+    aspect-ratio: 4 / 3;
+    background: var(--grafito-medio);
+  }
+
+  .galeria__hueco--principal {
+    grid-column: span 2;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: 56rem) {
+    .galeria__hueco--principal {
+      aspect-ratio: auto;
+    }
+  }
+
+  .galeria__imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s var(--curva);
+  }
+
+  @media (hover: hover) {
+    .galeria__hueco:hover .galeria__imagen {
+      transform: scale(1.05);
+    }
+  }
+
+  .detalle {
+    display: grid;
+    gap: var(--e-8);
+  }
+
+  @media (min-width: 60rem) {
+    .detalle {
+      grid-template-columns: 1fr 21rem;
+      gap: var(--e-12);
+      align-items: start;
+    }
+  }
+
+  .cabeza__zona {
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .cabeza__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-titulo);
+    letter-spacing: -0.03em;
+  }
+
+  .cabeza__estado {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--e-3);
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .sello {
+    padding: 0.3em 0.9em;
+    border-radius: var(--radio-pildora);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .sello--laton {
+    background: var(--laton);
+    color: var(--grafito);
+  }
+
+  .sello--oliva {
+    background: var(--oliva);
+    color: #fff;
+  }
+
+  .sello--grafito {
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .apartado {
+    margin-bottom: var(--e-4);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--laton-hondo);
+  }
+
+  .descripcion {
+    margin-top: var(--e-10);
+  }
+
+  .descripcion p {
+    max-width: 44rem;
+  }
+
+  .aviso {
+    margin-top: var(--e-5);
+    padding: var(--e-4) var(--e-5);
+    border-left: 3px solid var(--laton);
+    border-radius: 0 var(--radio) var(--radio) 0;
+    background: var(--arena-honda);
+    font-size: var(--t-pequeno);
+  }
+
+  .tipologias,
+  .incluye,
+  .numeros {
+    margin-top: var(--e-12);
+  }
+
+  .tipologias__entrada,
+  .numeros__entrada {
+    max-width: 40rem;
+    margin-bottom: var(--e-5);
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .tabla__cabeza {
+    display: none;
+  }
+
+  @media (min-width: 44rem) {
+    .tabla__cabeza {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: var(--e-4);
+      padding-bottom: var(--e-3);
+      border-bottom: 1px solid var(--arena-honda);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--texto-suave);
+    }
+  }
+
+  .fila {
+    display: grid;
+    gap: var(--e-2);
+    padding-block: var(--e-4);
+    border-bottom: 1px solid var(--arena-honda);
+  }
+
+  @media (min-width: 44rem) {
+    .fila {
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: var(--e-4);
+      align-items: baseline;
+    }
+  }
+
+  .fila__nombre {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .fila__nombre em {
+    display: block;
+    font-family: var(--fuente-texto);
+    font-style: normal;
+    font-size: var(--t-micro);
+    font-weight: 400;
+    color: var(--texto-suave);
+  }
+
+  .fila__dato {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .fila__dato--precio {
+    font-weight: 700;
+  }
+
+  /* En móvil no hay cabecera de tabla, así que cada dato lleva su nombre. */
+  .fila__movil {
+    display: inline-block;
+    min-width: 6em;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  @media (min-width: 44rem) {
+    .fila__movil {
+      display: none;
+    }
+  }
+
+  .fila__ultimas {
+    margin-left: var(--e-2);
+    padding: 0.1em 0.5em;
+    border-radius: var(--radio-pildora);
+    background: #a1553f;
+    color: #fff;
+    font-style: normal;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .incluye__lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-2);
+  }
+
+  .incluye__lista li {
+    padding: 0.35em 0.9em;
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-pildora);
+    font-size: var(--t-pequeno);
+  }
+
+  .numeros__suma {
+    padding: var(--e-5) var(--e-6);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .numeros__linea {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-4);
+    padding-block: var(--e-2);
+    font-size: var(--t-pequeno);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .numeros__linea--total {
+    margin-top: var(--e-2);
+    padding-top: var(--e-4);
+    border-top: 1px solid rgba(244, 240, 233, 0.2);
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--laton-claro);
+  }
+
+  .numeros__cuota {
+    margin-top: var(--e-4);
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .numeros__cuota a {
+    margin-left: var(--e-2);
+  }
+
+  /* ---- Lateral ---- */
+
+  .lateral {
+    position: static;
+  }
+
+  @media (min-width: 60rem) {
+    .lateral {
+      position: sticky;
+      top: 7rem;
+    }
+  }
+
+  .tarjeta {
+    padding: var(--e-6);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .tarjeta__etiqueta {
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--laton-claro);
+  }
+
+  .tarjeta__precio {
+    margin-block: var(--e-1) var(--e-5);
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 2.4rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .tarjeta__datos {
+    margin-bottom: var(--e-6);
+    padding-bottom: var(--e-5);
+    border-bottom: 1px solid rgba(244, 240, 233, 0.18);
+  }
+
+  .tarjeta__datos > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-3);
+    padding-block: var(--e-2);
+  }
+
+  .tarjeta__datos dt {
+    font-size: var(--t-micro);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #9a948a;
+  }
+
+  .tarjeta__datos dd {
+    margin: 0;
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .tarjeta__cta,
+  .tarjeta__llamar {
+    width: 100%;
+  }
+
+  .tarjeta__llamar {
+    margin-top: var(--e-3);
+    border-color: rgba(244, 240, 233, 0.32);
+    color: var(--texto-claro);
+  }
+
+  .tarjeta__oficina {
+    margin-top: var(--e-6);
+    padding-top: var(--e-5);
+    border-top: 1px solid rgba(244, 240, 233, 0.18);
+  }
+
+  .tarjeta__pie-etiqueta {
+    font-size: var(--t-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9a948a;
+  }
+
+  .tarjeta__nombre {
+    margin-top: var(--e-1);
+    font-weight: 700;
+  }
+
+  .tarjeta__nombre a {
+    color: var(--texto-claro);
+    text-decoration: none;
+  }
+
+  .tarjeta__nombre a:hover {
+    color: var(--laton-claro);
+  }
+
+  .tarjeta__telefono {
+    font-weight: 700;
+    color: var(--laton-claro);
+  }
+
+  /* ---- Otras ---- */
+
+  .otras {
+    margin-top: var(--e-24);
+  }
+
+  .otras__titulo {
+    margin-bottom: var(--e-6);
+    font-size: var(--t-titulo);
+  }
+
+  .otras__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1px;
+    background: var(--arena-honda);
+    border-block: 1px solid var(--arena-honda);
+  }
+
+  .otra {
+    display: block;
+    padding: var(--e-6);
+    background: var(--papel);
+    text-decoration: none;
+    transition: background-color var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .otra:hover {
+      background: var(--arena);
+    }
+  }
+
+  .otra__nombre {
+    display: block;
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .otra__zona {
+    display: block;
+    margin-top: 0.2em;
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  /* ---- Barra de móvil ---- */
+
+  .acciones {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-4);
+    padding: var(--e-3) var(--e-4);
+    padding-bottom: calc(var(--e-3) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--arena-honda);
+    background: rgba(244, 240, 233, 0.97);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 -8px 28px var(--sombra);
+  }
+
+  .acciones__cifra {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .acciones__nota {
+    font-size: 0.65rem;
+    color: var(--texto-suave);
+  }
+
+  .acciones__botones {
+    display: flex;
+    align-items: center;
+    gap: var(--e-2);
+  }
+
+  .acciones__llamar {
+    display: grid;
+    place-items: center;
+    width: 2.9rem;
+    height: 2.9rem;
+    border: 1px solid var(--arena-honda);
+    border-radius: 50%;
+    background: var(--papel);
+    color: var(--texto);
+  }
+
+  .acciones__llamar svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .acciones__info {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.9rem;
+    padding-inline: var(--e-5);
+    border-radius: var(--radio-pildora);
+    background: var(--laton);
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* Estos estilos solo se cargan en esta página. */
+  :global(body) {
+    padding-bottom: 5rem;
+  }
+
+  :global(.flotante) {
+    bottom: 5.4rem;
+  }
+
+  @media (min-width: 60rem) {
+    .acciones {
+      display: none;
+    }
+
+    :global(body) {
+      padding-bottom: 0;
+    }
+
+    :global(.flotante) {
+      bottom: var(--e-4);
+    }
+  }
+</style>
