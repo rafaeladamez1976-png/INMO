@@ -270,6 +270,13 @@ const estancias = tourDe(tipo);
 
   .galeria__hueco--principal {
     grid-column: span 2;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: 56rem) {
+    .galeria__hueco--principal {
+      aspect-ratio: auto;
+    }
   }
 
   .galeria__imagen {
@@ -388,9 +395,20 @@ const estancias = tourDe(tipo);
 
   /* ---- Tarjeta de contacto ---- */
 
+  /*
+    En movil la tarjeta va en el flujo normal. Pegada, se quedaria flotando
+    sobre el contenido y taparia media pantalla en un telefono, que es justo
+    donde mas falta hace ver la ficha.
+  */
   .lateral {
-    position: sticky;
-    top: 9rem;
+    position: static;
+  }
+
+  @media (min-width: 60rem) {
+    .lateral {
+      position: sticky;
+      top: 9rem;
+    }
   }
 
   .tarjeta {

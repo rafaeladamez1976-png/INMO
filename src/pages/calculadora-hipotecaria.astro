@@ -150,6 +150,20 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
       gap: var(--e-8);
       align-items: start;
     }
+
+    /* Solo se queda pegado cuando hay dos columnas: en movil taparia los
+       mandos que el visitante esta moviendo. */
+    .calc__resultado {
+      position: sticky;
+      top: 9rem;
+    }
+  }
+
+  /* En movil el resultado va primero: es lo que se ha venido a ver. */
+  @media (max-width: 55.99rem) {
+    .calc__resultado {
+      order: -1;
+    }
   }
 
   .calc__mandos {
@@ -237,8 +251,7 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
   }
 
   .calc__resultado {
-    position: sticky;
-    top: 9rem;
+    position: static;
     padding: var(--e-8);
     border-radius: var(--radio-grande);
     background: var(--grafito);

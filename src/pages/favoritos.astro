@@ -1,0 +1,307 @@
+---
+import Base from '../layouts/Base.astro';
+import Ficha from '../components/Ficha.astro';
+import { INMUEBLES } from '../data/inmuebles';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+
+/**
+ * Tus favoritos.
+ *
+ * Se podían marcar inmuebles pero no había dónde verlos, que es como poner un
+ * carrito sin página de carrito. Se pintan todos y el navegador oculta los que
+ * no estén guardados: así funciona sin servidor y sin cuenta de usuario.
+ */
+---
+
+<Base
+  titulo="Tus favoritos | Umbral Inmobiliaria"
+  descripcion="Los inmuebles que has guardado. Se quedan en tu navegador, sin registro."
+>
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Tu selección</p>
+      <h1 class="portadilla__titulo">Los que<br /><span class="acento">te han gustado</span></h1>
+      <p class="portadilla__entrada">
+        Se guardan en este navegador, sin registro y sin darnos tus datos. Si
+        cambias de dispositivo o borras el historial, se pierden.
+      </p>
+    </header>
+
+    <div class="favoritos" data-pagina-favoritos>
+      <!-- Vacío: lo que ve quien todavía no ha guardado nada -->
+      <div class="vacio" data-vacio hidden>
+        <svg class="vacio__icono" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 20s-7-4.4-7-9.3A4 4 0 0 1 12 8a4 4 0 0 1 7-2.7c0 4.9-7 9.3-7 9.3Z"
+            transform="translate(0 1)"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linejoin="round"></path>
+        </svg>
+        <h2 class="vacio__titulo">Todavía no has guardado nada</h2>
+        <p class="vacio__texto">
+          Pulsa el corazón de cualquier inmueble y aparecerá aquí. Sirve para
+          comparar con calma y para enseñárselo a quien decida contigo.
+        </p>
+        <div class="vacio__acciones">
+          <a class="boton boton--laton" href="/venta">Ver los de venta</a>
+          <a class="boton boton--linea" href="/alquiler">Ver los de alquiler</a>
+        </div>
+      </div>
+
+      <!-- Con favoritos -->
+      <div data-lleno hidden>
+        <div class="barra">
+          <p class="barra__cuenta" data-cuenta role="status"></p>
+          <div class="barra__acciones">
+            <a class="boton boton--laton" data-compartir href="#">
+              Consultar por WhatsApp
+            </a>
+            <button class="barra__vaciar" type="button" data-vaciar>Vaciar</button>
+          </div>
+        </div>
+
+        <div class="rejilla">
+          {
+            INMUEBLES.map((inmueble, i) => (
+              <div class="rejilla__hueco" data-inmueble={inmueble.id} hidden>
+                <Ficha inmueble={inmueble} retraso={(i % 3) * 70} />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <aside class="ayuda" data-revelar>
+      <h2 class="ayuda__titulo">¿Quieres verlos?</h2>
+      <p>
+        Mándanos tu lista y organizamos las visitas en una sola tarde, empezando
+        por el que más te interese.
+      </p>
+      <a class="boton" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+        Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+      </a>
+    </aside>
+  </div>
+</Base>
+
+<script>
+  import { INMUEBLES } from '../data/inmuebles';
+  import { EMPRESA, enlaceWhatsApp } from '../data/empresa';
+
+  const CLAVE = 'raiz:favoritos';
+
+  function leer(): string[] {
+    try {
+      const bruto = localStorage.getItem(CLAVE);
+      return bruto ? (JSON.parse(bruto) as string[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function pintar() {
+    const raiz = document.querySelector<HTMLElement>('[data-pagina-favoritos]');
+    if (!raiz) return;
+
+    const vacio = raiz.querySelector<HTMLElement>('[data-vacio]')!;
+    const lleno = raiz.querySelector<HTMLElement>('[data-lleno]')!;
+    const cuenta = raiz.querySelector<HTMLElement>('[data-cuenta]')!;
+    const compartir = raiz.querySelector<HTMLAnchorElement>('[data-compartir]')!;
+    const vaciar = raiz.querySelector<HTMLButtonElement>('[data-vaciar]')!;
+
+    const guardados = leer();
+
+    for (const hueco of raiz.querySelectorAll<HTMLElement>('[data-inmueble]')) {
+      hueco.hidden = !guardados.includes(hueco.dataset.inmueble!);
+    }
+
+    vacio.hidden = guardados.length > 0;
+    lleno.hidden = guardados.length === 0;
+
+    cuenta.textContent =
+      guardados.length === 1 ? '1 inmueble guardado' : `${guardados.length} inmuebles guardados`;
+
+    // El mensaje lleva la lista ya escrita: el comercial sabe de que se habla
+    // sin tener que preguntar referencias una por una.
+    const lista = guardados
+      .map((id) => INMUEBLES.find((i) => i.id === id))
+      .filter(Boolean)
+      .map((i) => `${i!.id.toUpperCase()} (${i!.titulo}, ${i!.zona})`)
+      .join('; ');
+
+    compartir.href = enlaceWhatsApp(
+      EMPRESA.whatsappCitas,
+      `Hola, me interesan estos inmuebles: ${lista}. Quería organizar las visitas.`,
+    );
+
+    vaciar.onclick = () => {
+      if (!confirm('¿Quitar todos los guardados?')) return;
+      try {
+        localStorage.removeItem(CLAVE);
+      } catch {
+        /* sin almacenamiento no hay nada que borrar */
+      }
+      pintar();
+    };
+  }
+
+  pintar();
+  document.addEventListener('astro:after-swap', pintar);
+  // Al quitar un corazon desde esta misma pagina hay que repintar.
+  document.addEventListener('click', (evento) => {
+    if ((evento.target as HTMLElement)?.closest('[data-favorito]')) {
+      setTimeout(pintar, 0);
+    }
+  });
+</script>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .vacio {
+    padding: var(--e-16) var(--e-8);
+    border: 1px dashed var(--arena-honda);
+    border-radius: var(--radio-grande);
+    text-align: center;
+  }
+
+  .vacio__icono {
+    width: 3.4rem;
+    height: 3.4rem;
+    margin-inline: auto;
+    color: var(--laton);
+  }
+
+  .vacio__titulo {
+    margin-block: var(--e-4) var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .vacio__texto {
+    margin-inline: auto;
+    color: var(--texto-suave);
+  }
+
+  .vacio__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    justify-content: center;
+    margin-top: var(--e-8);
+  }
+
+  .barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-4);
+    margin-bottom: var(--e-8);
+    padding-bottom: var(--e-4);
+    border-bottom: 1px solid var(--arena-honda);
+  }
+
+  .barra__cuenta {
+    font-weight: 700;
+  }
+
+  .barra__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--e-3);
+  }
+
+  .barra__vaciar {
+    padding: var(--e-2) var(--e-4);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-pildora);
+    background: none;
+    font-size: var(--t-micro);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .barra__vaciar:hover {
+      background: var(--grafito);
+      border-color: var(--grafito);
+      color: var(--texto-claro);
+    }
+  }
+
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: var(--e-6);
+  }
+
+  .rejilla__hueco[hidden] {
+    display: none;
+  }
+
+  .ayuda {
+    margin-top: var(--e-16);
+    padding: var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--arena-honda);
+    text-align: center;
+  }
+
+  .ayuda__titulo {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .ayuda p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+  }
+
+  @media (max-width: 30rem) {
+    .barra {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .barra__acciones {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .vacio {
+      padding: var(--e-12) var(--e-6);
+    }
+
+    .vacio__acciones {
+      flex-direction: column;
+    }
+  }
+</style>

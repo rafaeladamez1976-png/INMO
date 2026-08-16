@@ -6,12 +6,11 @@ import Tablon from '../../components/Tablon.astro';
 import {
   OFICINAS,
   HORARIO,
-  EMPRESA,
   telefonoLegible,
   enlaceTelefono,
   enlaceWhatsApp,
 } from '../../data/empresa';
-import { INMUEBLES, porId } from '../../data/inmuebles';
+import { INMUEBLES } from '../../data/inmuebles';
 import { BARRIOS, precioMetro } from '../../data/barrios';
 
 export function getStaticPaths() {
@@ -31,7 +30,6 @@ const foto = fotos[`../../assets/inmuebles/${oficina.foto}.jpg`]?.default;
 
 /** Inmuebles que gestiona esta oficina. */
 const cartera = INMUEBLES.filter((i) => i.oficina === oficina.id);
-const destacado = porId(oficina.destacado);
 
 /** Datos del barrio principal, si lo tenemos comparado. */
 const barrio = BARRIOS.find((b) => b.oficina === oficina.id);

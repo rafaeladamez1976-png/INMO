@@ -37,7 +37,8 @@ export const SECUNDARIOS: Enlace[] = [
     texto: 'Trabaja con nosotros',
     descripcion: 'Únete al equipo',
   },
-  { href: '/noticias', texto: 'Noticias', descripcion: 'Mercado y consejos' },
+  { href: '/noticias', texto: 'Noticias', descripcion: 'Novedades de las oficinas' },
+  { href: '/favoritos', texto: 'Tus favoritos', descripcion: 'Los inmuebles que has guardado' },
 ];
 
 /** Enlaces legales, solo en el pie. */
