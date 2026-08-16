@@ -2,6 +2,8 @@
 import { Image } from 'astro:assets';
 import type { Inmueble } from '../data/inmuebles';
 import { OPERACIONES, TIPOS, precioLegible } from '../data/inmuebles';
+import Energia from './Energia.astro';
+import { euros } from '../lib/hipoteca';
 
 interface Props {
   inmueble: Inmueble;
@@ -77,6 +79,15 @@ const foto = fotos[`../assets/inmuebles/${inmueble.imagen}.jpg`]?.default;
       <li>{inmueble.metros} m²</li>
       {inmueble.planta && <li>{inmueble.planta}</li>}
     </ul>
+
+    <p class="ficha__energia">
+      <Energia energia={inmueble.energia} forma="sello" />
+      {
+        operacion === 'venta' && inmueble.metros > 0 && (
+          <span class="ficha__metro">{euros(inmueble.precio / inmueble.metros)}/m²</span>
+        )
+      }
+    </p>
 
     <ul class="ficha__extras">
       {inmueble.extras.map((extra) => <li>{extra}</li>)}
@@ -302,6 +313,25 @@ const foto = fotos[`../assets/inmuebles/${inmueble.imagen}.jpg`]?.default;
     content: '·';
     margin-right: var(--e-3);
     color: var(--arena-honda);
+  }
+
+  /* La letra energética y el precio por metro: los dos datos con los que
+     compara quien lleva semanas mirando pisos. */
+  .ficha__energia {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-2);
+    margin-bottom: var(--e-4);
+    padding-top: var(--e-3);
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .ficha__metro {
+    font-size: var(--t-micro);
+    font-variant-numeric: tabular-nums;
+    color: var(--texto-suave);
   }
 
   .ficha__extras {

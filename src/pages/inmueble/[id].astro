@@ -17,7 +17,8 @@ import {
   enlaceTelefono,
   enlaceWhatsApp,
 } from '../../data/empresa';
-import { calcular, euros } from '../../lib/hipoteca';
+import Energia from '../../components/Energia.astro';
+import { calcular, euros, desglosarGastos } from '../../lib/hipoteca';
 import { tourDe } from '../../data/tours';
 
 export function getStaticPaths() {
@@ -59,6 +60,16 @@ const hipoteca =
         interes: 3.2,
       })
     : null;
+
+/**
+ * Gastos de compra, desglosados. Solo en venta: en alquiler no hay ITP ni
+ * notaría, y poner la tabla ahí sería confundir a quien alquila.
+ */
+const gastos = operacion === 'venta' ? desglosarGastos(inmueble.precio) : null;
+const totalGastos = gastos ? gastos.reduce((t, g) => t + g.importe, 0) : 0;
+
+/** Precio por metro: el dato con el que se compara de verdad. */
+const precioMetro = inmueble.metros > 0 ? inmueble.precio / inmueble.metros : 0;
 
 const mensajeVisita = `Hola, me interesa el inmueble ${inmueble.id} (${inmueble.titulo}, ${inmueble.zona}). Quería concertar una visita.`;
 
@@ -156,6 +167,55 @@ const estancias = tourDe(tipo);
           </ul>
         </section>
 
+        <section class="energia">
+          <Energia energia={inmueble.energia} />
+        </section>
+
+        {
+          gastos && (
+            <section class="gastos">
+              <h2 class="apartado">Lo que cuesta de verdad comprarlo</h2>
+              <p class="gastos__entrada">
+                Al precio hay que sumarle impuestos y papeleo. Aquí está el
+                desglose para vivienda usada en la Comunidad de Madrid, para que
+                nadie se lleve la sorpresa en la notaría.
+              </p>
+
+              <ul class="gastos__lista">
+                {gastos.map((gasto) => (
+                  <li class="gasto">
+                    <div class="gasto__linea">
+                      <span class="gasto__concepto">{gasto.concepto}</span>
+                      <span class="gasto__importe">{euros(gasto.importe)}</span>
+                    </div>
+                    <p class="gasto__nota">{gasto.nota}</p>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="gastos__suma">
+                <div class="gastos__linea">
+                  <span>Precio del inmueble</span>
+                  <span>{euros(inmueble.precio)}</span>
+                </div>
+                <div class="gastos__linea">
+                  <span>Gastos e impuestos</span>
+                  <span>{euros(totalGastos)}</span>
+                </div>
+                <div class="gastos__linea gastos__linea--total">
+                  <span>Desembolso total</span>
+                  <span>{euros(inmueble.precio + totalGastos)}</span>
+                </div>
+              </div>
+
+              <p class="gastos__pie">
+                Cifras orientativas de agosto de 2026. La obra nueva tributa
+                distinto: paga IVA del 10 % en lugar de ITP.
+              </p>
+            </section>
+          )
+        }
+
         <Tour estancias={estancias} />
       </div>
 
@@ -166,6 +226,12 @@ const estancias = tourDe(tipo);
           <p class="tarjeta__precio">
             {precioLegible(inmueble.precio)}<span>{OPERACIONES[operacion].sufijo}</span>
           </p>
+
+          {
+            operacion === 'venta' && precioMetro > 0 && (
+              <p class="tarjeta__metro">{euros(precioMetro)} el m² útil</p>
+            )
+          }
 
           {
             hipoteca && (
@@ -218,6 +284,63 @@ const estancias = tourDe(tipo);
         </section>
       )
     }
+  </div>
+
+  <!--
+    Barra de acciones de móvil.
+
+    En pantalla pequeña la tarjeta de contacto queda al final de una página
+    larga: quien llega por el móvil se lee la descripción, el certificado y los
+    gastos, y para llamar tiene que seguir bajando. Todos los portales tienen
+    esta barra; sin ella la versión de móvil pierde de hecho el contacto.
+  -->
+  <div class="acciones" data-acciones>
+    <div class="acciones__precio">
+      <p class="acciones__cifra">
+        {precioLegible(inmueble.precio)}<span>{OPERACIONES[operacion].sufijo}</span>
+      </p>
+      {
+        hipoteca && <p class="acciones__cuota">{euros(hipoteca.cuota)}/mes orientativo</p>
+      }
+    </div>
+
+    <div class="acciones__botones">
+      <button
+        class="acciones__guardar"
+        type="button"
+        data-favorito={inmueble.id}
+        aria-pressed="false"
+        aria-label="Guardar en favoritos"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 20s-7-4.4-7-9.3A4 4 0 0 1 12 8a4 4 0 0 1 7-2.7c0 4.9-7 9.3-7 9.3Z"
+            transform="translate(0 1)"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"></path>
+        </svg>
+      </button>
+
+      <a class="acciones__llamar" href={enlaceTelefono(oficina.telefonos[0])} aria-label="Llamar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 5.2 2 2 0 0 1 6.5 3Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+
+      <a
+        class="acciones__visita"
+        href={enlaceWhatsApp(EMPRESA.whatsappCitas, mensajeVisita)}
+      >
+        Pedir visita
+      </a>
+    </div>
   </div>
 </Base>
 
@@ -527,5 +650,220 @@ const estancias = tourDe(tipo);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
     gap: var(--e-6);
+  }
+
+  /* ---- Certificado energético ---- */
+
+  .energia {
+    margin-top: var(--e-12);
+  }
+
+  /* ---- Gastos de compra ---- */
+
+  .gastos {
+    margin-top: var(--e-12);
+  }
+
+  .gastos__entrada {
+    max-width: 40rem;
+    margin-bottom: var(--e-6);
+    color: var(--texto-suave);
+  }
+
+  .gastos__lista {
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .gasto {
+    padding-block: var(--e-4);
+    border-bottom: 1px solid var(--arena-honda);
+  }
+
+  .gasto__linea {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-4);
+  }
+
+  .gasto__concepto {
+    font-weight: 700;
+  }
+
+  .gasto__importe {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.15rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .gasto__nota {
+    max-width: 42rem;
+    margin-top: 0.25em;
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .gastos__suma {
+    margin-top: var(--e-6);
+    padding: var(--e-5) var(--e-6);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .gastos__linea {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-4);
+    padding-block: var(--e-2);
+    font-size: var(--t-pequeno);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gastos__linea--total {
+    margin-top: var(--e-2);
+    padding-top: var(--e-4);
+    border-top: 1px solid rgba(244, 240, 233, 0.2);
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--laton-claro);
+  }
+
+  .gastos__pie {
+    margin-top: var(--e-4);
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  .tarjeta__metro {
+    margin-top: -0.4em;
+    margin-bottom: var(--e-4);
+    font-size: var(--t-micro);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #cfc9bd;
+  }
+
+  /* ---- Barra de acciones de móvil ---- */
+
+  .acciones {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-4);
+    padding: var(--e-3) var(--e-4);
+    /* El hueco del gesto de inicio en los móviles sin botón físico. */
+    padding-bottom: calc(var(--e-3) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--arena-honda);
+    background: rgba(244, 240, 233, 0.97);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 -8px 28px var(--sombra);
+  }
+
+  .acciones__cifra {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .acciones__cifra span {
+    font-family: var(--fuente-texto);
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--texto-suave);
+  }
+
+  .acciones__cuota {
+    font-size: 0.65rem;
+    color: var(--texto-suave);
+  }
+
+  .acciones__botones {
+    display: flex;
+    align-items: center;
+    gap: var(--e-2);
+  }
+
+  .acciones__guardar,
+  .acciones__llamar {
+    display: grid;
+    place-items: center;
+    width: 2.9rem;
+    height: 2.9rem;
+    border: 1px solid var(--arena-honda);
+    border-radius: 50%;
+    background: var(--papel);
+    color: var(--texto);
+    cursor: pointer;
+  }
+
+  .acciones__guardar svg,
+  .acciones__llamar svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .acciones__guardar[aria-pressed='true'] svg {
+    fill: var(--laton);
+    stroke: var(--laton-hondo);
+  }
+
+  .acciones__visita {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.9rem;
+    padding-inline: var(--e-5);
+    border-radius: var(--radio-pildora);
+    background: var(--laton);
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /*
+    Estos estilos solo se cargan en la ficha de inmueble, así que tocar
+    .flotante y el body aquí no afecta al resto de la web.
+
+    La barra tapa el final de la página y pisa el botón de WhatsApp: hay que
+    hacerle sitio a los dos.
+  */
+  :global(body) {
+    padding-bottom: 5rem;
+  }
+
+  :global(.flotante) {
+    bottom: 5.4rem;
+  }
+
+  /* En escritorio manda la tarjeta lateral: la barra sobra y todo vuelve a su
+     sitio. */
+  @media (min-width: 60rem) {
+    .acciones {
+      display: none;
+    }
+
+    :global(body) {
+      padding-bottom: 0;
+    }
+
+    :global(.flotante) {
+      bottom: var(--e-4);
+    }
   }
 </style>

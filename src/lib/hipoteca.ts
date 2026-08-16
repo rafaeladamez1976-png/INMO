@@ -74,6 +74,57 @@ export function calcular(datos: Datos): Resultado {
   };
 }
 
+export interface Gasto {
+  concepto: string;
+  importe: number;
+  /** Por qué se paga. Nadie sabe qué es una gestoría hasta que se lo explican. */
+  nota: string;
+}
+
+/**
+ * Desglose de los gastos de compra de vivienda usada en Madrid.
+ *
+ * El 11 % de PORCENTAJE_GASTOS es una cifra redonda que no dice nada. Quien va
+ * a comprar necesita saber en qué se le va ese dinero, y ninguna inmobiliaria
+ * pequeña se lo cuenta.
+ *
+ * Cifras para segunda mano en la Comunidad de Madrid. La obra nueva paga IVA
+ * del 10 % más AJD en lugar de ITP, así que sale distinto.
+ */
+export const ITP_MADRID = 0.06;
+
+export function desglosarGastos(precio: number): Gasto[] {
+  const base = Math.max(precio, 0);
+
+  return [
+    {
+      concepto: 'Impuesto de transmisiones (ITP)',
+      importe: base * ITP_MADRID,
+      nota: 'El 6 % en la Comunidad de Madrid para vivienda usada. Se paga en los 30 días hábiles siguientes a la firma.',
+    },
+    {
+      concepto: 'Notaría',
+      importe: base * 0.005,
+      nota: 'La escritura pública. El arancel está fijado por ley y apenas varía entre notarios.',
+    },
+    {
+      concepto: 'Registro de la propiedad',
+      importe: base * 0.003,
+      nota: 'Inscribir que la casa es tuya. Sin esto, para el Registro sigue siendo del vendedor.',
+    },
+    {
+      concepto: 'Gestoría',
+      importe: base * 0.0025,
+      nota: 'Tramita impuestos y papeles. Es opcional si compras sin hipoteca; con hipoteca la impone el banco.',
+    },
+    {
+      concepto: 'Tasación',
+      importe: 350,
+      nota: 'Solo si pides hipoteca. Desde 2019 la paga el banco en muchos casos: pregúntalo antes de adelantarla.',
+    },
+  ];
+}
+
 /**
  * Ingresos mensuales recomendados.
  *

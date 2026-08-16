@@ -1,10 +1,22 @@
 ---
 import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
-import { PRINCIPALES, SECUNDARIOS } from '../data/navegacion';
+import { PRINCIPALES, SECUNDARIOS, LEGALES } from '../data/navegacion';
 
 const ruta = Astro.url.pathname;
 const activa = (href: string) => (href === '/' ? ruta === '/' : ruta.startsWith(href));
 const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
+
+/**
+ * Cabecera.
+ *
+ * En móvil el menú se abre a pantalla completa con TODAS las secciones a la
+ * vista. Antes era una tira que se deslizaba en horizontal, y media web quedaba
+ * fuera de pantalla sin que nada lo indicara: la calculadora existía pero no se
+ * encontraba.
+ *
+ * A partir de tablet vuelve a ser barra, con las principales visibles y el
+ * resto en un desplegable.
+ */
 ---
 
 <header class="cabecera">
@@ -25,7 +37,7 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     </a>
 
     <div class="cabecera__acciones">
-      <a class="favoritos" href="/favoritos" aria-label="Ver tus favoritos">
+      <a class="icono" href="/favoritos" aria-label="Ver tus favoritos">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M12 20s-7-4.4-7-9.3A4 4 0 0 1 12 8a4 4 0 0 1 7-2.7c0 4.9-7 9.3-7 9.3Z"
@@ -35,20 +47,31 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
             stroke-width="1.7"
             stroke-linejoin="round"></path>
         </svg>
-        <span class="favoritos__cuenta" data-favoritos-cuenta hidden>0</span>
+        <span class="icono__cuenta" data-favoritos-cuenta hidden>0</span>
       </a>
 
       <a class="telefono" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 5.2 2 2 0 0 1 6.5 3Z"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          stroke-linejoin="round"></path>
-      </svg>
-      <span>{telefonoLegible(EMPRESA.telefonoGratuito)}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 5.2 2 2 0 0 1 6.5 3Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"></path>
+        </svg>
+        <span class="telefono__numero">{telefonoLegible(EMPRESA.telefonoGratuito)}</span>
       </a>
+
+      <button
+        class="hamburguesa"
+        type="button"
+        data-abrir
+        aria-expanded="false"
+        aria-controls="menu-movil"
+      >
+        <span class="hamburguesa__lineas" aria-hidden="true"><span></span><span></span></span>
+        <span class="hamburguesa__texto">Menú</span>
+      </button>
     </div>
   </div>
 
@@ -70,16 +93,15 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
               class:list={['menu__enlace', { 'menu__enlace--activa': activa(enlace.href) }]}
               aria-current={activa(enlace.href) ? 'page' : undefined}
             >
-              <span class="menu__corto">{enlace.corto ?? enlace.texto}</span>
-              <span class="menu__largo">{enlace.texto}</span>
+              {enlace.texto}
             </a>
           </li>
         ))
       }
 
-      <li class="menu__mas">
+      <li>
         <button
-          class:list={['menu__enlace', 'menu__boton', { 'menu__enlace--activa': algunaSecundariaActiva }]}
+          class:list={['menu__enlace', { 'menu__enlace--activa': algunaSecundariaActiva }]}
           type="button"
           data-mas
           aria-expanded="false"
@@ -96,15 +118,12 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
               stroke-linejoin="round"></path>
           </svg>
         </button>
-
       </li>
     </ul>
 
     <!--
-      El panel vive FUERA de la lista a propósito: la lista tiene overflow-x
-      para poder deslizarse en móvil, y un contenedor con overflow recorta todo
-      lo que se posicione dentro. Dentro de la lista, el desplegable se abría
-      pero no se veía.
+      El panel vive fuera de la lista: un contenedor con overflow recorta todo
+      lo que se posicione dentro.
     -->
     <div class="desplegable" id="menu-secundario" data-desplegable hidden>
       <ul class="desplegable__lista">
@@ -128,58 +147,163 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
   </nav>
 </header>
 
+<!-- Menú de móvil: todas las secciones, sin nada escondido -->
+<div class="panel" id="menu-movil" data-panel hidden>
+  <div class="panel__cabeza">
+    <p class="panel__marca">{EMPRESA.nombre}</p>
+    <button class="panel__cerrar" type="button" data-cerrar aria-label="Cerrar menú">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="m6 6 12 12M18 6 6 18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="panel__nav" aria-label="Todas las secciones">
+    <p class="panel__grupo">Buscar</p>
+    <ul class="panel__lista">
+      <li>
+        <a href="/" class:list={['panel__enlace', { 'panel__enlace--activa': activa('/') }]}>
+          <span>Inicio</span>
+        </a>
+      </li>
+      {
+        PRINCIPALES.map((enlace) => (
+          <li>
+            <a
+              href={enlace.href}
+              class:list={['panel__enlace', { 'panel__enlace--activa': activa(enlace.href) }]}
+            >
+              <span>{enlace.texto}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="panel__grupo">La empresa</p>
+    <ul class="panel__lista">
+      {
+        SECUNDARIOS.map((enlace) => (
+          <li>
+            <a
+              href={enlace.href}
+              class:list={['panel__enlace', { 'panel__enlace--activa': activa(enlace.href) }]}
+            >
+              <span>{enlace.texto}</span>
+              {enlace.descripcion && <em>{enlace.descripcion}</em>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="panel__pie">
+      <a class="boton boton--laton panel__cta" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+        Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+      </a>
+      <ul class="panel__legal">
+        {
+          LEGALES.map((enlace) => (
+            <li>
+              <a href={enlace.href}>{enlace.texto}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </nav>
+</div>
+
 <script>
   /**
-   * Desplegable de "Mas".
+   * Menú de móvil y desplegable de "Más".
    *
-   * Las escuchas globales se registran una sola vez, aunque activarMenu() se
-   * llame otra vez al navegar: si no, se acumulan y el panel se cierra solo
-   * nada mas abrirlo.
+   * Las escuchas globales se registran una sola vez aunque activarMenu() se
+   * llame de nuevo al navegar: si no, se acumulan y el panel se cierra solo
+   * nada más abrirlo.
    */
   let enganchado = false;
 
   function activarMenu() {
+    const panel = document.querySelector<HTMLElement>('[data-panel]');
+    const abrir = document.querySelector<HTMLButtonElement>('[data-abrir]');
+    const cerrar = document.querySelector<HTMLButtonElement>('[data-cerrar]');
     const boton = document.querySelector<HTMLButtonElement>('[data-mas]');
-    const panel = document.querySelector<HTMLElement>('[data-desplegable]');
-    if (!boton || !panel) return;
+    const secundario = document.querySelector<HTMLElement>('[data-desplegable]');
 
-    const cerrar = () => {
-      if (panel.hidden) return;
-      panel.hidden = true;
-      boton.setAttribute('aria-expanded', 'false');
-    };
+    if (panel && abrir && cerrar) {
+      abrir.addEventListener('click', () => {
+        panel.hidden = false;
+        abrir.setAttribute('aria-expanded', 'true');
+        // Sin esto se hace scroll de la página por detrás del panel.
+        document.body.style.overflow = 'hidden';
+        cerrar.focus();
+      });
 
-    boton.addEventListener('click', (evento) => {
-      evento.stopPropagation();
-      const abierto = !panel.hidden;
-      panel.hidden = abierto;
-      boton.setAttribute('aria-expanded', String(!abierto));
-    });
+      cerrar.addEventListener('click', () => {
+        panel.hidden = true;
+        abrir.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        abrir.focus();
+      });
+
+      // Al pulsar un enlace se cierra: si no, al volver con el botón atrás el
+      // panel sigue abierto y tapa la página.
+      for (const enlace of panel.querySelectorAll('a')) {
+        enlace.addEventListener('click', () => {
+          panel.hidden = true;
+          document.body.style.overflow = '';
+        });
+      }
+    }
+
+    if (boton && secundario) {
+      boton.addEventListener('click', (evento) => {
+        evento.stopPropagation();
+        const abierto = !secundario.hidden;
+        secundario.hidden = abierto;
+        boton.setAttribute('aria-expanded', String(!abierto));
+      });
+    }
 
     if (enganchado) return;
     enganchado = true;
 
     document.addEventListener('click', (evento) => {
-      const panelVivo = document.querySelector<HTMLElement>('[data-desplegable]');
-      const botonVivo = document.querySelector<HTMLButtonElement>('[data-mas]');
-      if (!panelVivo || !botonVivo || panelVivo.hidden) return;
+      const vivo = document.querySelector<HTMLElement>('[data-desplegable]');
+      const suBoton = document.querySelector<HTMLButtonElement>('[data-mas]');
+      if (!vivo || !suBoton || vivo.hidden) return;
 
       const destino = evento.target as Node;
-      if (!panelVivo.contains(destino) && !botonVivo.contains(destino)) {
-        panelVivo.hidden = true;
-        botonVivo.setAttribute('aria-expanded', 'false');
+      if (!vivo.contains(destino) && !suBoton.contains(destino)) {
+        vivo.hidden = true;
+        suBoton.setAttribute('aria-expanded', 'false');
       }
     });
 
     document.addEventListener('keydown', (evento) => {
       if (evento.key !== 'Escape') return;
-      const panelVivo = document.querySelector<HTMLElement>('[data-desplegable]');
-      const botonVivo = document.querySelector<HTMLButtonElement>('[data-mas]');
-      if (!panelVivo || panelVivo.hidden) return;
-      panelVivo.hidden = true;
-      botonVivo?.setAttribute('aria-expanded', 'false');
-      // El foco vuelve al boton: si no, se pierde al final del documento.
-      botonVivo?.focus();
+
+      const panelVivo = document.querySelector<HTMLElement>('[data-panel]');
+      if (panelVivo && !panelVivo.hidden) {
+        panelVivo.hidden = true;
+        document.body.style.overflow = '';
+        document.querySelector<HTMLButtonElement>('[data-abrir]')?.focus();
+        return;
+      }
+
+      const vivo = document.querySelector<HTMLElement>('[data-desplegable]');
+      if (vivo && !vivo.hidden) {
+        vivo.hidden = true;
+        const suBoton = document.querySelector<HTMLButtonElement>('[data-mas]');
+        suBoton?.setAttribute('aria-expanded', 'false');
+        suBoton?.focus();
+      }
     });
   }
 
@@ -195,6 +319,9 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     background: rgba(244, 240, 233, 0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--arena-honda);
+    transition:
+      padding var(--dur-media) var(--curva),
+      box-shadow var(--dur-media) var(--curva);
   }
 
   .cabecera__interior {
@@ -202,7 +329,7 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     align-items: center;
     justify-content: space-between;
     gap: var(--e-4);
-    padding-block: var(--e-3) var(--e-2);
+    padding-block: var(--e-3);
   }
 
   .marca {
@@ -214,8 +341,8 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
   }
 
   .marca__icono {
-    width: 2rem;
-    height: 2rem;
+    width: 1.9rem;
+    height: 1.9rem;
     color: var(--laton);
     flex-shrink: 0;
   }
@@ -224,7 +351,7 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     display: block;
     font-family: var(--fuente-titular);
     font-variation-settings: 'SOFT' 10, 'opsz' 96;
-    font-size: 1.5rem;
+    font-size: 1.45rem;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
@@ -232,8 +359,8 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
   .marca__bajada {
     display: block;
     margin-top: 0.2em;
-    font-size: 0.58rem;
-    letter-spacing: 0.28em;
+    font-size: 0.55rem;
+    letter-spacing: 0.26em;
     text-transform: uppercase;
     color: var(--laton-hondo);
   }
@@ -244,7 +371,7 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     gap: var(--e-2);
   }
 
-  .favoritos {
+  .icono {
     position: relative;
     display: grid;
     place-items: center;
@@ -255,19 +382,19 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     transition: background-color var(--dur-corta) var(--curva);
   }
 
-  .favoritos svg {
-    width: 1.35rem;
-    height: 1.35rem;
+  .icono svg {
+    width: 1.3rem;
+    height: 1.3rem;
   }
 
   @media (hover: hover) {
-    .favoritos:hover {
+    .icono:hover {
       background: var(--arena-honda);
     }
   }
 
   /* La cuenta solo aparece cuando hay algo guardado. */
-  .favoritos__cuenta {
+  .icono__cuenta {
     position: absolute;
     top: 0;
     right: 0;
@@ -283,26 +410,12 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     font-weight: 700;
   }
 
-  /* En pantalla estrecha el telefono se reduce al icono: el numero completo
-     empujaria la marca fuera de sitio. */
-  @media (max-width: 30rem) {
-    .telefono span {
-      display: none;
-    }
-
-    .telefono {
-      width: 2.6rem;
-      padding: 0;
-      justify-content: center;
-      border-radius: 50%;
-    }
-  }
-
   .telefono {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: var(--e-2);
-    min-height: 2.4rem;
+    min-height: 2.6rem;
     padding: var(--e-2) var(--e-4);
     border-radius: var(--radio-pildora);
     background: var(--grafito);
@@ -326,31 +439,47 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     }
   }
 
+  .hamburguesa {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-2);
+    min-height: 2.6rem;
+    padding: var(--e-2) var(--e-4);
+    border: 1px solid var(--grafito-suave);
+    border-radius: var(--radio-pildora);
+    background: none;
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .hamburguesa__lineas {
+    display: grid;
+    gap: 4px;
+    width: 1.1rem;
+  }
+
+  .hamburguesa__lineas span {
+    display: block;
+    height: 2px;
+    border-radius: 1px;
+    background: currentColor;
+  }
+
+  /* ---- Barra de escritorio ---- */
+
   .nav {
     position: relative;
+    display: none;
     border-top: 1px solid var(--arena-honda);
   }
 
   .menu {
     display: flex;
-    /* "safe center" centra cuando cabe y deja de centrar cuando no: sin el
-       "safe", al desbordar se cortarian los primeros enlaces. */
-    justify-content: safe center;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: var(--e-1);
     margin: 0;
-    /* En móvil se desliza: son siete destinos y no caben de otra forma sin
-       partirlos en tres filas que se comerían la pantalla. */
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .menu::-webkit-scrollbar {
-    display: none;
-  }
-
-  .menu > li {
-    flex: 0 0 auto;
   }
 
   .menu__enlace {
@@ -358,13 +487,12 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     align-items: center;
     gap: var(--e-1);
     min-height: 3.2rem;
-    padding: var(--e-3) var(--e-4);
+    padding: var(--e-3) var(--e-6);
     border: 0;
     border-bottom: 2px solid transparent;
     background: none;
-    font-size: 0.95rem;
+    font-size: 1.02rem;
     font-weight: 600;
-    letter-spacing: 0.01em;
     text-decoration: none;
     white-space: nowrap;
     color: var(--texto-suave);
@@ -372,32 +500,6 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     transition:
       color var(--dur-corta) var(--curva),
       border-color var(--dur-corta) var(--curva);
-  }
-
-  .menu__largo {
-    display: none;
-  }
-
-  @media (min-width: 34rem) {
-    .menu__corto {
-      display: none;
-    }
-
-    .menu__largo {
-      display: inline;
-    }
-
-    .menu__enlace {
-      padding-inline: var(--e-6);
-      font-size: 1.02rem;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .menu__enlace {
-      font-size: 1.08rem;
-      padding-inline: var(--e-8);
-    }
   }
 
   .menu__enlace--activa {
@@ -422,7 +524,7 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     top: calc(100% - 1px);
     right: max(1rem, calc((100% - var(--ancho-pagina)) / 2 + 2rem));
     z-index: 40;
-    min-width: 17rem;
+    min-width: 18rem;
     padding: var(--e-2);
     border: 1px solid var(--arena-honda);
     border-radius: var(--radio);
@@ -472,5 +574,163 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     margin-top: 0.15em;
     font-size: var(--t-micro);
     color: var(--texto-suave);
+  }
+
+  /* A partir de 62rem cabe la barra entera sin recortar nada. */
+  @media (min-width: 62rem) {
+    .nav {
+      display: block;
+    }
+
+    .hamburguesa {
+      display: none;
+    }
+  }
+
+  @media (max-width: 26rem) {
+    .telefono__numero {
+      display: none;
+    }
+
+    .telefono {
+      width: 2.6rem;
+      padding: 0;
+    }
+
+    .hamburguesa__texto {
+      display: none;
+    }
+
+    .hamburguesa {
+      width: 2.6rem;
+      padding: 0;
+      justify-content: center;
+    }
+  }
+
+  /* ---- Panel de móvil ---- */
+
+  .panel {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    background: var(--grafito);
+    color: var(--texto-claro);
+    overflow-y: auto;
+    animation: entrarPanel var(--dur-media) var(--curva);
+  }
+
+  @keyframes entrarPanel {
+    from {
+      opacity: 0;
+      transform: translateY(-14px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel {
+      animation: none;
+    }
+  }
+
+  .panel__cabeza {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--e-4) var(--e-6);
+    border-bottom: 1px solid rgba(244, 240, 233, 0.16);
+  }
+
+  .panel__marca {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .panel__cerrar {
+    display: grid;
+    place-items: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border: 1px solid rgba(244, 240, 233, 0.28);
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .panel__cerrar svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .panel__nav {
+    flex: 1;
+    padding: var(--e-6);
+  }
+
+  .panel__grupo {
+    margin-bottom: var(--e-3);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--laton-claro);
+  }
+
+  .panel__lista {
+    margin-bottom: var(--e-8);
+    border-top: 1px solid rgba(244, 240, 233, 0.14);
+  }
+
+  .panel__enlace {
+    display: block;
+    padding-block: var(--e-4);
+    border-bottom: 1px solid rgba(244, 240, 233, 0.14);
+    text-decoration: none;
+  }
+
+  .panel__enlace span {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .panel__enlace em {
+    display: block;
+    margin-top: 0.15em;
+    font-style: normal;
+    font-size: var(--t-micro);
+    color: #9a948a;
+  }
+
+  .panel__enlace--activa span {
+    color: var(--laton-claro);
+  }
+
+  .panel__pie {
+    padding-top: var(--e-6);
+    border-top: 1px solid rgba(244, 240, 233, 0.16);
+  }
+
+  .panel__cta {
+    width: 100%;
+  }
+
+  .panel__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-4);
+    margin-top: var(--e-6);
+    font-size: var(--t-micro);
+  }
+
+  .panel__legal a {
+    color: #9a948a;
   }
 </style>

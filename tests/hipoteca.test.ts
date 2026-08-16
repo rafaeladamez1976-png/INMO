@@ -3,6 +3,7 @@ import {
   calcular,
   ingresosRecomendados,
   euros,
+  desglosarGastos,
   PORCENTAJE_GASTOS,
   RATIO_ENDEUDAMIENTO,
 } from '../src/lib/hipoteca';
@@ -100,5 +101,39 @@ describe('presentación', () => {
     expect(euros(1234.56)).toBe('1235 €');
     expect(euros(189000)).toBe('189.000 €');
     expect(euros(0)).toBe('0 €');
+  });
+});
+
+describe('desglose de gastos de compra', () => {
+  it('cobra el 6 % de ITP de Madrid sobre el precio', () => {
+    const g = desglosarGastos(200000);
+    const itp = g.find((x) => x.concepto.includes('ITP'));
+    expect(itp?.importe).toBe(12000);
+  });
+
+  it('no se aleja del porcentaje global que usa la calculadora', () => {
+    // El desglose y el 11 % redondo tienen que contar la misma historia: si se
+    // separan, la ficha del inmueble y la calculadora dirian cosas distintas.
+    const precio = 250000;
+    const suma = desglosarGastos(precio).reduce((t, g) => t + g.importe, 0);
+    const global = precio * PORCENTAJE_GASTOS;
+    expect(Math.abs(suma - global) / global).toBeLessThan(0.4);
+  });
+
+  it('todos los conceptos explican por que se pagan', () => {
+    for (const g of desglosarGastos(180000)) {
+      expect(g.nota.length).toBeGreaterThan(20);
+    }
+  });
+
+  it('con precio cero solo queda la tasacion, que es importe fijo', () => {
+    const g = desglosarGastos(0);
+    expect(g.filter((x) => x.importe > 0)).toHaveLength(1);
+  });
+
+  it('no devuelve importes negativos con un precio negativo', () => {
+    for (const g of desglosarGastos(-5000)) {
+      expect(g.importe).toBeGreaterThanOrEqual(0);
+    }
   });
 });

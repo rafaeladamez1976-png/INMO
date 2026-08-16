@@ -42,12 +42,24 @@ export interface Inmueble {
   descripcion: string;
   /** Lo que conviene saber antes de ir a verlo. Sin adornos. */
   aviso?: string;
+  /**
+   * Certificado energético. Obligatorio en todo anuncio inmobiliario en España
+   * desde el RD 390/2021: sin él, el anuncio es sancionable.
+   */
+  energia: {
+    letra: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
+    /** Consumo en kWh/m² al año. */
+    consumo: number;
+    /** Emisiones en kg CO₂/m² al año. */
+    emisiones: number;
+  };
   destacado?: boolean;
 }
 
 export const INMUEBLES: Inmueble[] = [
   {
     id: 'v-001',
+    energia: { letra: 'D', consumo: 118, emisiones: 26 },
     galeria: ['salon', 'cocina', 'dormitorio', 'bano'],
     oficina: 'parque-europa',
     descripcion:
@@ -71,6 +83,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-002',
+    energia: { letra: 'E', consumo: 164, emisiones: 38 },
     galeria: ['atico', 'salon', 'cocina', 'bano'],
     oficina: 'aluche',
     descripcion:
@@ -94,6 +107,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-003',
+    energia: { letra: 'D', consumo: 131, emisiones: 29 },
     galeria: ['villa', 'salon', 'cocina', 'dormitorio'],
     oficina: 'las-aguilas',
     descripcion:
@@ -114,6 +128,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-004',
+    energia: { letra: 'D', consumo: 125, emisiones: 27 },
     galeria: ['dormitorio', 'salon', 'cocina'],
     oficina: 'las-aguilas',
     descripcion:
@@ -136,6 +151,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-005',
+    energia: { letra: 'G', consumo: 271, emisiones: 62 },
     galeria: ['edificio', 'salon', 'cocina'],
     oficina: 'parque-europa',
     descripcion:
@@ -157,6 +173,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-006',
+    energia: { letra: 'E', consumo: 158, emisiones: 36 },
     galeria: ['local', 'portal'],
     oficina: 'aluche',
     descripcion:
@@ -176,6 +193,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-007',
+    energia: { letra: 'C', consumo: 84, emisiones: 18 },
     galeria: ['villa', 'salon', 'dormitorio', 'cocina'],
     oficina: 'parque-europa',
     descripcion:
@@ -195,6 +213,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-008',
+    energia: { letra: 'E', consumo: 171, emisiones: 39 },
     galeria: ['cocina', 'salon', 'dormitorio', 'bano'],
     oficina: 'san-ignacio',
     descripcion:
@@ -216,6 +235,7 @@ export const INMUEBLES: Inmueble[] = [
 
   {
     id: 'a-001',
+    energia: { letra: 'E', consumo: 155, emisiones: 35 },
     galeria: ['salon', 'cocina', 'dormitorio'],
     oficina: 'aluche',
     descripcion:
@@ -239,6 +259,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'a-002',
+    energia: { letra: 'D', consumo: 128, emisiones: 28 },
     galeria: ['villa', 'salon', 'cocina', 'dormitorio'],
     oficina: 'parque-europa',
     descripcion:
@@ -258,6 +279,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'a-003',
+    energia: { letra: 'C', consumo: 92, emisiones: 20 },
     galeria: ['bano', 'salon'],
     oficina: 'las-aguilas',
     descripcion:
@@ -278,6 +300,7 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'a-004',
+    energia: { letra: 'F', consumo: 214, emisiones: 49 },
     galeria: ['local', 'portal'],
     oficina: 'san-ignacio',
     descripcion:

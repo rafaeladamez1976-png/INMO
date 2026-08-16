@@ -1,0 +1,232 @@
+---
+import type { Inmueble } from '../data/inmuebles';
+
+interface Props {
+  energia: Inmueble['energia'];
+  /** 'sello' es la pastilla suelta; 'escala' pinta la escalera entera. */
+  forma?: 'sello' | 'escala';
+}
+
+const { energia, forma = 'escala' } = Astro.props;
+
+const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
+
+/**
+ * Certificado energético.
+ *
+ * En España es obligatorio en todo anuncio inmobiliario desde el RD 390/2021.
+ * Ninguna web de inmobiliaria pequeña lo pone, y los portales grandes sí: es de
+ * las primeras cosas que mira un comprador informado, y no ponerlo es
+ * sancionable.
+ *
+ * Se pinta la escalera de siempre, la que ya conoce todo el mundo por los
+ * electrodomésticos, con la letra del inmueble marcada.
+ */
+---
+
+{
+  forma === 'sello' ? (
+    <span class:list={['sello', `sello--${energia.letra.toLowerCase()}`]}>
+      <span class="sello__letra">{energia.letra}</span>
+      <span class="sello__texto">Energía</span>
+    </span>
+  ) : (
+    <div class="certificado">
+      <div class="certificado__cabeza">
+        <h3 class="certificado__titulo">Certificado energético</h3>
+        <p class="certificado__nota">Obligatorio por ley en todo anuncio</p>
+      </div>
+
+      <div class="escala" role="img" aria-label={`Calificación energética ${energia.letra} sobre una escala de A a G`}>
+        {LETRAS.map((letra, i) => (
+          <div
+            class:list={[
+              'peldano',
+              `peldano--${letra.toLowerCase()}`,
+              { 'peldano--suya': letra === energia.letra },
+            ]}
+            style={`--ancho: ${52 + i * 8}%; --retraso: ${i * 60}ms`}
+          >
+            <span class="peldano__letra">{letra}</span>
+            {letra === energia.letra && <span class="peldano__marca">Este inmueble</span>}
+          </div>
+        ))}
+      </div>
+
+      <dl class="certificado__cifras">
+        <div>
+          <dt>Consumo</dt>
+          <dd>
+            {energia.consumo} <span>kWh/m² año</span>
+          </dd>
+        </div>
+        <div>
+          <dt>Emisiones</dt>
+          <dd>
+            {energia.emisiones} <span>kg CO₂/m² año</span>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  )
+}
+
+<style>
+  /* ---- Sello suelto, para las tarjetas ---- */
+
+  .sello {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    padding: 0.2em 0.6em 0.2em 0.25em;
+    border-radius: var(--radio-pildora);
+    background: var(--papel);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .sello__letra {
+    display: grid;
+    place-items: center;
+    width: 1.3em;
+    height: 1.3em;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+
+  .sello--a .sello__letra { background: #1f7a3f; }
+  .sello--b .sello__letra { background: #4d9c3c; }
+  .sello--c .sello__letra { background: #96bb2c; }
+  .sello--d .sello__letra { background: #d9c024; }
+  .sello--e .sello__letra { background: #e0982a; }
+  .sello--f .sello__letra { background: #d6702a; }
+  .sello--g .sello__letra { background: #c1402c; }
+
+  /* ---- Escalera completa ---- */
+
+  .certificado {
+    padding: var(--e-6);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-grande);
+    background: var(--papel);
+  }
+
+  .certificado__cabeza {
+    margin-bottom: var(--e-5);
+  }
+
+  .certificado__titulo {
+    font-size: var(--t-medio);
+  }
+
+  .certificado__nota {
+    margin-top: 0.2em;
+    font-size: var(--t-micro);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .escala {
+    display: grid;
+    gap: 3px;
+  }
+
+  /* Cada peldaño es una flecha que crece hacia la derecha, como la etiqueta
+     de los electrodomésticos. */
+  .peldano {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: var(--ancho);
+    min-height: 1.55rem;
+    padding-left: 0.7em;
+    clip-path: polygon(0 0, calc(100% - 0.8rem) 0, 100% 50%, calc(100% - 0.8rem) 100%, 0 100%);
+    opacity: 0.34;
+    transform-origin: left;
+    animation: crecer 0.5s var(--curva) backwards;
+    animation-delay: var(--retraso);
+  }
+
+  @keyframes crecer {
+    from {
+      transform: scaleX(0.2);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .peldano {
+      animation: none;
+    }
+  }
+
+  /* Solo la del inmueble va a plena opacidad: se lee de un vistazo. */
+  .peldano--suya {
+    opacity: 1;
+  }
+
+  .peldano__letra {
+    color: #fff;
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .peldano__marca {
+    margin-left: auto;
+    margin-right: 1.4rem;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .peldano--a { background: #1f7a3f; }
+  .peldano--b { background: #4d9c3c; }
+  .peldano--c { background: #96bb2c; }
+  .peldano--d { background: #d9c024; }
+  .peldano--e { background: #e0982a; }
+  .peldano--f { background: #d6702a; }
+  .peldano--g { background: #c1402c; }
+
+  .certificado__cifras {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--e-4);
+    margin-top: var(--e-5);
+    padding-top: var(--e-5);
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .certificado__cifras dt {
+    font-size: var(--t-micro);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .certificado__cifras dd {
+    margin: 0;
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.3rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .certificado__cifras dd span {
+    font-family: var(--fuente-texto);
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--texto-suave);
+  }
+</style>
