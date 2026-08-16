@@ -14,7 +14,7 @@
  */
 
 const MARCA = {
-  nombre: 'Raíz',
+  nombre: 'Umbral',
   descriptor: 'Inmobiliaria',
 } as const;
 
@@ -39,7 +39,7 @@ export const EMPRESA = {
 
   telefonoGratuito: '900701034',
   telefonoMovil: '648900215',
-  emailGeneral: 'info@raizinmobiliaria.es',
+  emailGeneral: 'info@umbralinmobiliaria.es',
 
   /** WhatsApp de citas: el que atiende la agenda. */
   whatsappCitas: '669152412',
@@ -56,7 +56,7 @@ export const OFICINAS: Oficina[] = [
     direccion: 'C/ Fuente de Lima 19, Local B',
     cp: '28024',
     telefonos: ['917060416', '615750579'],
-    email: 'info@raizinmobiliaria.es',
+    email: 'info@umbralinmobiliaria.es',
     sede: true,
     mapa: { x: -3.2, z: -2.4 },
   },
@@ -67,7 +67,7 @@ export const OFICINAS: Oficina[] = [
     direccion: 'C/ Tembleque 111',
     cp: '28024',
     telefonos: ['915099717', '660857803'],
-    email: 'campamento@raizinmobiliaria.es',
+    email: 'campamento@umbralinmobiliaria.es',
     mapa: { x: 2.6, z: -3.1 },
   },
   {
@@ -77,7 +77,7 @@ export const OFICINAS: Oficina[] = [
     direccion: 'C/ José de Cadalso 53',
     cp: '28044',
     telefonos: ['911377269', '648714915'],
-    email: 'lasaguilas@raizinmobiliaria.es',
+    email: 'lasaguilas@umbralinmobiliaria.es',
     mapa: { x: -2.1, z: 3.0 },
   },
   {
@@ -87,7 +87,7 @@ export const OFICINAS: Oficina[] = [
     direccion: 'C/ Oliva de Plasencia 1',
     cp: '28044',
     telefonos: ['910149563', '638499936'],
-    email: 'sanignacio@raizinmobiliaria.es',
+    email: 'sanignacio@umbralinmobiliaria.es',
     mapa: { x: 3.4, z: 2.2 },
   },
 ];

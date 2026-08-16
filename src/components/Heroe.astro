@@ -47,10 +47,18 @@ const SELLOS = [
 
     <h1 class="heroe__titular">
       {
+        /*
+          El espacio entre <span> es un carácter real, no solo margen CSS.
+          Con margen suelto se veía bien pero el texto salía pegado:
+          "Encuentratulugarideal" para un lector de pantalla, para quien copia
+          el titular y para Google.
+        */
         titulo.map((palabra, i) => (
-          <span class="heroe__palabra" data-entrada data-entrada-retraso={120 + i * 110}>
-            {palabra}
-          </span>
+          <>
+            <span class="heroe__palabra" data-entrada data-entrada-retraso={120 + i * 110}>
+              {palabra}
+            </span>{' '}
+          </>
         ))
       }
       <span class="heroe__palabra heroe__acento" data-entrada data-entrada-retraso="450">
@@ -64,7 +72,7 @@ const SELLOS = [
     </p>
 
     <div class="heroe__acciones" data-entrada data-entrada-retraso="720">
-      <a class="boton boton--laton heroe__cta" href="/inmuebles">
+      <a class="boton boton--laton heroe__cta" href="/venta">
         Ver propiedades
         <svg viewBox="0 0 24 24" aria-hidden="true" class="heroe__flecha">
           <path
@@ -76,7 +84,7 @@ const SELLOS = [
             stroke-linejoin="round"></path>
         </svg>
       </a>
-      <a class="boton boton--linea heroe__linea" href="/vender">Vender mi casa</a>
+      <a class="boton boton--linea heroe__linea" href="/valoracion">Vender mi casa</a>
     </div>
 
     <dl class="heroe__cifras" data-entrada data-entrada-retraso="850">
@@ -213,7 +221,6 @@ const SELLOS = [
 
   .heroe__palabra {
     display: inline-block;
-    margin-right: 0.24em;
   }
 
   .heroe__acento {

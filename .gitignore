@@ -3,3 +3,7 @@ dist/
 .astro/
 .env
 *.log
+
+# Claves y configuracion local: nunca al repositorio
+.mcp.json
+.env*

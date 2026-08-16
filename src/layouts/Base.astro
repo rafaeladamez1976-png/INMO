@@ -59,8 +59,15 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
 
     <script>
       import { activarAnimaciones } from '../scripts/animaciones';
-      activarAnimaciones();
-      document.addEventListener('astro:after-swap', activarAnimaciones);
+      import { activarPremium } from '../scripts/premium';
+
+      const arrancar = () => {
+        activarAnimaciones();
+        activarPremium();
+      };
+
+      arrancar();
+      document.addEventListener('astro:after-swap', arrancar);
     </script>
   </body>
 </html>

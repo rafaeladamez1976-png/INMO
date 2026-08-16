@@ -1,4 +1,4 @@
-# Raiz Inmobiliaria — maqueta
+# Umbral Inmobiliaria — maqueta
 
 Maqueta de demostracion de una web inmobiliaria premium con 3D.
 
@@ -23,7 +23,7 @@ Abre http://localhost:4322
 | `npm run preview` | Sirve lo generado |
 | `npm test` | Ejecuta los tests |
 
-## Las 14 paginas
+## Las 13 paginas
 
 | Ruta | Que es |
 |---|---|
@@ -40,7 +40,6 @@ Abre http://localhost:4322
 | `/trabaja-con-nosotros` | Empleo |
 | `/noticias` | Revista |
 | `/privacidad` | Politica de privacidad |
-| `/canal-denuncias` | Canal de denuncias (Ley 2/2023) |
 
 ## Como esta construido
 
@@ -69,8 +68,6 @@ Abre http://localhost:4322
 
 ## Cosas que no son funcionales en la maqueta
 
-- **El canal de denuncias** es informativo. Uno real exige un sistema con
-  anonimato garantizado y trazabilidad; montarlo mal expone a sancion.
 - **La politica de privacidad** es un borrador que debe revisar un abogado.
 - **Los testimonios y las noticias** son ejemplos.
 - **Las fotografias** estan generadas para la maqueta.

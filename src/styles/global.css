@@ -225,3 +225,102 @@ ol {
   height: 1px;
   background: currentColor;
 }
+
+
+/* ---- Acabado premium ---- */
+
+/* La cabecera se compacta al bajar y devuelve pantalla al lector. */
+.cabecera {
+  transition:
+    padding var(--dur-media) var(--curva),
+    box-shadow var(--dur-media) var(--curva);
+}
+
+.cabecera--compacta {
+  box-shadow: 0 6px 26px var(--sombra);
+}
+
+.cabecera--compacta .cabecera__interior {
+  padding-block: var(--e-2) var(--e-1);
+}
+
+.cabecera--compacta .marca__bajada {
+  /* Se pliega en vertical en lugar de desaparecer de golpe. */
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  overflow: hidden;
+}
+
+.marca__bajada {
+  max-height: 1.4em;
+  opacity: 1;
+  transition:
+    max-height var(--dur-media) var(--curva),
+    opacity var(--dur-corta) var(--curva),
+    margin var(--dur-media) var(--curva);
+}
+
+/* Cortina que descubre las fotografías. */
+@media (prefers-reduced-motion: no-preference) {
+  .ficha__foto::before,
+  .oficina__foto::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: var(--arena);
+    transform-origin: bottom;
+    transition: transform 900ms var(--curva);
+  }
+
+  .ficha__foto.descubierta::before,
+  .oficina__foto.descubierta::before {
+    transform: scaleY(0);
+  }
+
+  .ficha__imagen,
+  .oficina__imagen {
+    transform: scale(1.1);
+  }
+
+  .descubierta .ficha__imagen,
+  .descubierta .oficina__imagen {
+    transform: scale(1);
+    transition: transform 1.3s var(--curva);
+  }
+
+  .oficina__foto {
+    position: relative;
+  }
+}
+
+/* Titulares que entran al llegar a ellos. */
+[data-titular] {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-titular] {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(5px);
+  }
+
+  [data-titular].entrado {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition:
+      opacity 800ms var(--curva),
+      transform 800ms var(--curva),
+      filter 800ms var(--curva);
+  }
+}
+
+/* Botones magneticos: el JavaScript pone el desplazamiento, el CSS lo suaviza. */
+.boton--laton {
+  transition:
+    background-color var(--dur-corta) var(--curva),
+    transform 380ms var(--curva);
+}

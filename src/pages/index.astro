@@ -27,7 +27,7 @@ const seleccion = destacados();
   <section class="servicios contenedor" aria-labelledby="titulo-servicios">
     <header class="seccion" data-revelar>
       <p class="antetitulo">Lo que hacemos</p>
-      <h2 id="titulo-servicios" class="seccion__titulo">
+      <h2 id="titulo-servicios" class="seccion__titulo" data-titular>
         Todo lo que puede pasarle a una vivienda
       </h2>
       <p class="seccion__entrada">
@@ -54,7 +54,7 @@ const seleccion = destacados();
     <div class="contenedor captacion__interior">
       <div data-revelar>
         <p class="antetitulo captacion__antetitulo">Vende con nosotros</p>
-        <h2 id="titulo-captacion" class="captacion__titulo">
+        <h2 id="titulo-captacion" class="captacion__titulo" data-titular>
           ¿Sabes lo que vale hoy tu casa?
         </h2>
         <p class="captacion__texto">
@@ -63,7 +63,7 @@ const seleccion = destacados();
           coste y sin que te comprometas a nada.
         </p>
         <div class="captacion__acciones">
-          <a class="boton boton--laton" href="/vender">Pedir valoración gratuita</a>
+          <a class="boton boton--laton" href="/valoracion">Pedir valoración gratuita</a>
           <a
             class="boton boton--linea captacion__linea"
             href={enlaceTelefono(EMPRESA.telefonoGratuito)}
@@ -92,7 +92,7 @@ const seleccion = destacados();
   <section class="barrios" aria-labelledby="titulo-barrios">
     <div class="contenedor barrios__cabecera" data-revelar>
       <p class="antetitulo barrios__antetitulo">Nuestro territorio</p>
-      <h2 id="titulo-barrios" class="barrios__titulo">
+      <h2 id="titulo-barrios" class="barrios__titulo" data-titular>
         Trabajamos donde vives
       </h2>
       <p class="barrios__entrada">
@@ -109,9 +109,9 @@ const seleccion = destacados();
     <header class="seccion seccion--fila" data-revelar>
       <div>
         <p class="antetitulo">Selección</p>
-        <h2 id="titulo-destacados" class="seccion__titulo">Lo último que ha entrado</h2>
+        <h2 id="titulo-destacados" class="seccion__titulo" data-titular>Lo último que ha entrado</h2>
       </div>
-      <a class="boton boton--linea" href="/inmuebles">Ver todos</a>
+      <a class="boton boton--linea" href="/venta">Ver todos</a>
     </header>
 
     <div class="destacados__rejilla">
@@ -125,7 +125,7 @@ const seleccion = destacados();
   <section class="oficinas contenedor" aria-labelledby="titulo-oficinas">
     <header class="seccion" data-revelar>
       <p class="antetitulo">Dónde estamos</p>
-      <h2 id="titulo-oficinas" class="seccion__titulo">
+      <h2 id="titulo-oficinas" class="seccion__titulo" data-titular>
         Cuatro oficinas, cuatro barrios
       </h2>
       <p class="seccion__entrada">

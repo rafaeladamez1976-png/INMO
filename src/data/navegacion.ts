@@ -43,7 +43,6 @@ export const SECUNDARIOS: Enlace[] = [
 /** Enlaces legales, solo en el pie. */
 export const LEGALES: Enlace[] = [
   { href: '/privacidad', texto: 'Política de privacidad' },
-  { href: '/canal-denuncias', texto: 'Canal de denuncias' },
 ];
 
 export const TODOS: Enlace[] = [...PRINCIPALES, ...SECUNDARIOS, ...LEGALES];
