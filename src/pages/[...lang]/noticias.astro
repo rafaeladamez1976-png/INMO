@@ -1,61 +1,41 @@
 ---
-import Base from '../layouts/Base.astro';
-import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Base from '../../layouts/Base.astro';
+import Tablon from '../../components/Tablon.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.noticias;
 ---
 
-<Base titulo="Trabaja con nosotros | Raiz Inmobiliaria" descripcion="Buscamos gente de barrio para nuestras oficinas de Madrid. Sin experiencia inmobiliaria previa.">
+<Base
+  idioma={idioma}
+  titulo={`${t.tituloPagina} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
+>
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Empleo</p>
-      <h1 class="portadilla__titulo">Buscamos gente<br /><span class="acento">de barrio</span></h1>
-      <p class="portadilla__entrada">No pedimos experiencia inmobiliaria. Pedimos que sepas escuchar y que te guste tu barrio.</p>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1 class="portadilla__titulo">
+        {t.titulo}<br /><span class="acento">{t.acento}</span>
+      </h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
-    <div class="bloques" data-revelar>
-      <div class="bloque">
-        <h3>Asesor comercial</h3>
-        <p>
-          Captacion y venta en tu zona. Fijo mas variable, formacion pagada y
-          cartera de la oficina desde el primer dia.
-        </p>
-      </div>
-      <div class="bloque">
-        <h3>Administracion</h3>
-        <p>
-          Contratos, documentacion y coordinacion con notarias. Jornada completa
-          en la sede de Cuatro Vientos.
-        </p>
-      </div>
-      <div class="bloque">
-        <h3>Practicas</h3>
-        <p>
-          Convenio con centros de FP y universidad. El oficio se aprende en la
-          calle, no archivando papeles.
-        </p>
-      </div>
-    </div>
-
-    <div class="prosa" data-revelar>
-      <h2>Que ofrecemos</h2>
-      <ul>
-        <li>Contrato laboral, no falso autonomo</li>
-        <li>Formacion pagada durante los primeros meses</li>
-        <li>Cartera de la oficina desde el primer dia</li>
-        <li>Horario de oficina, con sabado por la manana rotativo</li>
-      </ul>
-      <h2>Como apuntarte</h2>
-      <p>
-        Escribenos por WhatsApp contando en dos lineas quien eres y que buscas.
-        No hace falta carta de presentacion ni curriculum maquetado: si encaja,
-        te llamamos y hablamos.
-      </p>
-    </div>
+    <Tablon cuantas={8} titulo={t.tablon} idioma={idioma} />
 
     <aside class="cierre" data-revelar>
-      <h2>Cuentanos quien eres</h2>
-      <p>Dos lineas por WhatsApp bastan para empezar.</p>
+      <h2>{t.cierreTitulo}</h2>
+      <p>{t.cierreTexto}</p>
       <div class="cierre__acciones">
-        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--laton" href={enlaceDe(idioma, '/cita')}>
+          {todo.comun.pedirCita}
+        </a>
         <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
           {telefonoLegible(EMPRESA.telefonoGratuito)}
         </a>

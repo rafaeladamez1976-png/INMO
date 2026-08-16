@@ -26,6 +26,22 @@ export function iniciarValoracion(): void {
   const botonSiguiente = raiz.querySelector<HTMLButtonElement>('[data-siguiente]')!;
   const navegacion = raiz.querySelector<HTMLElement>('[data-navegacion]')!;
 
+  /* Los textos llegan por atributos: aquí no se ve el diccionario. */
+  const d = raiz.dataset;
+  const dice = {
+    paso: d.textoPaso ?? 'Paso {n} de {total}',
+    yaEsta: d.textoYaEsta ?? 'Ya está',
+    siguiente: d.textoSiguiente ?? 'Siguiente',
+    verMensaje: d.textoVerMensaje ?? 'Ver el mensaje',
+  };
+  const frases = {
+    saludo: d.fraseSaludo ?? 'Hola, quería pedir una valoración.',
+    zona: d.fraseZona ?? 'Zona',
+    habitaciones: d.fraseHabitaciones ?? 'habitaciones',
+    aprox: d.fraseAprox ?? 'aprox.',
+    soy: d.fraseSoy ?? 'Soy',
+  };
+
   let estado: Estado = estadoInicial();
 
   /** El mensaje va a la oficina del barrio elegido, no a una centralita. */
@@ -43,8 +59,10 @@ export function iniciarValoracion(): void {
 
     etiquetaPaso.textContent =
       estado.paso === ULTIMO_PASO
-        ? 'Ya está'
-        : `Paso ${estado.paso} de ${ULTIMO_PASO - 1}`;
+        ? dice.yaEsta
+        : dice.paso
+            .replace('{n}', String(estado.paso))
+            .replace('{total}', String(ULTIMO_PASO - 1));
 
     barra.style.transform = `scaleX(${progreso(estado.paso)})`;
 
@@ -52,10 +70,10 @@ export function iniciarValoracion(): void {
     navegacion.hidden = estado.paso === ULTIMO_PASO;
     botonSiguiente.disabled = !pasoCompleto(estado, estado.paso);
     botonSiguiente.textContent =
-      estado.paso === ULTIMO_PASO - 1 ? 'Ver el mensaje' : 'Siguiente';
+      estado.paso === ULTIMO_PASO - 1 ? dice.verMensaje : dice.siguiente;
 
     if (estado.paso === ULTIMO_PASO) {
-      const mensaje = redactarMensaje(estado);
+      const mensaje = redactarMensaje(estado, frases);
       salida.textContent = mensaje;
       botonEnviar.href = enlaceWhatsApp(telefonoDestino(), mensaje);
     }

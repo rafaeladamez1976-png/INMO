@@ -28,12 +28,32 @@ export function iniciarAgenda(): void {
 
   const cita: Partial<Cita> = {};
 
+  /* Los textos llegan por atributos: aquí no se ve el diccionario. */
+  const d = raiz.dataset;
+  const ingles = d.idioma === 'en';
+  const frases = {
+    saludo: d.fraseSaludo ?? 'Hola, quería reservar una cita.',
+    motivo: d.fraseMotivo ?? 'Motivo',
+    oficina: d.fraseOficina ?? 'Oficina',
+    alas: d.fraseAlas ?? 'a las',
+    soy: d.fraseSoy ?? 'Soy',
+    ingles,
+  };
+  const piezas = {
+    motivo: d.piezaMotivo ?? 'el motivo',
+    oficina: d.piezaOficina ?? 'la oficina',
+    dia: d.piezaDia ?? 'el día',
+    hora: d.piezaHora ?? 'la hora',
+    nombre: d.piezaNombre ?? 'tu nombre',
+  };
+  const plantillaFalta = d.textoFalta ?? 'Falta {cosas}.';
+
   function pintarDias(): void {
     const dias = diasDisponibles(new Date(), 21);
     contenedorDias.innerHTML = '';
 
     for (const iso of dias) {
-      const { letra, numero, mes } = diaCorto(iso);
+      const { letra, numero, mes } = diaCorto(iso, ingles);
 
       const etiqueta = document.createElement('label');
       etiqueta.className = 'dia';
@@ -67,20 +87,20 @@ export function iniciarAgenda(): void {
     const listo = citaCompleta(cita);
 
     if (listo) {
-      const mensaje = redactarCita(cita as Cita);
+      const mensaje = redactarCita(cita as Cita, frases);
       resumen.textContent = mensaje;
       resumen.dataset.listo = 'sí';
       enviar.href = enlaceWhatsApp(EMPRESA.whatsappCitas, mensaje);
       enviar.setAttribute('aria-disabled', 'false');
     } else {
       const faltan: string[] = [];
-      if (!cita.motivo) faltan.push('el motivo');
-      if (!cita.oficina) faltan.push('la oficina');
-      if (!cita.fecha) faltan.push('el día');
-      if (!cita.hora) faltan.push('la hora');
-      if (!cita.nombre?.trim()) faltan.push('tu nombre');
+      if (!cita.motivo) faltan.push(piezas.motivo);
+      if (!cita.oficina) faltan.push(piezas.oficina);
+      if (!cita.fecha) faltan.push(piezas.dia);
+      if (!cita.hora) faltan.push(piezas.hora);
+      if (!cita.nombre?.trim()) faltan.push(piezas.nombre);
 
-      resumen.textContent = `Falta ${faltan.join(', ')}.`;
+      resumen.textContent = plantillaFalta.replace('{cosas}', faltan.join(', '));
       delete resumen.dataset.listo;
       enviar.removeAttribute('href');
       enviar.setAttribute('aria-disabled', 'true');

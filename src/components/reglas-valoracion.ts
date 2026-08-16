@@ -52,19 +52,39 @@ export function pasoCompleto(estado: Estado, paso: number): boolean {
   }
 }
 
+/**
+ * Frases del mensaje. Van por parámetro para que la web en inglés escriba en
+ * inglés; por defecto, español, que es lo que esperan los tests.
+ */
+export interface FrasesValoracion {
+  saludo: string;
+  zona: string;
+  habitaciones: string;
+  aprox: string;
+  soy: string;
+}
+
+const FRASES_ES: FrasesValoracion = {
+  saludo: 'Hola, quería pedir una valoración.',
+  zona: 'Zona',
+  habitaciones: 'habitaciones',
+  aprox: 'aprox.',
+  soy: 'Soy',
+};
+
 /** Mensaje que recibirá la oficina. */
-export function redactarMensaje(estado: Estado): string {
-  const partes: string[] = ['Hola, quería pedir una valoración.'];
+export function redactarMensaje(estado: Estado, frases: FrasesValoracion = FRASES_ES): string {
+  const partes: string[] = [frases.saludo];
 
   if (estado.tipo) partes.push(estado.tipo);
-  if (estado.zona) partes.push(`Zona: ${estado.zona}`);
-  if (estado.habitaciones) partes.push(`${estado.habitaciones} habitaciones`);
-  if (estado.metros.trim()) partes.push(`${estado.metros.trim()} m² aprox.`);
+  if (estado.zona) partes.push(`${frases.zona}: ${estado.zona}`);
+  if (estado.habitaciones) partes.push(`${estado.habitaciones} ${frases.habitaciones}`);
+  if (estado.metros.trim()) partes.push(`${estado.metros.trim()} m² ${frases.aprox}`);
   if (estado.plazo) partes.push(estado.plazo);
 
   const cuerpo = partes.join(' · ');
   const nombre = estado.nombre.trim();
-  return nombre ? `${cuerpo}. Soy ${nombre}.` : `${cuerpo}.`;
+  return nombre ? `${cuerpo}. ${frases.soy} ${nombre}.` : `${cuerpo}.`;
 }
 
 /** Progreso de 0 a 1, para la barra. */

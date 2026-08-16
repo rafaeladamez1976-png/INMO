@@ -1,8 +1,17 @@
 ---
-import Base from '../layouts/Base.astro';
-import Ficha from '../components/Ficha.astro';
-import { INMUEBLES } from '../data/inmuebles';
-import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Base from '../../layouts/Base.astro';
+import Ficha from '../../components/Ficha.astro';
+import { INMUEBLES } from '../../data/inmuebles';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.favoritos;
 
 /**
  * Tus favoritos.
@@ -14,20 +23,26 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
 ---
 
 <Base
-  titulo="Tus favoritos | Umbral Inmobiliaria"
-  descripcion="Los inmuebles que has guardado. Se quedan en tu navegador, sin registro."
+  idioma={idioma}
+  titulo={`${t.antetitulo} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
 >
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Tu selección</p>
-      <h1 class="portadilla__titulo">Los que<br /><span class="acento">te han gustado</span></h1>
-      <p class="portadilla__entrada">
-        Se guardan en este navegador, sin registro y sin darnos tus datos. Si
-        cambias de dispositivo o borras el historial, se pierden.
-      </p>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1 class="portadilla__titulo">{t.titulo}<br /><span class="acento">{t.acento}</span></h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
-    <div class="favoritos" data-pagina-favoritos>
+    <div
+      class="favoritos"
+      data-pagina-favoritos
+      data-idioma={idioma}
+      data-texto-uno={t.unoGuardado}
+      data-texto-varios={t.variosGuardados(0).replace('0', '{n}')}
+      data-texto-confirmar={t.confirmarVaciar}
+      data-texto-mensaje={t.mensaje('{lista}')}
+    >
       <!-- Vacío: lo que ve quien todavía no ha guardado nada -->
       <div class="vacio" data-vacio hidden>
         <svg class="vacio__icono" viewBox="0 0 24 24" aria-hidden="true">
@@ -39,14 +54,11 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
             stroke-width="1.5"
             stroke-linejoin="round"></path>
         </svg>
-        <h2 class="vacio__titulo">Todavía no has guardado nada</h2>
-        <p class="vacio__texto">
-          Pulsa el corazón de cualquier inmueble y aparecerá aquí. Sirve para
-          comparar con calma y para enseñárselo a quien decida contigo.
-        </p>
+        <h2 class="vacio__titulo">{t.vacioTitulo}</h2>
+        <p class="vacio__texto">{t.vacioTexto}</p>
         <div class="vacio__acciones">
-          <a class="boton boton--laton" href="/venta">Ver los de venta</a>
-          <a class="boton boton--linea" href="/alquiler">Ver los de alquiler</a>
+          <a class="boton boton--laton" href={enlaceDe(idioma, '/venta')}>{t.verVenta}</a>
+          <a class="boton boton--linea" href={enlaceDe(idioma, '/alquiler')}>{t.verAlquiler}</a>
         </div>
       </div>
 
@@ -55,10 +67,8 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
         <div class="barra">
           <p class="barra__cuenta" data-cuenta role="status"></p>
           <div class="barra__acciones">
-            <a class="boton boton--laton" data-compartir href="#">
-              Consultar por WhatsApp
-            </a>
-            <button class="barra__vaciar" type="button" data-vaciar>Vaciar</button>
+            <a class="boton boton--laton" data-compartir href="#">{t.consultar}</a>
+            <button class="barra__vaciar" type="button" data-vaciar>{t.vaciar}</button>
           </div>
         </div>
 
@@ -66,7 +76,7 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
           {
             INMUEBLES.map((inmueble, i) => (
               <div class="rejilla__hueco" data-inmueble={inmueble.id} hidden>
-                <Ficha inmueble={inmueble} retraso={(i % 3) * 70} />
+                <Ficha inmueble={inmueble} retraso={(i % 3) * 70} idioma={idioma} />
               </div>
             ))
           }
@@ -75,21 +85,18 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
     </div>
 
     <aside class="ayuda" data-revelar>
-      <h2 class="ayuda__titulo">¿Quieres verlos?</h2>
-      <p>
-        Mándanos tu lista y organizamos las visitas en una sola tarde, empezando
-        por el que más te interese.
-      </p>
+      <h2 class="ayuda__titulo">{t.ayudaTitulo}</h2>
+      <p>{t.ayudaTexto}</p>
       <a class="boton" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
-        Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+        {todo.comun.llamarAl} {telefonoLegible(EMPRESA.telefonoGratuito)}
       </a>
     </aside>
   </div>
 </Base>
 
 <script>
-  import { INMUEBLES } from '../data/inmuebles';
-  import { EMPRESA, enlaceWhatsApp } from '../data/empresa';
+  import { INMUEBLES } from '../../data/inmuebles';
+  import { EMPRESA, enlaceWhatsApp } from '../../data/empresa';
 
   const CLAVE = 'raiz:favoritos';
 
@@ -121,8 +128,14 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
     vacio.hidden = guardados.length > 0;
     lleno.hidden = guardados.length === 0;
 
+    const dice = raiz.dataset;
     cuenta.textContent =
-      guardados.length === 1 ? '1 inmueble guardado' : `${guardados.length} inmuebles guardados`;
+      guardados.length === 1
+        ? (dice.textoUno ?? '1 inmueble guardado')
+        : (dice.textoVarios ?? '{n} inmuebles guardados').replace(
+            '{n}',
+            String(guardados.length),
+          );
 
     // El mensaje lleva la lista ya escrita: el comercial sabe de que se habla
     // sin tener que preguntar referencias una por una.
@@ -134,11 +147,14 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
 
     compartir.href = enlaceWhatsApp(
       EMPRESA.whatsappCitas,
-      `Hola, me interesan estos inmuebles: ${lista}. Quería organizar las visitas.`,
+      (dice.textoMensaje ?? 'Hola, me interesan estos inmuebles: {lista}.').replace(
+        '{lista}',
+        lista,
+      ),
     );
 
     vaciar.onclick = () => {
-      if (!confirm('¿Quitar todos los guardados?')) return;
+      if (!confirm(dice.textoConfirmar ?? '¿Quitar todos los guardados?')) return;
       try {
         localStorage.removeItem(CLAVE);
       } catch {

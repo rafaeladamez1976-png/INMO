@@ -1,7 +1,17 @@
 ---
-import Base from '../layouts/Base.astro';
-import { INMUEBLES, TIPOS } from '../data/inmuebles';
-import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Base from '../../layouts/Base.astro';
+import { INMUEBLES, TIPOS } from '../../data/inmuebles';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+import { tipoDe } from '../../i18n/datos';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.alertas;
 
 const zonas = [...new Set(INMUEBLES.map((i) => i.zona))].sort();
 const tipos = Object.entries(TIPOS) as [keyof typeof TIPOS, string][];
@@ -22,61 +32,76 @@ const tipos = Object.entries(TIPOS) as [keyof typeof TIPOS, string][];
 ---
 
 <Base
-  titulo="Avisos de inmuebles | Umbral Inmobiliaria"
-  descripcion="Dinos qué buscas y te avisamos por WhatsApp en cuanto entre algo que encaje. Sin registro y sin dejar el correo."
+  idioma={idioma}
+  titulo={`${t.antetitulo} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
 >
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Avisos</p>
+      <p class="antetitulo">{t.antetitulo}</p>
       <h1 class="portadilla__titulo">
-        Que te avisemos<br /><span class="acento">cuando entre</span>
+        {t.titulo}<br /><span class="acento">{t.acento}</span>
       </h1>
-      <p class="portadilla__entrada">
-        Lo bueno se va en días. Dinos qué buscas y te escribimos en cuanto entre
-        algo que encaje, antes de que salga publicado.
-      </p>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
     <div class="alerta">
-      <form class="alerta__campos" data-alerta>
+      <form
+        class="alerta__campos"
+        data-alerta
+        data-idioma={idioma}
+        data-texto-encaja={t.encajaUno}
+        data-texto-encajan={t.encajanVarios}
+        data-mes={todo.comun.mes}
+        data-msg-saludo={t.mensaje.saludo}
+        data-msg-comprar={t.mensaje.comprar}
+        data-msg-alquilar={t.mensaje.alquilar}
+        data-msg-lo-que-sea={t.mensaje.loQueSea}
+        data-msg-dormitorios={t.mensaje.dormitorios(0).replace('0', '{n}')}
+        data-msg-hasta={t.mensaje.hasta('{p}')}
+        data-msg-en={t.mensaje.en('{z}')}
+        data-msg-cualquier-zona={t.mensaje.cualquierZona}
+        data-msg-gracias={t.mensaje.gracias}
+      >
         <fieldset class="grupo">
-          <legend class="grupo__titulo">Qué buscas</legend>
+          <legend class="grupo__titulo">{t.queBuscas}</legend>
 
           <div class="grupo__fila">
             <label class="campo">
-              <span class="campo__nombre">Operación</span>
+              <span class="campo__nombre">{t.operacion}</span>
               <select class="campo__control" name="operacion">
-                <option value="venta">Comprar</option>
-                <option value="alquiler">Alquilar</option>
+                <option value="venta">{t.comprar}</option>
+                <option value="alquiler">{t.alquilar}</option>
               </select>
             </label>
 
             <label class="campo">
-              <span class="campo__nombre">Tipo</span>
+              <span class="campo__nombre">{t.tipo}</span>
               <select class="campo__control" name="tipo">
-                <option value="">Cualquiera</option>
-                {tipos.map(([id, nombre]) => <option value={id}>{nombre}</option>)}
+                <option value="">{t.cualquiera}</option>
+                {tipos.map(([id, nombre]) => <option value={id}>{tipoDe(id, nombre, idioma)}</option>)}
               </select>
             </label>
 
             <label class="campo">
-              <span class="campo__nombre">Dormitorios mínimos</span>
+              <span class="campo__nombre">{t.dormitoriosMin}</span>
               <select class="campo__control" name="habitaciones">
-                <option value="">Los que sean</option>
-                <option value="1">1 o más</option>
-                <option value="2">2 o más</option>
-                <option value="3">3 o más</option>
-                <option value="4">4 o más</option>
+                <option value="">{t.losQueSean}</option>
+                {
+                  [1, 2, 3, 4].map((n) => (
+                    <option value={String(n)}>
+                      {n} {t.oMas}
+                    </option>
+                  ))
+                }
               </select>
             </label>
           </div>
         </fieldset>
 
         <fieldset class="grupo">
-          <legend class="grupo__titulo">Dónde</legend>
-          <p class="grupo__pista">
-            Marca las que te valgan. Si no marcas ninguna, te avisamos de todas.
-          </p>
+          <legend class="grupo__titulo">{t.donde}</legend>
+          <p class="grupo__pista">{t.dondePista}</p>
           <div class="zonas">
             {
               zonas.map((zona) => (
@@ -90,10 +115,10 @@ const tipos = Object.entries(TIPOS) as [keyof typeof TIPOS, string][];
         </fieldset>
 
         <fieldset class="grupo">
-          <legend class="grupo__titulo">Hasta cuánto</legend>
+          <legend class="grupo__titulo">{t.hastaCuanto}</legend>
           <label class="campo campo--precio">
             <span class="campo__fila">
-              <span class="campo__nombre">Precio máximo</span>
+              <span class="campo__nombre">{t.precioMaximo}</span>
               <output class="campo__valor" data-salida-precio></output>
             </span>
             <input type="range" name="precio" min="0" max="600000" step="10000" value="250000" />
@@ -102,67 +127,47 @@ const tipos = Object.entries(TIPOS) as [keyof typeof TIPOS, string][];
       </form>
 
       <aside class="resumen">
-        <p class="resumen__etiqueta">Ahora mismo tenemos</p>
+        <p class="resumen__etiqueta">{t.ahoraTenemos}</p>
         <p class="resumen__cifra" data-encajan role="status">0</p>
-        <p class="resumen__texto" data-encajan-texto>que encajan con lo que pides</p>
+        <p class="resumen__texto" data-encajan-texto>{t.encajanVarios}</p>
 
-        <a class="boton boton--laton resumen__cta" data-enviar href="#">
-          Avisadme por WhatsApp
-        </a>
+        <a class="boton boton--laton resumen__cta" data-enviar href="#">{t.avisadme}</a>
 
-        <a class="resumen__ver" data-ver href="/venta">Ver los que hay ya</a>
+        <a class="resumen__ver" data-ver href={enlaceDe(idioma, '/venta')}>{t.verLosQueHay}</a>
 
-        <p class="resumen__letra">
-          El mensaje llega a la oficina y te apuntamos a mano. No es un sistema
-          automático: te escribe una persona, y puedes decirle que te demos de
-          baja cuando quieras. No guardamos tu número en ningún otro sitio.
-        </p>
+        <p class="resumen__letra">{t.letraPequena}</p>
       </aside>
     </div>
 
     <section class="pasos" data-revelar>
-      <h2 class="pasos__titulo">Cómo funciona</h2>
+      <h2 class="pasos__titulo">{t.comoFunciona}</h2>
       <ol class="pasos__lista">
-        <li>
-          <span class="paso__numero">01</span>
-          <h3 class="paso__titulo">Nos dices qué buscas</h3>
-          <p>Sin registro, sin correo y sin contraseñas que recordar.</p>
-        </li>
-        <li>
-          <span class="paso__numero">02</span>
-          <h3 class="paso__titulo">Lo apuntamos en la oficina</h3>
-          <p>
-            Tu petición entra en la lista de la oficina que lleva esa zona, que
-            es quien primero se entera de lo que va a salir.
-          </p>
-        </li>
-        <li>
-          <span class="paso__numero">03</span>
-          <h3 class="paso__titulo">Te escribimos antes de publicarlo</h3>
-          <p>
-            Entre que un propietario nos encarga la venta y sale el anuncio pasan
-            unos días. Ahí es donde ganas tú.
-          </p>
-        </li>
+        {
+          t.pasos.map((paso, i) => (
+            <li>
+              <span class="paso__numero">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="paso__titulo">{paso.titulo}</h3>
+              <p>{paso.texto}</p>
+            </li>
+          ))
+        }
       </ol>
     </section>
 
     <aside class="ayuda" data-revelar>
-      <h2 class="ayuda__titulo">¿Prefieres contarlo hablando?</h2>
-      <p>
-        A veces lo que buscas no cabe en un formulario. Llámanos y lo apuntamos
-        mientras hablamos.
-      </p>
+      <h2 class="ayuda__titulo">{t.hablando}</h2>
+      <p>{t.hablandoTexto}</p>
       <a class="boton" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
-        Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+        {todo.comun.llamarAl} {telefonoLegible(EMPRESA.telefonoGratuito)}
       </a>
     </aside>
   </div>
 </Base>
 
 <script>
-  import { INMUEBLES, TIPOS } from '../data/inmuebles';
-  import { EMPRESA, enlaceWhatsApp } from '../data/empresa';
+  import { INMUEBLES, TIPOS } from '../../data/inmuebles';
+  import { EMPRESA, enlaceWhatsApp } from '../../data/empresa';
+  import { TIPOS_EN } from '../../i18n/datos';
 
   function activarAlertas() {
     const formulario = document.querySelector<HTMLFormElement>('[data-alerta]');
@@ -174,7 +179,10 @@ const tipos = Object.entries(TIPOS) as [keyof typeof TIPOS, string][];
     const enviar = document.querySelector<HTMLAnchorElement>('[data-enviar]')!;
     const ver = document.querySelector<HTMLAnchorElement>('[data-ver]')!;
 
-    const euros = (n: number) => `${n.toLocaleString('es-ES')} €`;
+    const dice = formulario.dataset;
+    const ingles = dice.idioma === 'en';
+    const euros = (n: number) =>
+      ingles ? `€${n.toLocaleString('en-GB')}` : `${n.toLocaleString('es-ES')} €`;
 
     const leer = () => {
       const datos = new FormData(formulario);
@@ -202,7 +210,7 @@ const tipos = Object.entries(TIPOS) as [keyof typeof TIPOS, string][];
       }
 
       salidaPrecio.textContent =
-        euros(c.precio) + (c.operacion === 'alquiler' ? ' al mes' : '');
+        euros(c.precio) + (c.operacion === 'alquiler' ? ` ${dice.mes ?? 'al mes'}` : '');
 
       const encajan = INMUEBLES.filter(
         (i) =>
@@ -216,25 +224,43 @@ const tipos = Object.entries(TIPOS) as [keyof typeof TIPOS, string][];
       cifra.textContent = String(encajan.length);
       texto.textContent =
         encajan.length === 1
-          ? 'que encaja con lo que pides'
-          : 'que encajan con lo que pides';
+          ? (dice.textoEncaja ?? 'que encaja con lo que pides')
+          : (dice.textoEncajan ?? 'que encajan con lo que pides');
 
       ver.href = c.operacion === 'alquiler' ? '/alquiler' : '/venta';
       ver.hidden = encajan.length === 0;
 
       // El mensaje va escrito en cristiano: quien lo recibe en la oficina
       // tiene que poder apuntarlo sin descifrar nada.
+      const nombreTipo = (id: string) =>
+        ingles
+          ? (TIPOS_EN[id] ?? TIPOS[id as keyof typeof TIPOS])
+          : TIPOS[id as keyof typeof TIPOS];
+
       const partes = [
-        c.operacion === 'alquiler' ? 'alquilar' : 'comprar',
-        c.tipo ? TIPOS[c.tipo as keyof typeof TIPOS].toLowerCase() : 'lo que sea',
-        c.habitaciones ? `de ${c.habitaciones} dormitorios o más` : '',
-        `hasta ${euros(c.precio)}${c.operacion === 'alquiler' ? ' al mes' : ''}`,
-        c.zonas.length ? `en ${c.zonas.join(', ')}` : 'en cualquiera de vuestras zonas',
+        c.operacion === 'alquiler'
+          ? (dice.msgAlquilar ?? 'alquilar')
+          : (dice.msgComprar ?? 'comprar'),
+        c.tipo ? nombreTipo(c.tipo).toLowerCase() : (dice.msgLoQueSea ?? 'lo que sea'),
+        c.habitaciones
+          ? (dice.msgDormitorios ?? 'de {n} dormitorios o más').replace(
+              '{n}',
+              String(c.habitaciones),
+            )
+          : '',
+        (dice.msgHasta ?? 'hasta {p}').replace(
+          '{p}',
+          euros(c.precio) + (c.operacion === 'alquiler' ? ` ${dice.mes ?? 'al mes'}` : ''),
+        ),
+        c.zonas.length
+          ? (dice.msgEn ?? 'en {z}').replace('{z}', c.zonas.join(', '))
+          : (dice.msgCualquierZona ?? 'en cualquiera de vuestras zonas'),
       ].filter(Boolean);
 
       enviar.href = enlaceWhatsApp(
         EMPRESA.whatsappCitas,
-        `Hola, quiero que me aviséis cuando entre algo. Busco ${partes.join(', ')}. Gracias.`,
+        `${dice.msgSaludo ?? 'Hola, quiero que me aviséis cuando entre algo. Busco'} ` +
+          `${partes.join(', ')}. ${dice.msgGracias ?? 'Gracias.'}`,
       );
     };
 

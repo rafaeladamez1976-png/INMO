@@ -90,12 +90,24 @@ export const INMUEBLES_EN: Record<string, { descripcion: string; aviso?: string;
     },
   };
 
-/** Especialidad de cada oficina. */
-export const OFICINAS_EN: Record<string, { especialidad: string }> = {
-  'parque-europa': { especialidad: 'Houses and family homes with gardens' },
-  aluche: { especialidad: 'Resale flats and long-term lettings' },
-  'las-aguilas': { especialidad: 'Terraced and detached houses within the city' },
-  'san-ignacio': { especialidad: 'First-time buyers and commercial units' },
+/** Especialidad y equipo de cada oficina. */
+export const OFICINAS_EN: Record<string, { especialidad: string; equipo: string }> = {
+  'parque-europa': {
+    especialidad: 'Houses and family homes with gardens',
+    equipo: 'Four people, three of them living in the neighbourhood',
+  },
+  aluche: {
+    especialidad: 'Resale flats and long-term lettings',
+    equipo: 'Three people and the largest rental portfolio in the group',
+  },
+  'las-aguilas': {
+    especialidad: 'Terraced and detached houses within the city',
+    equipo: 'Three people specialising in building work and renovation',
+  },
+  'san-ignacio': {
+    especialidad: 'First-time buyers and commercial units',
+    equipo: 'Two people, the youngest office in the group',
+  },
 };
 
 /** Servicios de la portada. */

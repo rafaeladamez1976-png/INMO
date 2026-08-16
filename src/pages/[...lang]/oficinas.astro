@@ -1,17 +1,25 @@
 ---
-import Base from '../layouts/Base.astro';
+import Base from '../../layouts/Base.astro';
 import { Image } from 'astro:assets';
-import oficina1 from '../assets/inmuebles/oficina-1.jpg';
-import oficina2 from '../assets/inmuebles/oficina-2.jpg';
-import oficina3 from '../assets/inmuebles/oficina-3.jpg';
-import oficina4 from '../assets/inmuebles/oficina-4.jpg';
+import oficina1 from '../../assets/inmuebles/oficina-1.jpg';
+import oficina2 from '../../assets/inmuebles/oficina-2.jpg';
+import oficina3 from '../../assets/inmuebles/oficina-3.jpg';
+import oficina4 from '../../assets/inmuebles/oficina-4.jpg';
 import {
   EMPRESA,
   OFICINAS,
   telefonoLegible,
   enlaceTelefono,
   enlaceWhatsApp,
-} from '../data/empresa';
+} from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const t = textos(idioma).oficinas;
 
 /** Cada oficina con su fotografía, en el mismo orden que OFICINAS. */
 const FOTOS = [oficina1, oficina2, oficina3, oficina4];
@@ -23,16 +31,15 @@ const mapa = (direccion: string) =>
 ---
 
 <Base
-  titulo="Nuestras oficinas en Madrid | Umbral Inmobiliaria"
-  descripcion="Cuatro oficinas en Cuatro Vientos, Aluche, Las Águilas y Latina. Entra sin cita."
+  idioma={idioma}
+  titulo={`${t.tituloPagina} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
 >
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Dónde estamos</p>
-      <h1 class="portadilla__titulo">Cuatro barrios,<br />cuatro puertas</h1>
-      <p class="portadilla__entrada">
-        Entra sin cita. Si está abierto, te atendemos.
-      </p>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1 class="portadilla__titulo">{t.titulo}<br />{t.titulo2}</h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
     <ul class="oficinas">
@@ -42,7 +49,7 @@ const mapa = (direccion: string) =>
             <div class="oficina__foto">
               <Image
                 src={FOTOS[i % FOTOS.length]}
-                alt={`Oficina de ${oficina.nombre}`}
+                alt={t.fotoAlt(oficina.nombre)}
                 widths={[500, 800, 1200]}
                 sizes="(max-width: 48rem) 92vw, 30rem"
                 loading="lazy"
@@ -53,8 +60,12 @@ const mapa = (direccion: string) =>
 
             <div class="oficina__cabecera">
               <div>
-                {oficina.sede && <span class="oficina__sede">Sede central</span>}
-                <h2 class="oficina__nombre"><a class="oficina__enlace" href={`/oficina/${oficina.id}`}>{oficina.nombre}</a></h2>
+                {oficina.sede && <span class="oficina__sede">{t.sede}</span>}
+                <h2 class="oficina__nombre">
+                  <a class="oficina__enlace" href={enlaceDe(idioma, `/oficina/${oficina.id}`)}>
+                    {oficina.nombre}
+                  </a>
+                </h2>
                 <p class="oficina__barrio">{oficina.barrio}</p>
               </div>
               <span class="oficina__numero" aria-hidden="true">
@@ -79,11 +90,16 @@ const mapa = (direccion: string) =>
             <p class="oficina__email">{oficina.email}</p>
 
             <div class="oficina__acciones">
-              <a class="boton" href={`/oficina/${oficina.id}`}>
-                Ver esta oficina
+              <a class="boton" href={enlaceDe(idioma, `/oficina/${oficina.id}`)}>
+                {t.verEsta}
               </a>
-              <a class="boton boton--linea" href={mapa(oficina.direccion)} target="_blank" rel="noopener">
-                Cómo llegar
+              <a
+                class="boton boton--linea"
+                href={mapa(oficina.direccion)}
+                target="_blank"
+                rel="noopener"
+              >
+                {t.comoLlegar}
               </a>
             </div>
           </li>
@@ -92,16 +108,13 @@ const mapa = (direccion: string) =>
     </ul>
 
     <aside class="general" data-revelar>
-      <h2 class="general__titulo">Teléfono general</h2>
+      <h2 class="general__titulo">{t.generalTitulo}</h2>
       <p class="general__numero">
         <a href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
           {telefonoLegible(EMPRESA.telefonoGratuito)}
         </a>
       </p>
-      <p class="general__texto">
-        Si no sabes qué oficina te toca, llama aquí y te pasamos con la de tu
-        barrio.
-      </p>
+      <p class="general__texto">{t.generalTexto}</p>
     </aside>
   </div>
 </Base>

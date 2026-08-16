@@ -1,5 +1,13 @@
 ---
 import { EMPRESA, enlaceWhatsApp } from '../data/empresa';
+import { textos, type Idioma } from '../i18n';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma).flotante;
 
 /**
  * Botón flotante de WhatsApp.
@@ -7,10 +15,7 @@ import { EMPRESA, enlaceWhatsApp } from '../data/empresa';
  * Va al número de citas. Aparece tras bajar un poco: en la portada estorbaría
  * al primer impacto, y quien acaba de llegar todavía no quiere escribir.
  */
-const enlace = enlaceWhatsApp(
-  EMPRESA.whatsappCitas,
-  'Hola, escribo desde la web. Quería reservar una cita.',
-);
+const enlace = enlaceWhatsApp(EMPRESA.whatsappCitas, t.mensaje);
 ---
 
 <a class="flotante" href={enlace} data-flotante target="_blank" rel="noopener">
@@ -28,7 +33,7 @@ const enlace = enlaceWhatsApp(
         stroke="none"></path>
     </svg>
   </span>
-  <span class="flotante__texto">Reservar cita</span>
+  <span class="flotante__texto">{t.rotulo}</span>
 </a>
 
 <script>

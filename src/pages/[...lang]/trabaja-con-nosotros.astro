@@ -1,68 +1,58 @@
 ---
-import Base from '../layouts/Base.astro';
-import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Base from '../../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.empleo;
 ---
 
-<Base titulo="La empresa | Raiz Inmobiliaria" descripcion="Cuatro oficinas de barrio en Madrid. Como trabajamos y por que lo hacemos asi.">
+<Base
+  idioma={idioma}
+  titulo={`${t.tituloPagina} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
+>
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Quienes somos</p>
-      <h1 class="portadilla__titulo">Somos de barrio,<br /><span class="acento">y se nota</span></h1>
-      <p class="portadilla__entrada">No tenemos un despacho en el centro con vistas. Tenemos cuatro oficinas a pie de calle donde la gente entra sin cita.</p>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1 class="portadilla__titulo">
+        {t.titulo}<br /><span class="acento">{t.acento}</span>
+      </h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
     <div class="bloques" data-revelar>
-      <div class="bloque">
-        <h2>Precio realista</h2>
-        <p>
-          No inflamos la valoracion para captar un encargo y pedirte despues que
-          bajes. El precio que te damos es al que se cierran operaciones en tu
-          calle.
-        </p>
-      </div>
-      <div class="bloque">
-        <h2>Una persona, no un buzon</h2>
-        <p>
-          Tu operacion la lleva alguien con nombre, de la oficina de tu barrio.
-          Sabes a quien llamar, y contesta esa persona.
-        </p>
-      </div>
-      <div class="bloque">
-        <h2>Todo por escrito</h2>
-        <p>
-          Honorarios, plazos y condiciones antes de firmar nada. Si algo no esta
-          claro en el papel, es que no esta claro.
-        </p>
-      </div>
-      <div class="bloque">
-        <h2>Conocimiento de zona</h2>
-        <p>
-          Cuatro Vientos, Aluche, Las Aguilas y Latina. Sabemos que portal tiene
-          ascensor, que calle es ruidosa y que colegio pilla cerca.
-        </p>
-      </div>
+      {
+        t.puestos.map((puesto) => (
+          <div class="bloque">
+            <h3>{puesto.titulo}</h3>
+            <p>{puesto.texto}</p>
+          </div>
+        ))
+      }
     </div>
 
     <div class="prosa" data-revelar>
-      <h2>Que hacemos</h2>
-      <p>
-        Compraventa, alquiler, alquiler con opcion a compra, alquiler de
-        temporada, traspasos de local y alquiler vitalicio. Y valoracion
-        gratuita de tu vivienda, vayas a vender o no.
-      </p>
-      <h2>Donde trabajamos</h2>
-      <p>
-        Madrid capital, sobre todo el sur y el oeste, y ademas Toledo,
-        Extremadura y Castilla-La Mancha para segunda residencia y casa de
-        pueblo.
-      </p>
+      <h2>{t.ofrecemos}</h2>
+      <ul>
+        {t.lista.map((cosa) => <li>{cosa}</li>)}
+      </ul>
+      <h2>{t.comoTitulo}</h2>
+      <p>{t.comoTexto}</p>
     </div>
 
     <aside class="cierre" data-revelar>
-      <h2>Nos conocemos?</h2>
-      <p>Entra en cualquiera de nuestras oficinas. Si esta abierto, te atendemos.</p>
+      <h2>{t.cierreTitulo}</h2>
+      <p>{t.cierreTexto}</p>
       <div class="cierre__acciones">
-        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--laton" href={enlaceDe(idioma, '/cita')}>
+          {todo.comun.pedirCita}
+        </a>
         <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
           {telefonoLegible(EMPRESA.telefonoGratuito)}
         </a>

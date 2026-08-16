@@ -1,5 +1,13 @@
 ---
 import { EMPRESA, OFICINAS, telefonoLegible } from '../data/empresa';
+import { textos, type Idioma } from '../i18n';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma).formValoracion;
 
 /**
  * Captación de valoraciones.
@@ -12,14 +20,27 @@ import { EMPRESA, OFICINAS, telefonoLegible } from '../data/empresa';
  * Sin servidor: el formulario construye un enlace.
  */
 
-const TIPOS = ['Piso', 'Ático', 'Chalet', 'Casa', 'Local'];
-const HABITACIONES = ['1', '2', '3', '4', '5 o más'];
-const PLAZOS = ['Cuanto antes', 'En 3 o 6 meses', 'Este año', 'Solo quiero saber el precio'];
+const TIPOS = t.tipos;
+const HABITACIONES = t.habitaciones;
+const PLAZOS = t.plazos;
 ---
 
-<section class="valoracion" data-valoracion data-revelar>
+<section
+  class="valoracion"
+  data-valoracion
+  data-revelar
+  data-texto-paso={t.pasoPlantilla}
+  data-texto-ya-esta={t.yaEsta}
+  data-texto-siguiente={t.siguiente}
+  data-texto-ver-mensaje={t.verMensaje}
+  data-frase-saludo={t.mensaje.saludo}
+  data-frase-zona={t.mensaje.zona}
+  data-frase-habitaciones={t.mensaje.habitaciones.toLowerCase()}
+  data-frase-aprox={idioma === 'en' ? 'approx.' : 'aprox.'}
+  data-frase-soy={t.mensaje.soy}
+>
   <div class="valoracion__cabecera">
-    <p class="valoracion__paso" data-etiqueta-paso>Paso 1 de 4</p>
+    <p class="valoracion__paso" data-etiqueta-paso>{t.paso(1, 4)}</p>
     <div class="valoracion__barra" aria-hidden="true">
       <span data-barra></span>
     </div>
@@ -27,7 +48,7 @@ const PLAZOS = ['Cuanto antes', 'En 3 o 6 meses', 'Este año', 'Solo quiero sabe
 
   <form class="valoracion__form" data-form novalidate>
     <fieldset class="panel" data-panel="1">
-      <legend class="pregunta">¿Qué quieres valorar?</legend>
+      <legend class="pregunta">{t.queValorar}</legend>
       <div class="opciones">
         {
           TIPOS.map((tipo) => (
@@ -41,8 +62,8 @@ const PLAZOS = ['Cuanto antes', 'En 3 o 6 meses', 'Este año', 'Solo quiero sabe
     </fieldset>
 
     <fieldset class="panel" data-panel="2" hidden>
-      <legend class="pregunta">¿En qué zona está?</legend>
-      <p class="ayuda">Elige la oficina que te pilla más cerca.</p>
+      <legend class="pregunta">{t.queZona}</legend>
+      <p class="ayuda">{t.zonaAyuda}</p>
       <div class="opciones opciones--anchas">
         {
           OFICINAS.map((oficina) => (
@@ -56,17 +77,17 @@ const PLAZOS = ['Cuanto antes', 'En 3 o 6 meses', 'Este año', 'Solo quiero sabe
           ))
         }
         <label class="opcion">
-          <input type="radio" name="zona" value="Otra zona" data-oficina="parque-europa" />
+          <input type="radio" name="zona" value={t.otraZona} data-oficina="parque-europa" />
           <span class="opcion__cuerpo opcion__cuerpo--doble">
-            <span class="opcion__titulo">Otra zona</span>
-            <span class="opcion__detalle">Toledo, Extremadura…</span>
+            <span class="opcion__titulo">{t.otraZona}</span>
+            <span class="opcion__detalle">{t.otraZonaDetalle}</span>
           </span>
         </label>
       </div>
     </fieldset>
 
     <fieldset class="panel" data-panel="3" hidden>
-      <legend class="pregunta">¿Cuántas habitaciones?</legend>
+      <legend class="pregunta">{t.cuantasHabitaciones}</legend>
       <div class="opciones opciones--compactas">
         {
           HABITACIONES.map((h) => (
@@ -79,13 +100,13 @@ const PLAZOS = ['Cuanto antes', 'En 3 o 6 meses', 'Este año', 'Solo quiero sabe
       </div>
 
       <label class="campo">
-        <span class="campo__etiqueta">Metros cuadrados (aproximados)</span>
+        <span class="campo__etiqueta">{t.metros}</span>
         <input class="campo__control" type="number" name="metros" min="10" max="2000" placeholder="90" />
       </label>
     </fieldset>
 
     <fieldset class="panel" data-panel="4" hidden>
-      <legend class="pregunta">¿Para cuándo?</legend>
+      <legend class="pregunta">{t.paraCuando}</legend>
       <div class="opciones opciones--anchas">
         {
           PLAZOS.map((plazo) => (
@@ -98,37 +119,42 @@ const PLAZOS = ['Cuanto antes', 'En 3 o 6 meses', 'Este año', 'Solo quiero sabe
       </div>
 
       <label class="campo">
-        <span class="campo__etiqueta">Tu nombre</span>
-        <input class="campo__control" type="text" name="nombre" maxlength="40" placeholder="María" autocomplete="given-name" />
+        <span class="campo__etiqueta">{t.tuNombre}</span>
+        <input
+          class="campo__control"
+          type="text"
+          name="nombre"
+          maxlength="40"
+          placeholder={t.nombreEjemplo}
+          autocomplete="given-name"
+        />
       </label>
     </fieldset>
 
     <section class="panel resumen" data-panel="5" hidden>
-      <h2 class="pregunta">Esto es lo que enviaremos</h2>
+      <h2 class="pregunta">{t.esto}</h2>
       <blockquote class="resumen__mensaje" data-mensaje></blockquote>
 
       <a class="boton boton--laton resumen__enviar" data-enviar href="#">
-        Pedir valoración por WhatsApp
+        {t.enviar}
       </a>
 
-      <p class="resumen__aviso">
-        Te llamamos en menos de 48 horas. No compartimos tus datos con nadie.
-      </p>
+      <p class="resumen__aviso">{t.avisoEnvio}</p>
 
       <p class="resumen__telefono">
-        ¿Prefieres llamar? <strong>{telefonoLegible(EMPRESA.telefonoGratuito)}</strong>
+        {t.prefieresLlamar} <strong>{telefonoLegible(EMPRESA.telefonoGratuito)}</strong>
       </p>
     </section>
 
     <div class="navegacion" data-navegacion>
-      <button class="boton boton--linea" type="button" data-atras hidden>Atrás</button>
-      <button class="boton" type="button" data-siguiente disabled>Siguiente</button>
+      <button class="boton boton--linea" type="button" data-atras hidden>{t.atras}</button>
+      <button class="boton" type="button" data-siguiente disabled>{t.siguiente}</button>
     </div>
   </form>
 
   <noscript>
     <p class="sin-js">
-      Para pedir tu valoración, llámanos al
+      {t.sinJs}
       <strong>{telefonoLegible(EMPRESA.telefonoGratuito)}</strong>.
     </p>
   </noscript>

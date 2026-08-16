@@ -1,57 +1,57 @@
 ---
-import Base from '../layouts/Base.astro';
-import Valoracion from '../components/Valoracion.astro';
-import Casa from '../components/casa/Casa.astro';
-import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Base from '../../layouts/Base.astro';
+import Valoracion from '../../components/Valoracion.astro';
+import Casa from '../../components/casa/Casa.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.valoracion;
 ---
 
 <Base
-  titulo="Vende tu casa en Madrid — Valoración gratuita | Umbral Inmobiliaria"
-  descripcion="Te decimos lo que vale tu vivienda con datos de operaciones cerradas en tu calle. Sin coste y sin compromiso."
+  idioma={idioma}
+  titulo={`${t.tituloPagina} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.entrada}
 >
   <div class="contenedor">
     <header class="portadilla portadilla--casa">
       <div data-revelar>
-      <p class="antetitulo">Valoración gratuita</p>
-      <h1 class="portadilla__titulo">
-        ¿Cuánto vale<br /><span class="acento">tu casa</span>?
-      </h1>
-      <p class="portadilla__entrada">
-        No te damos un número inflado para captarte y luego bajarlo. Te damos
-        el precio al que se están cerrando operaciones en tu calle.
-      </p>
+        <p class="antetitulo">{t.antetitulo}</p>
+        <h1 class="portadilla__titulo">
+          {t.titulo}<br /><span class="acento">{t.acento}</span>?
+        </h1>
+        <p class="portadilla__entrada">{t.entrada}</p>
 
-      <ul class="promesas">
-        <li>
-          <strong>Sin coste</strong>
-          <span>La valoración es gratis y no obliga a nada.</span>
-        </li>
-        <li>
-          <strong>En 48 horas</strong>
-          <span>Visitamos, comparamos y te llamamos con el precio.</span>
-        </li>
-        <li>
-          <strong>Con datos, no con corazonadas</strong>
-          <span>Operaciones cerradas en tu zona, no anuncios publicados.</span>
-        </li>
-      </ul>
+        <ul class="promesas">
+          {
+            t.ventajas.map((v) => (
+              <li>
+                <strong>{v.titulo}</strong>
+                <span>{v.texto}</span>
+              </li>
+            ))
+          }
+        </ul>
       </div>
 
       <div class="portadilla__casa" data-revelar data-revelar-retraso="160">
-        <Casa alt="Villa moderna con piscina, girable en 3D" />
+        <Casa alt={todo.portada.captacion.casaAlt} />
       </div>
     </header>
 
-    <Valoracion />
+    <Valoracion idioma={idioma} />
 
     <aside class="prefiero" data-revelar>
-      <h2 class="prefiero__titulo">¿Prefieres que hablemos?</h2>
-      <p>
-        Llámanos y te atendemos desde la oficina de tu barrio. Sin centralita
-        ni musiquita de espera.
-      </p>
+      <h2 class="prefiero__titulo">{t.hablamos}</h2>
+      <p>{t.hablamosTexto}</p>
       <a class="boton" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
-        Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+        {todo.comun.llamarAl} {telefonoLegible(EMPRESA.telefonoGratuito)}
       </a>
     </aside>
   </div>

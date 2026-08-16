@@ -1,38 +1,56 @@
 ---
 import { Image } from 'astro:assets';
-import Base from '../../layouts/Base.astro';
-import Ficha from '../../components/Ficha.astro';
-import Tablon from '../../components/Tablon.astro';
+import Base from '../../../layouts/Base.astro';
+import Ficha from '../../../components/Ficha.astro';
+import Tablon from '../../../components/Tablon.astro';
 import {
   OFICINAS,
+  EMPRESA,
   HORARIO,
   telefonoLegible,
   enlaceTelefono,
   enlaceWhatsApp,
-} from '../../data/empresa';
-import { INMUEBLES } from '../../data/inmuebles';
-import { BARRIOS, precioMetro } from '../../data/barrios';
+} from '../../../data/empresa';
+import { INMUEBLES } from '../../../data/inmuebles';
+import { BARRIOS, precioMetro } from '../../../data/barrios';
+import { textos, ruta as enlaceDe, IDIOMAS, type Idioma } from '../../../i18n';
+import { OFICINAS_EN, BARRIOS_EN } from '../../../i18n/datos';
 
+/** Cuatro oficinas por dos idiomas: ocho páginas. */
 export function getStaticPaths() {
-  return OFICINAS.map((oficina) => ({
-    params: { id: oficina.id },
-    props: { oficina },
-  }));
+  return IDIOMAS.flatMap((lengua) =>
+    OFICINAS.map((oficina) => ({
+      params: { lang: lengua.id === 'es' ? undefined : lengua.id, id: oficina.id },
+      props: { oficina, idioma: lengua.id },
+    })),
+  );
 }
 
-const { oficina } = Astro.props;
+const { oficina, idioma } = Astro.props as {
+  oficina: (typeof OFICINAS)[0];
+  idioma: Idioma;
+};
+
+const todo = textos(idioma);
+const t = todo.oficina;
 
 const fotos = import.meta.glob<{ default: ImageMetadata }>(
-  '../../assets/inmuebles/*.{jpg,jpeg,png,webp}',
+  '../../../assets/inmuebles/*.{jpg,jpeg,png,webp}',
   { eager: true },
 );
-const foto = fotos[`../../assets/inmuebles/${oficina.foto}.jpg`]?.default;
+/* La clave tiene que coincidir con la del glob: si no, la foto no aparece. */
+const foto = fotos[`../../../assets/inmuebles/${oficina.foto}.jpg`]?.default;
+
+const suya = idioma === 'en' ? OFICINAS_EN[oficina.id] : undefined;
+const especialidad = suya?.especialidad ?? oficina.especialidad;
+const equipo = suya?.equipo ?? oficina.equipo;
 
 /** Inmuebles que gestiona esta oficina. */
 const cartera = INMUEBLES.filter((i) => i.oficina === oficina.id);
 
 /** Datos del barrio principal, si lo tenemos comparado. */
 const barrio = BARRIOS.find((b) => b.oficina === oficina.id);
+const barrioEn = barrio && idioma === 'en' ? BARRIOS_EN[barrio.id] : undefined;
 
 const otras = OFICINAS.filter((o) => o.id !== oficina.id);
 
@@ -40,32 +58,35 @@ const direccionCompleta = `${oficina.direccion}, ${oficina.cp} Madrid`;
 const mapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionCompleta)}`;
 const mapaIncrustado = `https://maps.google.com/maps?q=${encodeURIComponent(direccionCompleta)}&z=16&output=embed`;
 
-const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre}.`;
+const mensaje = t.mensaje(oficina.nombre);
 ---
 
 <Base
-  titulo={`Oficina de ${oficina.nombre}, ${oficina.barrio} | Umbral Inmobiliaria`}
-  descripcion={`Inmobiliaria en ${oficina.nombre} (${oficina.barrio}), ${oficina.direccion}. ${oficina.especialidad}. Abierta desde ${oficina.desde}.`}
+  idioma={idioma}
+  titulo={`${t.oficinaDe} ${oficina.nombre}, ${oficina.barrio} | ${EMPRESA.nombreCompleto}`}
+  descripcion={`${oficina.nombre} (${oficina.barrio}), ${oficina.direccion}. ${especialidad}.`}
 >
   <div class="contenedor">
-    <nav class="miga" aria-label="Dónde estás">
-      <a href="/">Inicio</a>
+    <nav class="miga" aria-label={todo.comun.dondeEstas}>
+      <a href={enlaceDe(idioma, '/')}>{todo.comun.inicio}</a>
       <span aria-hidden="true">›</span>
-      <a href="/oficinas">Oficinas</a>
+      <a href={enlaceDe(idioma, '/oficinas')}>{todo.oficinas.antetitulo}</a>
       <span aria-hidden="true">›</span>
       <span aria-current="page">{oficina.nombre}</span>
     </nav>
 
     <header class="cabeza">
       <div class="cabeza__texto">
-        {oficina.sede && <p class="cabeza__sede">Sede central</p>}
-        <p class="antetitulo">{oficina.barrio} · Desde {oficina.desde}</p>
-        <h1 class="cabeza__titulo">Oficina de<br /><span class="acento">{oficina.nombre}</span></h1>
-        <p class="cabeza__especialidad">{oficina.especialidad}.</p>
+        {oficina.sede && <p class="cabeza__sede">{t.sede}</p>}
+        <p class="antetitulo">{oficina.barrio} · {t.desdeAno} {oficina.desde}</p>
+        <h1 class="cabeza__titulo">
+          {t.oficinaDe}<br /><span class="acento">{oficina.nombre}</span>
+        </h1>
+        <p class="cabeza__especialidad">{especialidad}.</p>
 
         <div class="cabeza__acciones">
           <a class="boton boton--laton" href={enlaceWhatsApp(oficina.telefonos[1], mensaje)}>
-            Escribir por WhatsApp
+            {t.escribir}
           </a>
           <a class="boton boton--linea" href={enlaceTelefono(oficina.telefonos[0])}>
             {telefonoLegible(oficina.telefonos[0])}
@@ -78,7 +99,7 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
           <figure class="cabeza__foto">
             <Image
               src={foto}
-              alt={`Interior de la oficina de ${oficina.nombre}`}
+              alt={t.fotoAlt(oficina.nombre)}
               widths={[600, 1000, 1400]}
               sizes="(max-width: 60rem) 92vw, 34rem"
               loading="eager"
@@ -91,20 +112,20 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
 
     <!-- Datos prácticos -->
     <section class="practico" aria-labelledby="titulo-practico">
-      <h2 id="titulo-practico" class="solo-lectores">Información práctica</h2>
+      <h2 id="titulo-practico" class="solo-lectores">{t.practico}</h2>
 
       <div class="practico__rejilla">
         <div class="dato">
-          <h3 class="dato__titulo">Dónde</h3>
+          <h3 class="dato__titulo">{t.donde}</h3>
           <address class="dato__texto">
             {oficina.direccion}<br />
             {oficina.cp} Madrid
           </address>
-          <a class="dato__enlace" href={mapa} target="_blank" rel="noopener">Cómo llegar</a>
+          <a class="dato__enlace" href={mapa} target="_blank" rel="noopener">{t.comoLlegar}</a>
         </div>
 
         <div class="dato">
-          <h3 class="dato__titulo">Horario</h3>
+          <h3 class="dato__titulo">{t.horario}</h3>
           <dl class="horario">
             {
               HORARIO.map((tramo) => (
@@ -118,13 +139,13 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
         </div>
 
         <div class="dato">
-          <h3 class="dato__titulo">Contacto</h3>
+          <h3 class="dato__titulo">{t.contacto}</h3>
           <ul class="contactos">
             <li>
               <a href={enlaceTelefono(oficina.telefonos[0])}>
                 {telefonoLegible(oficina.telefonos[0])}
               </a>
-              <span>Fijo</span>
+              <span>{t.fijo}</span>
             </li>
             <li>
               <a href={enlaceWhatsApp(oficina.telefonos[1], mensaje)}>
@@ -139,20 +160,20 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
         </div>
 
         <div class="dato">
-          <h3 class="dato__titulo">Equipo</h3>
-          <p class="dato__texto">{oficina.equipo}.</p>
+          <h3 class="dato__titulo">{t.equipo}</h3>
+          <p class="dato__texto">{equipo}.</p>
           <p class="dato__texto dato__texto--suave">
-            Zonas: {oficina.cubre.join(' · ')}
+            {t.zonas}: {oficina.cubre.join(' · ')}
           </p>
         </div>
       </div>
     </section>
 
     <!-- Mapa -->
-    <section class="mapa" aria-label="Mapa de la oficina">
+    <section class="mapa" aria-label={t.mapaDe(oficina.nombre)}>
       <iframe
         src={mapaIncrustado}
-        title={`Mapa de la oficina de ${oficina.nombre}`}
+        title={t.mapaDe(oficina.nombre)}
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"></iframe>
     </section>
@@ -162,32 +183,38 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
       barrio && (
         <section class="barrio" aria-labelledby="titulo-barrio">
           <header class="barrio__cabecera">
-            <p class="antetitulo">El barrio</p>
+            <p class="antetitulo">{t.elBarrio}</p>
             <h2 id="titulo-barrio" class="barrio__titulo" data-titular>
-              Cómo se vive en {barrio.nombre}
+              {t.comoSeVive(barrio.nombre)}
             </h2>
           </header>
 
           <div class="barrio__cuerpo">
             <dl class="barrio__cifras">
               <div>
-                <dt>Precio de compra</dt>
+                <dt>{t.precioCompra}</dt>
                 <dd>{precioMetro(barrio.precioVenta)}</dd>
               </div>
               <div>
-                <dt>Alquiler 2 dormitorios</dt>
+                <dt>{t.alquilerDos}</dt>
                 <dd>{barrio.alquilerTipo} €</dd>
               </div>
               <div>
-                <dt>Hasta Sol</dt>
+                <dt>{t.hastaSol}</dt>
                 <dd>{barrio.minutosCentro} min</dd>
               </div>
             </dl>
 
             <div class="barrio__juicio">
-              <p><strong>Lo mejor.</strong> {barrio.aFavor}</p>
-              <p class="barrio__contra"><strong>La pega.</strong> {barrio.contra}</p>
-              <a class="dato__enlace" href="/#titulo-comparador">Comparar con los otros barrios</a>
+              <p>
+                <strong>{t.loMejor}</strong> {barrioEn?.aFavor ?? barrio.aFavor}
+              </p>
+              <p class="barrio__contra">
+                <strong>{t.laPega}</strong> {barrioEn?.contra ?? barrio.contra}
+              </p>
+              <a class="dato__enlace" href={`${enlaceDe(idioma, '/')}#titulo-comparador`}>
+                {t.compararBarrios}
+              </a>
             </div>
           </div>
         </section>
@@ -197,7 +224,8 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
     <Tablon
       oficina={oficina.id}
       cuantas={4}
-      titulo={`Novedades de ${oficina.nombre}`}
+      titulo={t.novedadesDe(oficina.nombre)}
+      idioma={idioma}
     />
 
     <!-- Cartera de la oficina -->
@@ -205,17 +233,15 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
       cartera.length > 0 && (
         <section class="cartera" aria-labelledby="titulo-cartera">
           <header class="cartera__cabecera">
-            <p class="antetitulo">Su cartera</p>
+            <p class="antetitulo">{t.suCartera}</p>
             <h2 id="titulo-cartera" class="cartera__titulo" data-titular>
-              {cartera.length === 1
-                ? 'Inmueble que gestiona esta oficina'
-                : `Los ${cartera.length} inmuebles de esta oficina`}
+              {cartera.length === 1 ? t.carteraUno : t.carteraVarios(cartera.length)}
             </h2>
           </header>
 
           <div class="cartera__rejilla">
             {cartera.map((inmueble, i) => (
-              <Ficha inmueble={inmueble} retraso={i * 80} />
+              <Ficha inmueble={inmueble} retraso={i * 80} idioma={idioma} />
             ))}
           </div>
         </section>
@@ -224,12 +250,12 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
 
     <!-- Otras oficinas -->
     <section class="otras" aria-labelledby="titulo-otras">
-      <h2 id="titulo-otras" class="otras__titulo">¿No es tu barrio?</h2>
+      <h2 id="titulo-otras" class="otras__titulo">{t.otras}</h2>
       <ul class="otras__lista">
         {
           otras.map((o) => (
             <li>
-              <a class="otra" href={`/oficina/${o.id}`}>
+              <a class="otra" href={enlaceDe(idioma, `/oficina/${o.id}`)}>
                 <span class="otra__nombre">{o.nombre}</span>
                 <span class="otra__barrio">{o.barrio}</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true">

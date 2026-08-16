@@ -1,54 +1,56 @@
 ---
-import Base from '../layouts/Base.astro';
-import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Base from '../../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.empresa;
 ---
 
-<Base titulo="Contacto | Raiz Inmobiliaria" descripcion="Telefono, WhatsApp y las cuatro oficinas de Madrid. Te contestamos el mismo dia.">
+<Base
+  idioma={idioma}
+  titulo={`${t.tituloPagina} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
+>
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Contacto</p>
-      <h1 class="portadilla__titulo">Hablamos<br /><span class="acento">cuando quieras</span></h1>
-      <p class="portadilla__entrada">Por telefono, por WhatsApp o entrando por la puerta. Lo que te resulte mas comodo.</p>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1 class="portadilla__titulo">
+        {t.titulo}<br /><span class="acento">{t.acento}</span>
+      </h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
     <div class="bloques" data-revelar>
-      <div class="bloque">
-        <h2>Por telefono</h2>
-        <p>
-          El 900 es gratuito y te pasa con la oficina de tu barrio. De lunes a
-          viernes de 10:00 a 14:00 y de 17:00 a 20:00.
-        </p>
-      </div>
-      <div class="bloque">
-        <h2>Por WhatsApp</h2>
-        <p>
-          Es lo mas rapido para una consulta corta o para pedir cita.
-          Contestamos en horario de oficina.
-        </p>
-      </div>
-      <div class="bloque">
-        <h2>En persona</h2>
-        <p>
-          Cuatro oficinas a pie de calle. Puedes pedir cita o entrar
-          directamente: si esta abierto, te atendemos.
-        </p>
-      </div>
+      {
+        t.bloques.map((bloque) => (
+          <div class="bloque">
+            <h2>{bloque.titulo}</h2>
+            <p>{bloque.texto}</p>
+          </div>
+        ))
+      }
     </div>
 
     <div class="prosa" data-revelar>
-      <h2>Antes de escribirnos</h2>
-      <p>
-        Si nos dices desde el principio que buscas, en que zona y para cuando,
-        te ahorramos tres mensajes de ida y vuelta. Y si es sobre un inmueble
-        concreto, pasanos la referencia.
-      </p>
+      <h2>{t.queHacemos}</h2>
+      <p>{t.queHacemosTexto}</p>
+      <h2>{t.dondeTrabajamos}</h2>
+      <p>{t.dondeTrabajamosTexto}</p>
     </div>
 
     <aside class="cierre" data-revelar>
-      <h2>Pide cita y no esperes</h2>
-      <p>Eliges dia y hora, y te confirmamos por WhatsApp.</p>
+      <h2>{t.cierreTitulo}</h2>
+      <p>{t.cierreTexto}</p>
       <div class="cierre__acciones">
-        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--laton" href={enlaceDe(idioma, '/cita')}>
+          {todo.comun.pedirCita}
+        </a>
         <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
           {telefonoLegible(EMPRESA.telefonoGratuito)}
         </a>

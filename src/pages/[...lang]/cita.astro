@@ -1,35 +1,41 @@
 ---
-import Base from '../layouts/Base.astro';
-import Agenda from '../components/Agenda.astro';
-import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Base from '../../layouts/Base.astro';
+import Agenda from '../../components/Agenda.astro';
+import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.cita;
 ---
 
 <Base
-  titulo="Reservar cita | Umbral Inmobiliaria"
-  descripcion="Reserva tu cita en cualquiera de nuestras cuatro oficinas de Madrid. Elige día y hora y te confirmamos por WhatsApp."
+  idioma={idioma}
+  titulo={`${t.antetitulo} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
 >
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Agenda</p>
-      <h1 class="portadilla__titulo">Reserva tu cita<br /><span class="acento">en un minuto</span></h1>
-      <p class="portadilla__entrada">
-        Sin llamadas, sin esperas y sin dar más datos de los necesarios. Eliges
-        día y hora, y te confirmamos por WhatsApp.
-      </p>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1 class="portadilla__titulo">
+        {t.titulo}<br /><span class="acento">{t.acento}</span>
+      </h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
-    <Agenda />
+    <Agenda idioma={idioma} />
 
     <aside class="alternativa" data-revelar>
-      <h2 class="alternativa__titulo">También puedes venir sin cita</h2>
-      <p>
-        Nuestras {OFICINAS.length} oficinas están abiertas de lunes a viernes.
-        Si está abierto, te atendemos.
-      </p>
+      <h2 class="alternativa__titulo">{t.sinCita}</h2>
+      <p>{t.sinCitaTexto(OFICINAS.length)}</p>
       <div class="alternativa__acciones">
-        <a class="boton boton--linea" href="/oficinas">Ver las oficinas</a>
+        <a class="boton boton--linea" href={enlaceDe(idioma, '/oficinas')}>{t.verOficinas}</a>
         <a class="boton" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
-          Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+          {todo.comun.llamarAl} {telefonoLegible(EMPRESA.telefonoGratuito)}
         </a>
       </div>
     </aside>

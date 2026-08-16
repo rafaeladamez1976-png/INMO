@@ -1,24 +1,54 @@
 ---
-import Base from '../layouts/Base.astro';
-import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
-import Tablon from '../components/Tablon.astro';
+import Base from '../../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.contacto;
 ---
 
-<Base titulo="Noticias y consejos | Raiz Inmobiliaria" descripcion="Mercado inmobiliario de Madrid, consejos para vender y comprar, y novedades de normativa.">
+<Base
+  idioma={idioma}
+  titulo={`${t.tituloPagina} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
+>
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Revista</p>
-      <h1 class="portadilla__titulo">Lo que conviene<br /><span class="acento">saber antes</span></h1>
-      <p class="portadilla__entrada">Mercado, normativa y consejos practicos. Sin relleno y sin copiar notas de prensa.</p>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1 class="portadilla__titulo">
+        {t.titulo}<br /><span class="acento">{t.acento}</span>
+      </h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
-    <Tablon cuantas={8} titulo="Lo último de las cuatro oficinas" />
+    <div class="bloques" data-revelar>
+      {
+        t.vias.map((via) => (
+          <div class="bloque">
+            <h2>{via.titulo}</h2>
+            <p>{via.texto}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="prosa" data-revelar>
+      <h2>{t.antesTitulo}</h2>
+      <p>{t.antesTexto}</p>
+    </div>
 
     <aside class="cierre" data-revelar>
-      <h2>Te resolvemos una duda concreta?</h2>
-      <p>Muchas veces se contesta en dos minutos por telefono.</p>
+      <h2>{t.citaTitulo}</h2>
+      <p>{t.citaTexto}</p>
       <div class="cierre__acciones">
-        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--laton" href={enlaceDe(idioma, '/cita')}>
+          {todo.comun.pedirCita}
+        </a>
         <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
           {telefonoLegible(EMPRESA.telefonoGratuito)}
         </a>

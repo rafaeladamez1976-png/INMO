@@ -1,6 +1,14 @@
 ---
 import { EMPRESA, OFICINAS, telefonoLegible } from '../data/empresa';
 import { MOTIVOS } from '../lib/citas';
+import { textos, type Idioma } from '../i18n';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma).agenda;
 
 /**
  * Agenda de visitas.
@@ -11,25 +19,42 @@ import { MOTIVOS } from '../lib/citas';
  *
  * Es la mejora más rentable frente a un formulario de contacto: una cita con
  * día y hora vale mucho más que un "me interesa" perdido en una bandeja.
+ *
+ * El motivo viaja en el mensaje tal cual se muestra: quien lo recibe en la
+ * oficina lee el mismo texto que ha visto el cliente.
  */
+const motivos: readonly string[] = idioma === 'en' ? t.motivos : MOTIVOS;
 ---
 
-<section class="agenda" data-agenda>
+<section
+  class="agenda"
+  data-agenda
+  data-idioma={idioma}
+  data-texto-falta={t.faltaPlantilla}
+  data-frase-saludo={t.mensaje.saludo}
+  data-frase-motivo={t.mensaje.motivo}
+  data-frase-oficina={t.mensaje.oficina}
+  data-frase-alas={t.mensaje.alas}
+  data-frase-soy={t.mensaje.soy}
+  data-pieza-motivo={t.piezas.motivo}
+  data-pieza-oficina={t.piezas.oficina}
+  data-pieza-dia={t.piezas.dia}
+  data-pieza-hora={t.piezas.hora}
+  data-pieza-nombre={t.piezas.nombre}
+>
   <header class="agenda__cabecera">
-    <p class="antetitulo">Reserva tu cita</p>
-    <h2 class="agenda__titulo">Ven cuando te venga bien</h2>
-    <p class="agenda__entrada">
-      Elige día y hora. Te confirmamos por WhatsApp en cuanto lo veamos.
-    </p>
+    <p class="antetitulo">{t.antetitulo}</p>
+    <h2 class="agenda__titulo">{t.titulo}</h2>
+    <p class="agenda__entrada">{t.entrada}</p>
   </header>
 
   <form class="agenda__form" data-form novalidate>
     <!-- Motivo -->
     <fieldset class="campo-grupo">
-      <legend class="etiqueta">¿Qué necesitas?</legend>
+      <legend class="etiqueta">{t.queNecesitas}</legend>
       <div class="fichas">
         {
-          MOTIVOS.map((motivo) => (
+          motivos.map((motivo) => (
             <label class="ficha-op">
               <input type="radio" name="motivo" value={motivo} />
               <span>{motivo}</span>
@@ -41,7 +66,7 @@ import { MOTIVOS } from '../lib/citas';
 
     <!-- Oficina -->
     <fieldset class="campo-grupo">
-      <legend class="etiqueta">¿En qué oficina?</legend>
+      <legend class="etiqueta">{t.queOficina}</legend>
       <div class="fichas">
         {
           OFICINAS.map((oficina) => (
@@ -63,38 +88,33 @@ import { MOTIVOS } from '../lib/citas';
 
     <!-- Calendario -->
     <fieldset class="campo-grupo">
-      <legend class="etiqueta">¿Qué día?</legend>
-      <div class="dias" data-dias role="group" aria-label="Días disponibles"></div>
-      <p class="nota">
-        Lunes a viernes de 10:00 a 14:00 y de 17:00 a 20:00. Sábados solo por la
-        mañana.
-      </p>
+      <legend class="etiqueta">{t.queDia}</legend>
+      <div class="dias" data-dias role="group" aria-label={t.diasDisponibles}></div>
+      <p class="nota">{t.horarioAyuda}</p>
     </fieldset>
 
     <!-- Horas -->
     <fieldset class="campo-grupo" data-bloque-horas hidden>
-      <legend class="etiqueta">¿A qué hora?</legend>
-      <div class="horas" data-horas role="group" aria-label="Horas disponibles"></div>
+      <legend class="etiqueta">{t.queHora}</legend>
+      <div class="horas" data-horas role="group" aria-label={t.horasDisponibles}></div>
     </fieldset>
 
     <!-- Nombre -->
     <label class="campo">
-      <span class="etiqueta">Tu nombre</span>
+      <span class="etiqueta">{t.tuNombre}</span>
       <input
         class="campo__control"
         type="text"
         name="nombre"
         maxlength="40"
-        placeholder="Marta"
+        placeholder={t.nombreEjemplo}
         autocomplete="given-name"
       />
     </label>
 
     <!-- Resumen y envío -->
     <div class="cierre">
-      <blockquote class="cierre__resumen" data-resumen>
-        Elige motivo, oficina, día y hora para ver aquí tu cita.
-      </blockquote>
+      <blockquote class="cierre__resumen" data-resumen>{t.vacio}</blockquote>
 
       <a class="boton boton--laton cierre__enviar" data-enviar href="#" aria-disabled="true">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -105,25 +125,22 @@ import { MOTIVOS } from '../lib/citas';
             stroke-width="1.8"
             stroke-linejoin="round"></path>
         </svg>
-        Reservar por WhatsApp
+        {t.reservar}
       </a>
 
-      <p class="cierre__aviso">
-        La cita no está confirmada hasta que te respondamos. Si te surge algo,
-        avísanos por el mismo WhatsApp.
-      </p>
+      <p class="cierre__aviso">{t.avisoReserva}</p>
 
       <p class="cierre__telefono">
-        ¿Prefieres llamar? <strong>{telefonoLegible(EMPRESA.telefonoGratuito)}</strong>
+        {t.prefieresLlamar} <strong>{telefonoLegible(EMPRESA.telefonoGratuito)}</strong>
       </p>
     </div>
   </form>
 
   <noscript>
     <p class="nota">
-      Para reservar cita, escríbenos al WhatsApp
-      <strong>{telefonoLegible(EMPRESA.whatsappCitas)}</strong> indicando motivo,
-      oficina y cuándo te viene bien.
+      {t.sinJsAntes}
+      <strong>{telefonoLegible(EMPRESA.whatsappCitas)}</strong>{' '}
+      {t.sinJsDespues}
     </p>
   </noscript>
 </section>

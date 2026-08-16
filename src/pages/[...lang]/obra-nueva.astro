@@ -1,17 +1,27 @@
 ---
 import { Image } from 'astro:assets';
-import Base from '../layouts/Base.astro';
+import Base from '../../layouts/Base.astro';
 import {
   PROMOCIONES,
   ESTADOS,
   desdePromocion,
   disponibilidad,
-} from '../data/promociones';
-import { OFICINAS, EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
-import { euros } from '../lib/hipoteca';
+} from '../../data/promociones';
+import { OFICINAS, EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+import { PROMOCIONES_EN, ESTADOS_EN, precioDe } from '../../i18n/datos';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.obraNueva;
+const euros = (n: number) => precioDe(Math.round(n), idioma);
 
 const fotos = import.meta.glob<{ default: ImageMetadata }>(
-  '../assets/inmuebles/*.{jpg,jpeg,png,webp}',
+  '../../assets/inmuebles/*.{jpg,jpeg,png,webp}',
   { eager: true },
 );
 
@@ -33,20 +43,17 @@ const totales = PROMOCIONES.reduce(
 ---
 
 <Base
-  titulo="Obra nueva y promociones | Umbral Inmobiliaria"
-  descripcion="Promociones de obra nueva en Madrid, Toledo y Badajoz. Con plazos, promotora y viviendas disponibles a la vista."
+  idioma={idioma}
+  titulo={`${t.antetitulo} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
 >
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Obra nueva</p>
+      <p class="antetitulo">{t.antetitulo}</p>
       <h1 class="portadilla__titulo">
-        Estrenar<br /><span class="acento">sin sorpresas</span>
+        {t.titulo}<br /><span class="acento">{t.acento}</span>
       </h1>
-      <p class="portadilla__entrada">
-        {PROMOCIONES.length} promociones en comercialización y {totales.quedan} viviendas
-        disponibles de {totales.total}. Con la promotora, el plazo real y lo que
-        conviene saber antes de firmar, que es justo lo que nadie te cuenta.
-      </p>
+      <p class="portadilla__entrada">{t.entrada(PROMOCIONES.length, totales.quedan, totales.total)}</p>
     </header>
 
     <div class="promociones">
@@ -59,11 +66,11 @@ const totales = PROMOCIONES.reduce(
 
           return (
             <article class="promo" data-revelar data-revelar-retraso={i * 90}>
-              <a class="promo__foto" href={`/promocion/${promocion.id}`}>
+              <a class="promo__foto" href={enlaceDe(idioma, `/promocion/${promocion.id}`)}>
                 {foto && (
                   <Image
                     src={foto}
-                    alt={`Promoción ${promocion.nombre} en ${promocion.zona}`}
+                    alt={`${promocion.nombre}, ${promocion.zona}`}
                     widths={[500, 900, 1400]}
                     sizes="(max-width: 56rem) 92vw, 44vw"
                     loading={i < 2 ? 'eager' : 'lazy'}
@@ -71,7 +78,7 @@ const totales = PROMOCIONES.reduce(
                   />
                 )}
                 <span class:list={['promo__estado', `promo__estado--${estado.tono}`]}>
-                  {estado.nombre}
+                  {idioma === 'en' ? (ESTADOS_EN[promocion.estado]?.nombre ?? estado.nombre) : estado.nombre}
                 </span>
               </a>
 
@@ -80,22 +87,22 @@ const totales = PROMOCIONES.reduce(
                   {promocion.zona}, {promocion.provincia}
                 </p>
                 <h2 class="promo__nombre">
-                  <a href={`/promocion/${promocion.id}`}>{promocion.nombre}</a>
+                  <a href={enlaceDe(idioma, `/promocion/${promocion.id}`)}>{promocion.nombre}</a>
                 </h2>
 
                 <dl class="promo__cifras">
                   <div>
-                    <dt>Desde</dt>
+                    <dt>{todo.comun.desde}</dt>
                     <dd>{euros(desdePromocion(promocion))}</dd>
                   </div>
                   <div>
-                    <dt>Entrega</dt>
+                    <dt>{t.entrega}</dt>
                     <dd class="promo__texto">{promocion.entrega}</dd>
                   </div>
                   <div>
-                    <dt>Quedan</dt>
+                    <dt>{t.quedan}</dt>
                     <dd>
-                      {d.quedan} <span>de {d.total}</span>
+                      {d.quedan} <span>{t.de} {d.total}</span>
                     </dd>
                   </div>
                 </dl>
@@ -104,28 +111,26 @@ const totales = PROMOCIONES.reduce(
                 <div
                   class="barra"
                   role="img"
-                  aria-label={`Quedan ${d.quedan} viviendas de ${d.total}`}
+                  aria-label={`${t.quedan}: ${d.quedan} / ${d.total}`}
                 >
                   <span class="barra__llena" style={`--parte: ${((d.total - d.quedan) / d.total) * 100}%`} />
                 </div>
-                <p class="promo__vendidas">
-                  {d.total - d.quedan} vendidas de {d.total}
-                </p>
+<p class="promo__vendidas">{t.vendidas(d.total - d.quedan, d.total)}</p>
 
                 <ul class="promo__incluye">
-                  {promocion.incluye.slice(0, 3).map((cosa) => (
+                  {(idioma === 'en' ? (PROMOCIONES_EN[promocion.id]?.incluye ?? promocion.incluye) : promocion.incluye).slice(0, 3).map((cosa) => (
                     <li>{cosa}</li>
                   ))}
                 </ul>
 
                 <p class="promo__pie">
                   {oficina && (
-                    <a class="promo__oficina" href={`/oficina/${oficina.id}`}>
-                      Oficina de {oficina.nombre}
+                    <a class="promo__oficina" href={enlaceDe(idioma, `/oficina/${oficina.id}`)}>
+                      {todo.ficha.oficinaDe} {oficina.nombre}
                     </a>
                   )}
-                  <a class="promo__ver" href={`/promocion/${promocion.id}`}>
-                    Ver la promoción
+                  <a class="promo__ver" href={enlaceDe(idioma, `/promocion/${promocion.id}`)}>
+                    {t.verPromocion}
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                       <path
                         d="M5 12h14M13 6l6 6-6 6"
@@ -146,52 +151,26 @@ const totales = PROMOCIONES.reduce(
     </div>
 
     <section class="claves" data-revelar>
-      <h2 class="claves__titulo">Comprar obra nueva no es comprar un piso usado</h2>
+      <h2 class="claves__titulo">{t.claves.titulo}</h2>
       <div class="claves__rejilla">
-        <article class="clave">
-          <h3 class="clave__titulo">Pagas IVA, no ITP</h3>
-          <p>
-            La obra nueva tributa al 10 % de IVA más el impuesto de actos
-            jurídicos documentados, en lugar del 6 % de ITP de la segunda mano en
-            Madrid. Sobre 200.000 € son unos 10.000 € más.
-          </p>
-        </article>
-        <article class="clave">
-          <h3 class="clave__titulo">Las entregas a cuenta van avaladas</h3>
-          <p>
-            Todo lo que pagues antes de la entrega tiene que estar cubierto por
-            un aval o un seguro, por ley. Pide el documento y guárdalo: es lo que
-            te devuelve el dinero si la promotora falla.
-          </p>
-        </article>
-        <article class="clave">
-          <h3 class="clave__titulo">Los plazos se mueven</h3>
-          <p>
-            Una entrega prevista no es una fecha cerrada. Deja margen de tres a
-            seis meses y no dejes tu vivienda actual hasta que haya licencia de
-            primera ocupación.
-          </p>
-        </article>
-        <article class="clave">
-          <h3 class="clave__titulo">La memoria de calidades manda</h3>
-          <p>
-            Lo que se entrega es lo que pone en la memoria, no lo que se ve en el
-            piso piloto. Léela entera y pregunta por lo que no aparezca.
-          </p>
-        </article>
+        {
+          t.claves.lista.map((clave) => (
+            <article class="clave">
+              <h3 class="clave__titulo">{clave.titulo}</h3>
+              <p>{clave.texto}</p>
+            </article>
+          ))
+        }
       </div>
     </section>
 
     <aside class="ayuda" data-revelar>
-      <h2 class="ayuda__titulo">¿Vas a comprar sobre plano?</h2>
-      <p>
-        Te acompañamos a la visita, revisamos contigo la memoria de calidades y
-        el aval, y te decimos si el precio se sostiene. Sin coste para ti.
-      </p>
+      <h2 class="ayuda__titulo">{t.ayuda.titulo}</h2>
+<p>{t.ayuda.texto}</p>
       <div class="ayuda__acciones">
-        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--laton" href={enlaceDe(idioma, '/cita')}>{todo.comun.pedirCita}</a>
         <a class="boton boton--linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
-          Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+          {todo.comun.llamarAl} {telefonoLegible(EMPRESA.telefonoGratuito)}
         </a>
       </div>
     </aside>

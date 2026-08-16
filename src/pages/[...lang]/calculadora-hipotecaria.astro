@@ -1,38 +1,54 @@
 ---
-import Base from '../layouts/Base.astro';
-import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Base from '../../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.calculadora;
 ---
 
 <Base
-  titulo="Calculadora de hipoteca | Umbral Inmobiliaria"
-  descripcion="Calcula tu cuota mensual, los intereses totales y el ahorro que necesitas para comprar. Al instante y sin dejar tus datos."
+  idioma={idioma}
+  titulo={`${t.antetitulo} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
 >
   <div class="contenedor">
     <header class="portadilla" data-revelar>
-      <p class="antetitulo">Calculadora</p>
+      <p class="antetitulo">{t.antetitulo}</p>
       <h1 class="portadilla__titulo">
-        ¿Cuánto pagarías<br /><span class="acento">al mes</span>?
+        {t.titulo}<br /><span class="acento">{t.acento}</span>?
       </h1>
-      <p class="portadilla__entrada">
-        Mueve las barras y verás la cuota al instante. No te pedimos ni el
-        correo: esto es para que hagas tus cuentas, no para captarte.
-      </p>
+      <p class="portadilla__entrada">{t.entrada}</p>
     </header>
 
-    <div class="calc" data-calc>
+    <div
+      class="calc"
+      data-calc
+      data-idioma={idioma}
+      data-texto-anios={t.anios}
+      data-texto-cubre={t.cubre}
+      data-texto-sin-hipoteca={t.sinHipoteca}
+      data-texto-falta-entrada={t.faltaEntrada}
+      data-texto-ingresos={t.ingresos}
+    >
       <form class="calc__mandos">
         <label class="mando">
           <span class="mando__fila">
-            <span class="mando__nombre">Precio de la vivienda</span>
-            <output class="mando__valor" data-salida="precio">200.000 €</output>
+            <span class="mando__nombre">{t.mandos.precio}</span>
+            <output class="mando__valor" data-salida="precio"></output>
           </span>
           <input type="range" name="precio" min="40000" max="900000" step="5000" value="200000" />
         </label>
 
         <label class="mando">
           <span class="mando__fila">
-            <span class="mando__nombre">Ahorro que aportas</span>
-            <output class="mando__valor" data-salida="entrada">40.000 €</output>
+            <span class="mando__nombre">{t.mandos.entrada}</span>
+            <output class="mando__valor" data-salida="entrada"></output>
           </span>
           <input type="range" name="entrada" min="0" max="500000" step="2500" value="40000" />
           <span class="mando__nota" data-nota-entrada></span>
@@ -40,64 +56,54 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
 
         <label class="mando">
           <span class="mando__fila">
-            <span class="mando__nombre">Plazo</span>
-            <output class="mando__valor" data-salida="anios">25 años</output>
+            <span class="mando__nombre">{t.mandos.plazo}</span>
+            <output class="mando__valor" data-salida="anios"></output>
           </span>
           <input type="range" name="anios" min="5" max="40" step="1" value="25" />
         </label>
 
         <label class="mando">
           <span class="mando__fila">
-            <span class="mando__nombre">Interés anual</span>
-            <output class="mando__valor" data-salida="interes">3,20 %</output>
+            <span class="mando__nombre">{t.mandos.interes}</span>
+            <output class="mando__valor" data-salida="interes"></output>
           </span>
           <input type="range" name="interes" min="0" max="8" step="0.05" value="3.2" />
         </label>
       </form>
 
       <div class="calc__resultado">
-        <p class="calc__etiqueta">Cuota mensual</p>
-        <p class="calc__cuota" data-salida="cuota">778,32 €</p>
+        <p class="calc__etiqueta">{t.cuotaMensual}</p>
+        <p class="calc__cuota" data-salida="cuota"></p>
 
         <dl class="calc__desglose">
           <div>
-            <dt>Pides al banco</dt>
-            <dd data-salida="capital">160.000 €</dd>
+            <dt>{t.pidesBanco}</dt>
+            <dd data-salida="capital"></dd>
           </div>
           <div>
-            <dt>Intereses totales</dt>
-            <dd data-salida="intereses">73.497 €</dd>
+            <dt>{t.intereses}</dt>
+            <dd data-salida="intereses"></dd>
           </div>
           <div>
-            <dt>Gastos de compra</dt>
-            <dd data-salida="gastos">22.000 €</dd>
+            <dt>{t.gastos}</dt>
+            <dd data-salida="gastos"></dd>
           </div>
           <div>
-            <dt>Ahorro necesario</dt>
-            <dd data-salida="ahorro">62.000 €</dd>
+            <dt>{t.ahorro}</dt>
+            <dd data-salida="ahorro"></dd>
           </div>
         </dl>
 
         <p class="calc__aviso" data-aviso></p>
 
-        <a class="boton boton--laton calc__cta" href="/cita">Hablar con un asesor</a>
+        <a class="boton boton--laton calc__cta" href={enlaceDe(idioma, '/cita')}>{t.asesor}</a>
       </div>
     </div>
 
     <aside class="letra-pequena" data-revelar>
-      <h2>Lo que este cálculo no incluye</h2>
-      <p>
-        Es una estimación con sistema de amortización francés, el de casi todas
-        las hipotecas en España. Los gastos de compra se calculan al 11 % del
-        precio, que es la horquilla habitual entre impuestos, notaría, registro
-        y gestoría, pero varían según la comunidad autónoma y según si la
-        vivienda es nueva o de segunda mano.
-      </p>
-      <p>
-        No incluye seguros vinculados, comisión de apertura ni la revisión de
-        tipo si la hipoteca es variable. Para números en firme, habla con
-        nosotros: te acompañamos a la negociación con el banco.
-      </p>
+      <h2>{t.noIncluye}</h2>
+      <p>{t.letraUno}</p>
+      <p>{t.letraDos}</p>
       <p class="letra-pequena__telefono">
         <a href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
           {telefonoLegible(EMPRESA.telefonoGratuito)}
@@ -108,7 +114,7 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
 </Base>
 
 <script>
-  import { iniciarCalculadora } from '../components/calculadora';
+  import { iniciarCalculadora } from '../../components/calculadora';
   iniciarCalculadora();
   document.addEventListener('astro:after-swap', iniciarCalculadora);
 </script>

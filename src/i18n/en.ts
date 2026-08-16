@@ -37,6 +37,11 @@ export const en: Textos = {
     sinCoste: 'Free, with no obligation',
   },
 
+  flotante: {
+    rotulo: 'Book a visit',
+    mensaje: 'Hello, I am writing from the website. I would like to book an appointment.',
+  },
+
   aviso: {
     fuerte: 'Demonstration site.',
     resto: 'Every property shown is a made-up example.',
@@ -284,8 +289,187 @@ export const en: Textos = {
     informacion: 'Information',
   },
 
+  oficinas: {
+    tituloPagina: 'Our offices in Madrid',
+    descripcion:
+      'Four offices in Cuatro Vientos, Aluche, Las Águilas and Latina. Walk in without an appointment.',
+    antetitulo: 'Where we are',
+    titulo: 'Four neighbourhoods,',
+    titulo2: 'four front doors',
+    entrada: 'Walk in without an appointment. If the door is open, we will see you.',
+    sede: 'Head office',
+    verEsta: 'See this office',
+    comoLlegar: 'Get directions',
+    generalTitulo: 'General number',
+    generalTexto:
+      'If you are not sure which office covers you, call here and we will put you through to the one in your area.',
+    fotoAlt: (nombre: string) => `Our office in ${nombre}`,
+  },
+
+  oficina: {
+    sede: 'Head office',
+    desdeAno: 'Open since',
+    oficinaDe: 'Our office in',
+    escribir: 'Message on WhatsApp',
+    practico: 'Practical information',
+    donde: 'Where',
+    comoLlegar: 'Get directions',
+    horario: 'Opening hours',
+    contacto: 'Contact',
+    fijo: 'Landline',
+    equipo: 'Team',
+    zonas: 'Areas',
+    mapaDe: (nombre: string) => `Map of our ${nombre} office`,
+    fotoAlt: (nombre: string) => `Inside our ${nombre} office`,
+    elBarrio: 'The neighbourhood',
+    comoSeVive: (barrio: string) => `What living in ${barrio} is like`,
+    precioCompra: 'Purchase price',
+    alquilerDos: 'Rent, 2 bedrooms',
+    hastaSol: 'To Sol',
+    loMejor: 'Best thing.',
+    laPega: 'The catch.',
+    compararBarrios: 'Compare with the other neighbourhoods',
+    novedadesDe: (nombre: string) => `Latest from ${nombre}`,
+    suCartera: 'What they have on',
+    carteraUno: 'Property handled by this office',
+    carteraVarios: (n: number) => `The ${n} properties at this office`,
+    otras: 'Not your neighbourhood?',
+    mensaje: (nombre: string) =>
+      `Hello, I am writing from the website about your ${nombre} office.`,
+  },
+
   valoracion: {
-    titulo: 'Free valuation',
+    tituloPagina: 'Free valuation of your home',
+    antetitulo: 'Free valuation',
+    titulo: 'What is your',
+    acento: 'home worth',
+    entrada:
+      'We will not give you an inflated number to win your business and then talk it down. We give you the price that deals are actually closing at on your street.',
+    ventajas: [
+      { titulo: 'No charge', texto: 'The valuation is free and commits you to nothing.' },
+      { titulo: 'Within 48 hours', texto: 'We visit, compare and call you with the price.' },
+      {
+        titulo: 'On figures, not hunches',
+        texto: 'Deals closed in your area, not asking prices in adverts.',
+      },
+    ],
+    hablamos: 'Would you rather talk?',
+    hablamosTexto:
+      'Call us and the office in your neighbourhood picks up. No switchboard and no hold music.',
+  },
+
+  formValoracion: {
+    tipos: ['Flat', 'Top-floor flat', 'House', 'Village house', 'Commercial unit'],
+    habitaciones: ['1', '2', '3', '4', '5 or more'],
+    plazos: ['As soon as possible', 'In 3 to 6 months', 'This year', 'I just want the price'],
+    paso: (n: number, total: number) => `Step ${n} of ${total}`,
+    pasoPlantilla: 'Step {n} of {total}',
+    yaEsta: 'All set',
+    verMensaje: 'See the message',
+    queValorar: 'What would you like valued?',
+    queZona: 'Whereabouts is it?',
+    zonaAyuda: 'Pick the office nearest to you.',
+    otraZona: 'Somewhere else',
+    otraZonaDetalle: 'Toledo, Extremadura…',
+    cuantasHabitaciones: 'How many bedrooms?',
+    metros: 'Square metres (roughly)',
+    paraCuando: 'By when?',
+    tuNombre: 'Your name',
+    nombreEjemplo: 'Maria',
+    esto: 'This is what we will send',
+    enviar: 'Request a valuation on WhatsApp',
+    avisoEnvio: 'We call you back within 48 hours. We do not share your details with anyone.',
+    prefieresLlamar: 'Would you rather call?',
+    atras: 'Back',
+    siguiente: 'Next',
+    sinJs: 'To request your valuation, call us on',
+    mensaje: {
+      saludo: 'Hello, I would like a valuation of my property.',
+      tipo: 'Type',
+      zona: 'Area',
+      habitaciones: 'Bedrooms',
+      metros: 'Square metres',
+      plazo: 'Timescale',
+      soy: 'My name is',
+    },
+  },
+
+  agenda: {
+    antetitulo: 'Book a visit',
+    titulo: 'Come whenever suits you',
+    entrada: 'Pick a day and a time. We confirm on WhatsApp as soon as we see it.',
+    queNecesitas: 'What do you need?',
+    queOficina: 'Which office?',
+    queDia: 'Which day?',
+    horarioAyuda:
+      'Monday to Friday, 10:00 to 14:00 and 17:00 to 20:00. Saturdays mornings only.',
+    queHora: 'What time?',
+    tuNombre: 'Your name',
+    nombreEjemplo: 'Maria',
+    vacio: 'Choose a reason, an office, a day and a time to see your appointment here.',
+    reservar: 'Book on WhatsApp',
+    avisoReserva:
+      'The appointment is not confirmed until we reply. If something comes up, let us know on the same WhatsApp.',
+    prefieresLlamar: 'Would you rather call?',
+    sinJsAntes: 'To book an appointment, message us on WhatsApp at',
+    sinJsDespues: 'telling us the reason, the office and when suits you.',
+    motivos: [
+      'Sell my home',
+      'Let my home',
+      'View a property',
+      'Free valuation',
+      'Mortgage and financing',
+      'Something else',
+    ],
+    diasDisponibles: 'Available days',
+    horasDisponibles: 'Available times',
+    faltaPlantilla: 'Still need {cosas}.',
+    piezas: {
+      motivo: 'the reason',
+      oficina: 'the office',
+      dia: 'the day',
+      hora: 'the time',
+      nombre: 'your name',
+    },
+    mensaje: {
+      saludo: 'Hello, I would like to book an appointment.',
+      motivo: 'Reason',
+      oficina: 'Office',
+      alas: 'at',
+      soy: 'My name is',
+    },
+  },
+
+  contacto: {
+    tituloPagina: 'Contact',
+    descripcion:
+      'Call us, message us on WhatsApp or drop into any of our four offices in Madrid.',
+    antetitulo: 'Contact',
+    titulo: 'We are here',
+    acento: 'whenever you are',
+    entrada: 'By phone, on WhatsApp or by walking through the door. Whichever suits you.',
+    vias: [
+      {
+        titulo: 'By phone',
+        texto:
+          'The 900 number is free and puts you through to the office in your area. Monday to Friday, 10:00 to 14:00 and 17:00 to 20:00.',
+      },
+      {
+        titulo: 'On WhatsApp',
+        texto:
+          'The quickest way for a short question or to book a visit. We reply during office hours.',
+      },
+      {
+        titulo: 'In person',
+        texto:
+          'Four street-level offices. You can book a visit or just walk in: if the door is open, we will see you.',
+      },
+    ],
+    antesTitulo: 'Before you write',
+    antesTexto:
+      'If you tell us up front what you are looking for, in which area and by when, you save yourself three messages back and forth. And if it is about a particular property, send us the reference.',
+    citaTitulo: 'Book a visit and skip the wait',
+    citaTexto: 'You choose the day and time, and we confirm on WhatsApp.',
   },
 
   calculadora: {
@@ -303,6 +487,23 @@ export const en: Textos = {
     ahorro: 'Savings needed',
     asesor: 'Talk to an adviser',
     noIncluye: 'What this calculation leaves out',
+    mandos: {
+      precio: 'Price of the property',
+      entrada: 'Savings you put in',
+      plazo: 'Term',
+      interes: 'Annual interest',
+    },
+    anios: 'years',
+    cubre: 'Covers {p}% of the price',
+    sinHipoteca: 'With those savings you would not need a mortgage.',
+    faltaEntrada:
+      'Most banks lend up to 80%. With these savings you would be short on the deposit: you would need around {c}.',
+    ingresos:
+      'For the bank to approve it, household net income of around {c} a month is advisable.',
+    letraUno:
+      'This is an estimate using the French amortisation system, the one behind almost every mortgage in Spain. Purchase costs are calculated at 11% of the price, the usual range covering taxes, notary, land registry and administrative agent, but they vary by region and depending on whether the home is new or a resale.',
+    letraDos:
+      'It does not include tied insurance policies, arrangement fees or the rate review if the mortgage is variable. For firm figures, talk to us: we come with you to negotiate with the bank.',
   },
 
   cita: {
@@ -378,6 +579,182 @@ export const en: Textos = {
       cualquierZona: 'in any of your areas',
       gracias: 'Thank you.',
     },
+  },
+
+  empresa: {
+    tituloPagina: 'About us',
+    descripcion:
+      'Four neighbourhood offices in Madrid. How we work and why we work that way.',
+    antetitulo: 'Who we are',
+    titulo: 'We are local,',
+    acento: 'and it shows',
+    entrada:
+      'We do not have an office in the centre with a view. We have four street-level offices where people walk in without an appointment.',
+    bloques: [
+      {
+        titulo: 'A realistic price',
+        texto:
+          'We do not inflate the valuation to win the instruction and then ask you to drop it. The price we give you is what deals actually close at on your street.',
+      },
+      {
+        titulo: 'A person, not an inbox',
+        texto:
+          'Your sale is handled by someone with a name, at the office in your neighbourhood. You know who to call, and that person answers.',
+      },
+      {
+        titulo: 'Everything in writing',
+        texto:
+          'Fees, timescales and terms before you sign anything. If it is not clear on paper, it is not clear.',
+      },
+      {
+        titulo: 'We know the area',
+        texto:
+          'Cuatro Vientos, Aluche, Las Águilas and Latina. We know which building has a lift, which street is noisy and which school is nearby.',
+      },
+    ],
+    queHacemos: 'What we do',
+    queHacemosTexto:
+      'Sales, lettings, rent-to-buy, seasonal lets, business transfers and lifetime leases. Plus a free valuation of your home, whether you are selling or not.',
+    dondeTrabajamos: 'Where we work',
+    dondeTrabajamosTexto:
+      'Madrid city, mainly the south and west, plus Toledo, Extremadura and Castilla-La Mancha for second homes and village houses.',
+    cierreTitulo: 'Shall we meet?',
+    cierreTexto: 'Walk into any of our offices. If the door is open, we will see you.',
+  },
+
+  vitalicio: {
+    tituloPagina: 'Lifetime lease',
+    descripcion:
+      'Get paid for your home every month and carry on living in it. We explain the whole thing, the upsides and the parts worth thinking twice about.',
+    antetitulo: 'For over-65s',
+    titulo: 'Get paid for your home',
+    acento: 'and carry on living in it',
+    entrada:
+      'This is a big decision, so we tell you the whole of it: the good parts and the parts worth thinking twice about.',
+    bloques: [
+      {
+        titulo: 'What it is',
+        texto:
+          'You sell the bare ownership of your home but keep the right to live in it for the rest of your life. You receive a lump sum on signing and, depending on the arrangement, a monthly income.',
+      },
+      {
+        titulo: 'Who it suits',
+        texto:
+          'Someone who owns their home, has a tight pension and no interest in leaving the property as an inheritance. If you want to leave it to your children, this is not the arrangement for you.',
+      },
+      {
+        titulo: 'What it is NOT',
+        texto:
+          'It is not an equity-release mortgage or a loan. You genuinely sell, and that is irreversible. That is why we insist you discuss it with your family and a solicitor before signing.',
+      },
+    ],
+    comoTitulo: 'How we go about it',
+    comoUno:
+      'First we value your home and work out what you would receive given your age and the arrangement you choose. We give you that figure in writing and with no obligation.',
+    comoDos:
+      'Then we give you time. We do not sign anything on the first visit, or the second. We want you to talk it over with whoever you need to.',
+    pasos: [
+      'Valuation and written proposal, free',
+      'Review with a solicitor of your choosing',
+      'Signing before a notary, with your right of use entered on the land registry',
+      'We stay in touch after signing: we do not disappear',
+    ],
+    cierreTitulo: 'Let us talk it through',
+    cierreTexto:
+      'Come to the office, bring whoever you like and we will explain the lot. No rush and no obligation.',
+  },
+
+  empleo: {
+    tituloPagina: 'Work with us',
+    descripcion:
+      'We are looking for local people for our Madrid offices. No previous estate-agency experience needed.',
+    antetitulo: 'Jobs',
+    titulo: 'We are looking for',
+    acento: 'local people',
+    entrada:
+      'We do not ask for estate-agency experience. We ask that you can listen and that you like your neighbourhood.',
+    puestos: [
+      {
+        titulo: 'Sales adviser',
+        texto:
+          'Winning instructions and selling in your area. Salary plus commission, paid training and the office portfolio from day one.',
+      },
+      {
+        titulo: 'Administration',
+        texto:
+          'Contracts, paperwork and liaising with notaries. Full time at the Cuatro Vientos head office.',
+      },
+      {
+        titulo: 'Work placements',
+        texto:
+          'Agreements with vocational colleges and universities. You learn this trade on the street, not filing paper.',
+      },
+    ],
+    ofrecemos: 'What we offer',
+    lista: [
+      'A proper employment contract, not bogus self-employment',
+      'Paid training for the first few months',
+      'The office portfolio from day one',
+      'Office hours, with Saturday mornings on a rota',
+    ],
+    comoTitulo: 'How to apply',
+    comoTexto:
+      'Message us on WhatsApp telling us in two lines who you are and what you are after. No cover letter or designed CV needed: if it fits, we call you and we talk.',
+    cierreTitulo: 'Tell us who you are',
+    cierreTexto: 'Two lines on WhatsApp is enough to start.',
+  },
+
+  noticias: {
+    tituloPagina: 'News and advice',
+    descripcion:
+      'The Madrid property market, advice on selling and buying, and changes in the rules.',
+    antetitulo: 'Magazine',
+    titulo: 'What is worth',
+    acento: 'knowing first',
+    entrada:
+      'Market, regulation and practical advice. No filler and no copied press releases.',
+    tablon: 'Latest from the four offices',
+    cierreTitulo: 'Have a specific question?',
+    cierreTexto: 'More often than not it is answered in two minutes on the phone.',
+  },
+
+  privacidad: {
+    tituloPagina: 'Privacy policy',
+    descripcion: 'What data we handle, what for, and what your rights are.',
+    antetitulo: 'Legal',
+    titulo: 'Privacy',
+    acento: 'policy',
+    entrada:
+      'In plain terms: what data we ask you for, what we use it for and how you delete it whenever you like.',
+    quienTitulo: 'Who handles your data',
+    quienTexto:
+      'The controller is the company that owns this site. You can get in touch through any of the channels on the contact page.',
+    queTitulo: 'What data and what for',
+    queLista: [
+      { fuerte: 'Name and phone number:', resto: 'to deal with your enquiry or your appointment.' },
+      {
+        fuerte: 'Details of the property:',
+        resto: 'to value it or list it, if you instruct us to.',
+      },
+      { fuerte: 'Nothing else.', resto: 'We do not ask for ID or bank details through the site.' },
+    ],
+    cuantoTitulo: 'How long for',
+    cuantoTexto:
+      'For as long as our relationship lasts and, after that, for the period the law requires in order to handle any claims. After that, it is deleted.',
+    compartimosTitulo: 'Who we share it with',
+    compartimosTexto:
+      'With nobody for commercial purposes. Only with whoever is essential to the transaction: the notary, the administrative agent or the bank, and always because you have asked us to.',
+    derechosTitulo: 'Your rights',
+    derechosTexto:
+      'You can access your data, correct it, delete it, restrict it, object to its processing and ask us to hand it over as a file. Write to us and we will sort it out. If you think we have got it wrong, you can complain to the Spanish Data Protection Agency.',
+    cookiesTitulo: 'Cookies',
+    cookiesTexto:
+      'This site uses no tracking cookies and no third-party analytics. There is no banner to accept because there is nothing to consent to.',
+    notaFuerte: 'Note on this demonstration:',
+    notaResto:
+      'this text is an indicative draft. Before publishing, a solicitor should review it and complete it with the company’s registered details.',
+    cierreTitulo: 'Any questions about your data?',
+    cierreTexto: 'Write to us and we will answer in writing.',
   },
 
   favoritos: {

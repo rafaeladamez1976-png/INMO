@@ -32,6 +32,11 @@ export const es = {
     sinCoste: 'Sin coste y sin compromiso',
   },
 
+  flotante: {
+    rotulo: 'Reservar cita',
+    mensaje: 'Hola, escribo desde la web. Quería reservar una cita.',
+  },
+
   aviso: {
     fuerte: 'Maqueta de demostración.',
     resto: 'Los inmuebles son ejemplos inventados.',
@@ -280,8 +285,187 @@ export const es = {
     informacion: 'Información',
   },
 
+  oficinas: {
+    tituloPagina: 'Nuestras oficinas en Madrid',
+    descripcion:
+      'Cuatro oficinas en Cuatro Vientos, Aluche, Las Águilas y Latina. Entra sin cita.',
+    antetitulo: 'Dónde estamos',
+    titulo: 'Cuatro barrios,',
+    titulo2: 'cuatro puertas',
+    entrada: 'Entra sin cita. Si está abierto, te atendemos.',
+    sede: 'Sede central',
+    verEsta: 'Ver esta oficina',
+    comoLlegar: 'Cómo llegar',
+    generalTitulo: 'Teléfono general',
+    generalTexto:
+      'Si no sabes qué oficina te toca, llama aquí y te pasamos con la de tu barrio.',
+    fotoAlt: (nombre: string) => `Oficina de ${nombre}`,
+  },
+
+  oficina: {
+    sede: 'Sede central',
+    desdeAno: 'Desde',
+    oficinaDe: 'Oficina de',
+    escribir: 'Escribir por WhatsApp',
+    practico: 'Información práctica',
+    donde: 'Dónde',
+    comoLlegar: 'Cómo llegar',
+    horario: 'Horario',
+    contacto: 'Contacto',
+    fijo: 'Fijo',
+    equipo: 'Equipo',
+    zonas: 'Zonas',
+    mapaDe: (nombre: string) => `Mapa de la oficina de ${nombre}`,
+    fotoAlt: (nombre: string) => `Interior de la oficina de ${nombre}`,
+    elBarrio: 'El barrio',
+    comoSeVive: (barrio: string) => `Cómo se vive en ${barrio}`,
+    precioCompra: 'Precio de compra',
+    alquilerDos: 'Alquiler 2 dormitorios',
+    hastaSol: 'Hasta Sol',
+    loMejor: 'Lo mejor.',
+    laPega: 'La pega.',
+    compararBarrios: 'Comparar con los otros barrios',
+    novedadesDe: (nombre: string) => `Novedades de ${nombre}`,
+    suCartera: 'Su cartera',
+    carteraUno: 'Inmueble que gestiona esta oficina',
+    carteraVarios: (n: number) => `Los ${n} inmuebles de esta oficina`,
+    otras: '¿No es tu barrio?',
+    mensaje: (nombre: string) => `Hola, escribo desde la web sobre la oficina de ${nombre}.`,
+  },
+
   valoracion: {
-    titulo: 'Valoración gratuita',
+    tituloPagina: 'Valoración gratuita de tu vivienda',
+    antetitulo: 'Valoración gratuita',
+    titulo: '¿Cuánto vale',
+    acento: 'tu casa',
+    entrada:
+      'No te damos un número inflado para captarte y luego bajarlo. Te damos el precio al que se están cerrando operaciones en tu calle.',
+    ventajas: [
+      { titulo: 'Sin coste', texto: 'La valoración es gratis y no obliga a nada.' },
+      { titulo: 'En 48 horas', texto: 'Visitamos, comparamos y te llamamos con el precio.' },
+      {
+        titulo: 'Con datos, no con corazonadas',
+        texto: 'Operaciones cerradas en tu zona, no anuncios publicados.',
+      },
+    ],
+    hablamos: '¿Prefieres que hablemos?',
+    hablamosTexto:
+      'Llámanos y te atendemos desde la oficina de tu barrio. Sin centralita ni musiquita de espera.',
+  },
+
+  formValoracion: {
+    tipos: ['Piso', 'Ático', 'Chalet', 'Casa', 'Local'],
+    habitaciones: ['1', '2', '3', '4', '5 o más'],
+    plazos: ['Cuanto antes', 'En 3 o 6 meses', 'Este año', 'Solo quiero saber el precio'],
+    paso: (n: number, total: number) => `Paso ${n} de ${total}`,
+    /** La misma frase con huecos, para el script del navegador. */
+    pasoPlantilla: 'Paso {n} de {total}',
+    yaEsta: 'Ya está',
+    verMensaje: 'Ver el mensaje',
+    queValorar: '¿Qué quieres valorar?',
+    queZona: '¿En qué zona está?',
+    zonaAyuda: 'Elige la oficina que te pilla más cerca.',
+    otraZona: 'Otra zona',
+    otraZonaDetalle: 'Toledo, Extremadura…',
+    cuantasHabitaciones: '¿Cuántas habitaciones?',
+    metros: 'Metros cuadrados (aproximados)',
+    paraCuando: '¿Para cuándo?',
+    tuNombre: 'Tu nombre',
+    nombreEjemplo: 'María',
+    esto: 'Esto es lo que enviaremos',
+    enviar: 'Pedir valoración por WhatsApp',
+    avisoEnvio: 'Te llamamos en menos de 48 horas. No compartimos tus datos con nadie.',
+    prefieresLlamar: '¿Prefieres llamar?',
+    atras: 'Atrás',
+    siguiente: 'Siguiente',
+    sinJs: 'Para pedir tu valoración, llámanos al',
+    mensaje: {
+      saludo: 'Hola, quería una valoración de mi vivienda.',
+      tipo: 'Tipo',
+      zona: 'Zona',
+      habitaciones: 'Habitaciones',
+      metros: 'Metros',
+      plazo: 'Plazo',
+      soy: 'Soy',
+    },
+  },
+
+  agenda: {
+    antetitulo: 'Reserva tu cita',
+    titulo: 'Ven cuando te venga bien',
+    entrada: 'Elige día y hora. Te confirmamos por WhatsApp en cuanto lo veamos.',
+    queNecesitas: '¿Qué necesitas?',
+    queOficina: '¿En qué oficina?',
+    queDia: '¿Qué día?',
+    horarioAyuda:
+      'Lunes a viernes de 10:00 a 14:00 y de 17:00 a 20:00. Sábados solo por la mañana.',
+    queHora: '¿A qué hora?',
+    tuNombre: 'Tu nombre',
+    nombreEjemplo: 'María',
+    vacio: 'Elige motivo, oficina, día y hora para ver aquí tu cita.',
+    reservar: 'Reservar por WhatsApp',
+    avisoReserva:
+      'La cita no está confirmada hasta que te respondamos. Si te surge algo, avísanos por el mismo WhatsApp.',
+    prefieresLlamar: '¿Prefieres llamar?',
+    sinJsAntes: 'Para reservar cita, escríbenos al WhatsApp',
+    sinJsDespues: 'indicando motivo, oficina y cuándo te viene bien.',
+    motivos: [
+      'Vender mi vivienda',
+      'Alquilar mi vivienda',
+      'Ver un inmueble',
+      'Valoración gratuita',
+      'Hipoteca y financiación',
+      'Otra consulta',
+    ],
+    diasDisponibles: 'Días disponibles',
+    horasDisponibles: 'Horas disponibles',
+    faltaPlantilla: 'Falta {cosas}.',
+    piezas: {
+      motivo: 'el motivo',
+      oficina: 'la oficina',
+      dia: 'el día',
+      hora: 'la hora',
+      nombre: 'tu nombre',
+    },
+    mensaje: {
+      saludo: 'Hola, quería reservar una cita.',
+      motivo: 'Motivo',
+      oficina: 'Oficina',
+      alas: 'a las',
+      soy: 'Soy',
+    },
+  },
+
+  contacto: {
+    tituloPagina: 'Contacto',
+    descripcion:
+      'Llámanos, escríbenos por WhatsApp o entra en cualquiera de nuestras cuatro oficinas de Madrid.',
+    antetitulo: 'Contacto',
+    titulo: 'Hablamos',
+    acento: 'cuando quieras',
+    entrada: 'Por teléfono, por WhatsApp o entrando por la puerta. Lo que te resulte más cómodo.',
+    vias: [
+      {
+        titulo: 'Por teléfono',
+        texto:
+          'El 900 es gratuito y te pasa con la oficina de tu barrio. De lunes a viernes de 10:00 a 14:00 y de 17:00 a 20:00.',
+      },
+      {
+        titulo: 'Por WhatsApp',
+        texto:
+          'Es lo más rápido para una consulta corta o para pedir cita. Contestamos en horario de oficina.',
+      },
+      {
+        titulo: 'En persona',
+        texto:
+          'Cuatro oficinas a pie de calle. Puedes pedir cita o entrar directamente: si está abierto, te atendemos.',
+      },
+    ],
+    antesTitulo: 'Antes de escribirnos',
+    antesTexto:
+      'Si nos dices desde el principio qué buscas, en qué zona y para cuándo, te ahorramos tres mensajes de ida y vuelta. Y si es sobre un inmueble concreto, pásanos la referencia.',
+    citaTitulo: 'Pide cita y no esperes',
+    citaTexto: 'Eliges día y hora, y te confirmamos por WhatsApp.',
   },
 
   calculadora: {
@@ -299,6 +483,23 @@ export const es = {
     ahorro: 'Ahorro necesario',
     asesor: 'Hablar con un asesor',
     noIncluye: 'Lo que este cálculo no incluye',
+    mandos: {
+      precio: 'Precio de la vivienda',
+      entrada: 'Ahorro que aportas',
+      plazo: 'Plazo',
+      interes: 'Interés anual',
+    },
+    anios: 'años',
+    /* Textos que pinta el script en el navegador. */
+    cubre: 'Cubre el {p} % del precio',
+    sinHipoteca: 'Con ese ahorro no necesitarías hipoteca.',
+    faltaEntrada:
+      'La mayoría de bancos financia hasta el 80 %. Con este ahorro te faltaría entrada: harían falta unos {c}.',
+    ingresos: 'Para que el banco lo apruebe conviene ingresar en casa unos {c} netos al mes.',
+    letraUno:
+      'Es una estimación con sistema de amortización francés, el de casi todas las hipotecas en España. Los gastos de compra se calculan al 11 % del precio, que es la horquilla habitual entre impuestos, notaría, registro y gestoría, pero varían según la comunidad autónoma y según si la vivienda es nueva o de segunda mano.',
+    letraDos:
+      'No incluye seguros vinculados, comisión de apertura ni la revisión de tipo si la hipoteca es variable. Para números en firme, habla con nosotros: te acompañamos a la negociación con el banco.',
   },
 
   cita: {
@@ -374,6 +575,182 @@ export const es = {
       cualquierZona: 'en cualquiera de vuestras zonas',
       gracias: 'Gracias.',
     },
+  },
+
+  empresa: {
+    tituloPagina: 'La empresa',
+    descripcion:
+      'Cuatro oficinas de barrio en Madrid. Cómo trabajamos y por qué lo hacemos así.',
+    antetitulo: 'Quiénes somos',
+    titulo: 'Somos de barrio,',
+    acento: 'y se nota',
+    entrada:
+      'No tenemos un despacho en el centro con vistas. Tenemos cuatro oficinas a pie de calle donde la gente entra sin cita.',
+    bloques: [
+      {
+        titulo: 'Precio realista',
+        texto:
+          'No inflamos la valoración para captar un encargo y pedirte después que bajes. El precio que te damos es al que se cierran operaciones en tu calle.',
+      },
+      {
+        titulo: 'Una persona, no un buzón',
+        texto:
+          'Tu operación la lleva alguien con nombre, de la oficina de tu barrio. Sabes a quién llamar, y contesta esa persona.',
+      },
+      {
+        titulo: 'Todo por escrito',
+        texto:
+          'Honorarios, plazos y condiciones antes de firmar nada. Si algo no está claro en el papel, es que no está claro.',
+      },
+      {
+        titulo: 'Conocimiento de zona',
+        texto:
+          'Cuatro Vientos, Aluche, Las Águilas y Latina. Sabemos qué portal tiene ascensor, qué calle es ruidosa y qué colegio pilla cerca.',
+      },
+    ],
+    queHacemos: 'Qué hacemos',
+    queHacemosTexto:
+      'Compraventa, alquiler, alquiler con opción a compra, alquiler de temporada, traspasos de local y alquiler vitalicio. Y valoración gratuita de tu vivienda, vayas a vender o no.',
+    dondeTrabajamos: 'Dónde trabajamos',
+    dondeTrabajamosTexto:
+      'Madrid capital, sobre todo el sur y el oeste, y además Toledo, Extremadura y Castilla-La Mancha para segunda residencia y casa de pueblo.',
+    cierreTitulo: '¿Nos conocemos?',
+    cierreTexto: 'Entra en cualquiera de nuestras oficinas. Si está abierto, te atendemos.',
+  },
+
+  vitalicio: {
+    tituloPagina: 'Alquiler vitalicio',
+    descripcion:
+      'Cobra por tu vivienda cada mes y sigue viviendo en ella. Te lo explicamos entero, con sus ventajas y sus inconvenientes.',
+    antetitulo: 'Para mayores de 65',
+    titulo: 'Cobra por tu casa',
+    acento: 'y sigue viviendo en ella',
+    entrada:
+      'Es una decisión importante y por eso te la contamos entera, con lo bueno y con lo que hay que pensarse dos veces.',
+    bloques: [
+      {
+        titulo: 'Qué es',
+        texto:
+          'Vendes la nuda propiedad de tu vivienda pero conservas el derecho a vivir en ella mientras vivas. Recibes un dinero al firmar y, según la fórmula, una renta cada mes.',
+      },
+      {
+        titulo: 'Para quién tiene sentido',
+        texto:
+          'Para quien tiene vivienda en propiedad, una pensión ajustada y ningún interés en dejar el piso en herencia. Si quieres dejárselo a tus hijos, esta no es tu operación.',
+      },
+      {
+        titulo: 'Qué NO es',
+        texto:
+          'No es una hipoteca inversa ni un préstamo. Vendes de verdad, y eso es irreversible. Por eso insistimos en que lo consultes con tu familia y con un abogado antes de firmar.',
+      },
+    ],
+    comoTitulo: 'Cómo lo hacemos nosotros',
+    comoUno:
+      'Primero valoramos tu vivienda y calculamos qué te correspondería según tu edad y la fórmula que elijas. Ese número te lo damos por escrito y sin compromiso.',
+    comoDos:
+      'Después te damos tiempo. No firmamos nada en la primera visita ni en la segunda. Queremos que lo hables con quien tengas que hablarlo.',
+    pasos: [
+      'Valoración y propuesta por escrito, gratis',
+      'Revisión con el abogado que tú elijas',
+      'Firma ante notario, con el derecho de uso inscrito en el Registro',
+      'Acompañamiento después de la firma: no desaparecemos',
+    ],
+    cierreTitulo: 'Hablémoslo con calma',
+    cierreTexto:
+      'Ven a la oficina, tráete a quien quieras y te lo explicamos todo. Sin prisa y sin compromiso.',
+  },
+
+  empleo: {
+    tituloPagina: 'Trabaja con nosotros',
+    descripcion:
+      'Buscamos gente de barrio para nuestras oficinas de Madrid. Sin experiencia inmobiliaria previa.',
+    antetitulo: 'Empleo',
+    titulo: 'Buscamos gente',
+    acento: 'de barrio',
+    entrada:
+      'No pedimos experiencia inmobiliaria. Pedimos que sepas escuchar y que te guste tu barrio.',
+    puestos: [
+      {
+        titulo: 'Asesor comercial',
+        texto:
+          'Captación y venta en tu zona. Fijo más variable, formación pagada y cartera de la oficina desde el primer día.',
+      },
+      {
+        titulo: 'Administración',
+        texto:
+          'Contratos, documentación y coordinación con notarías. Jornada completa en la sede de Cuatro Vientos.',
+      },
+      {
+        titulo: 'Prácticas',
+        texto:
+          'Convenio con centros de FP y universidad. El oficio se aprende en la calle, no archivando papeles.',
+      },
+    ],
+    ofrecemos: 'Qué ofrecemos',
+    lista: [
+      'Contrato laboral, no falso autónomo',
+      'Formación pagada durante los primeros meses',
+      'Cartera de la oficina desde el primer día',
+      'Horario de oficina, con sábado por la mañana rotativo',
+    ],
+    comoTitulo: 'Cómo apuntarte',
+    comoTexto:
+      'Escríbenos por WhatsApp contando en dos líneas quién eres y qué buscas. No hace falta carta de presentación ni currículum maquetado: si encaja, te llamamos y hablamos.',
+    cierreTitulo: 'Cuéntanos quién eres',
+    cierreTexto: 'Dos líneas por WhatsApp bastan para empezar.',
+  },
+
+  noticias: {
+    tituloPagina: 'Noticias y consejos',
+    descripcion:
+      'Mercado inmobiliario de Madrid, consejos para vender y comprar, y novedades de normativa.',
+    antetitulo: 'Revista',
+    titulo: 'Lo que conviene',
+    acento: 'saber antes',
+    entrada:
+      'Mercado, normativa y consejos prácticos. Sin relleno y sin copiar notas de prensa.',
+    tablon: 'Lo último de las cuatro oficinas',
+    cierreTitulo: '¿Te resolvemos una duda concreta?',
+    cierreTexto: 'Muchas veces se contesta en dos minutos por teléfono.',
+  },
+
+  privacidad: {
+    tituloPagina: 'Política de privacidad',
+    descripcion: 'Qué datos tratamos, para qué y cuáles son tus derechos.',
+    antetitulo: 'Legal',
+    titulo: 'Política',
+    acento: 'de privacidad',
+    entrada:
+      'En cristiano: qué datos te pedimos, para qué los usamos y cómo los borras cuando quieras.',
+    quienTitulo: 'Quién trata tus datos',
+    quienTexto:
+      'El responsable es la empresa titular de esta web. Puedes contactar por cualquiera de los medios que aparecen en la página de contacto.',
+    queTitulo: 'Qué datos y para qué',
+    queLista: [
+      { fuerte: 'Nombre y teléfono:', resto: 'para atender tu consulta o tu cita.' },
+      {
+        fuerte: 'Datos del inmueble:',
+        resto: 'para valorarlo o publicarlo, si nos lo encargas.',
+      },
+      { fuerte: 'Nada más.', resto: 'No pedimos DNI ni datos bancarios por la web.' },
+    ],
+    cuantoTitulo: 'Cuánto tiempo',
+    cuantoTexto:
+      'Mientras dure la relación y, después, el plazo que exija la ley para atender posibles reclamaciones. Pasado ese plazo, se eliminan.',
+    compartimosTitulo: 'Con quién los compartimos',
+    compartimosTexto:
+      'Con nadie con fines comerciales. Solo con quien sea imprescindible para la operación: notaría, gestoría o entidad financiera, y siempre porque tú lo has pedido.',
+    derechosTitulo: 'Tus derechos',
+    derechosTexto:
+      'Puedes acceder a tus datos, corregirlos, borrarlos, limitarlos, oponerte al tratamiento y pedir que te los entreguemos en un archivo. Escríbenos y lo resolvemos. Si crees que no lo hemos hecho bien, puedes reclamar ante la Agencia Española de Protección de Datos.',
+    cookiesTitulo: 'Cookies',
+    cookiesTexto:
+      'Esta web no usa cookies de seguimiento ni analítica de terceros. No hay banner que aceptar porque no hay nada que consentir.',
+    notaFuerte: 'Nota de la maqueta:',
+    notaResto:
+      'este texto es un borrador orientativo. Antes de publicar, un abogado debe revisarlo y completarlo con los datos identificativos de la sociedad.',
+    cierreTitulo: '¿Alguna duda con tus datos?',
+    cierreTexto: 'Escríbenos y te contestamos por escrito.',
   },
 
   favoritos: {
