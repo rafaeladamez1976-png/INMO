@@ -14,6 +14,19 @@
   margin: 0;
 }
 
+/*
+ * El atributo hidden se oculta desde la hoja del navegador, y cualquier regla
+ * de clase con display le gana sin avisar. Ha pasado ya tres veces: el menú de
+ * móvil salía abierto, el contador de favoritos enseñaba un cero y el tour
+ * mostraba "Cargando…" antes de arrancar.
+ *
+ * Con esto, hidden oculta siempre. Lleva !important a propósito: es justo el
+ * caso para el que existe.
+ */
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;

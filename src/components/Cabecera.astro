@@ -610,15 +610,8 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
 
   /* ---- Panel de móvil ---- */
 
-  /*
-    El atributo hidden oculta con display:none desde la hoja del navegador, y
-    cualquier regla de clase le gana. Sin esto el menú sale abierto al cargar y
-    tapa la página entera.
-  */
-  .panel[hidden] {
-    display: none;
-  }
-
+  /* Que no salga abierto al cargar lo garantiza la regla [hidden] de
+     global.css. */
   .panel {
     position: fixed;
     inset: 0;
