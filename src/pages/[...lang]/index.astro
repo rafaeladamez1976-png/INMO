@@ -1,46 +1,59 @@
 ---
-import Base from '../layouts/Base.astro';
-import Heroe from '../components/Heroe.astro';
-import Ciudad from '../components/ciudad/Ciudad.astro';
-import Ficha from '../components/Ficha.astro';
-import Casa from '../components/casa/Casa.astro';
-import Testimonios from '../components/Testimonios.astro';
-import Barrios from '../components/Barrios.astro';
-import Tablon from '../components/Tablon.astro';
+import Base from '../../layouts/Base.astro';
+import Heroe from '../../components/Heroe.astro';
+import Ciudad from '../../components/ciudad/Ciudad.astro';
+import Ficha from '../../components/Ficha.astro';
+import Casa from '../../components/casa/Casa.astro';
+import Testimonios from '../../components/Testimonios.astro';
+import Barrios from '../../components/Barrios.astro';
+import Tablon from '../../components/Tablon.astro';
 import {
   EMPRESA,
   OFICINAS,
   SERVICIOS,
   telefonoLegible,
   enlaceTelefono,
-} from '../data/empresa';
-import { destacados } from '../data/inmuebles';
+} from '../../data/empresa';
+import { destacados } from '../../data/inmuebles';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+import { SERVICIOS_EN } from '../../i18n/datos';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.portada;
 
 const seleccion = destacados();
+
+/** Servicios en el idioma que toca, con el español de reserva. */
+const servicios = SERVICIOS.map((s) =>
+  idioma === 'en' ? { ...s, ...(SERVICIOS_EN[s.id] ?? {}) } : s,
+);
 ---
 
 <Base
-  titulo={`${EMPRESA.nombreCompleto} — Compra, venta y alquiler en Madrid`}
-  descripcion="Inmobiliaria con cuatro oficinas en Cuatro Vientos, Aluche, Las Águilas y Latina. Compra, venta, alquiler y valoración gratuita."
+  idioma={idioma}
+  titulo={`${EMPRESA.nombreCompleto} — ${t.titulo}`}
+  descripcion={t.descripcion}
 >
-  <Heroe />
+  <Heroe idioma={idioma} />
 
   <!-- Servicios -->
   <section class="servicios contenedor" aria-labelledby="titulo-servicios">
     <header class="seccion" data-revelar>
-      <p class="antetitulo">Lo que hacemos</p>
+      <p class="antetitulo">{t.servicios.antetitulo}</p>
       <h2 id="titulo-servicios" class="seccion__titulo" data-titular>
-        Todo lo que puede pasarle a una vivienda
+        {t.servicios.titulo}
       </h2>
-      <p class="seccion__entrada">
-        Comprar, vender, alquilar o traspasar. Sea cual sea tu caso, hay una
-        oficina nuestra a menos de diez minutos.
-      </p>
+      <p class="seccion__entrada">{t.servicios.entrada}</p>
     </header>
 
     <ul class="servicios__rejilla">
       {
-        SERVICIOS.map((servicio, i) => (
+        servicios.map((servicio, i) => (
           <li class="servicio" data-revelar data-revelar-retraso={i * 70}>
             <span class="servicio__numero">{String(i + 1).padStart(2, '0')}</span>
             <h3 class="servicio__titulo">{servicio.titulo}</h3>
@@ -55,17 +68,15 @@ const seleccion = destacados();
   <section class="captacion" aria-labelledby="titulo-captacion">
     <div class="contenedor captacion__interior">
       <div data-revelar>
-        <p class="antetitulo captacion__antetitulo">Vende con nosotros</p>
+        <p class="antetitulo captacion__antetitulo">{t.captacion.antetitulo}</p>
         <h2 id="titulo-captacion" class="captacion__titulo" data-titular>
-          ¿Sabes lo que vale hoy tu casa?
+          {t.captacion.titulo}
         </h2>
-        <p class="captacion__texto">
-          El precio de tu calle ha cambiado en el último año. Te decimos lo que
-          vale la tuya con datos reales de operaciones cerradas en tu zona, sin
-          coste y sin que te comprometas a nada.
-        </p>
+        <p class="captacion__texto">{t.captacion.texto}</p>
         <div class="captacion__acciones">
-          <a class="boton boton--laton" href="/valoracion">Pedir valoración gratuita</a>
+          <a class="boton boton--laton" href={enlaceDe(idioma, '/valoracion')}>
+            {t.captacion.boton}
+          </a>
           <a
             class="boton boton--linea captacion__linea"
             href={enlaceTelefono(EMPRESA.telefonoGratuito)}
@@ -76,16 +87,19 @@ const seleccion = destacados();
       </div>
 
       <div class="captacion__casa" data-revelar data-revelar-retraso="140">
-        <Casa alt="Villa moderna con piscina, girable en 3D" />
+        <Casa alt={t.captacion.casaAlt} />
       </div>
     </div>
 
     <div class="contenedor">
       <ul class="captacion__pasos" data-revelar data-revelar-retraso="220">
-        <li><strong>Nos llamas</strong> o rellenas el formulario</li>
-        <li><strong>Visitamos</strong> la vivienda sin compromiso</li>
-        <li><strong>Te damos un precio</strong> razonado, no inflado</li>
-        <li><strong>Decides tú</strong>, sin ninguna obligación</li>
+        {
+          t.captacion.pasos.map((paso) => (
+            <li>
+              <strong>{paso.fuerte}</strong> {paso.resto}
+            </li>
+          ))
+        }
       </ul>
     </div>
   </section>
@@ -93,62 +107,62 @@ const seleccion = destacados();
   <!-- El mapa 3D de los barrios donde trabajan -->
   <section class="barrios" aria-labelledby="titulo-barrios">
     <div class="contenedor barrios__cabecera" data-revelar>
-      <p class="antetitulo barrios__antetitulo">Nuestro territorio</p>
+      <p class="antetitulo barrios__antetitulo">{t.territorio.antetitulo}</p>
       <h2 id="titulo-barrios" class="barrios__titulo" data-titular>
-        Trabajamos donde vives
+        {t.territorio.titulo}
       </h2>
-      <p class="barrios__entrada">
-        Sobrevuela nuestros cuatro barrios. Cada aguja dorada es una oficina
-        con la puerta abierta.
-      </p>
+      <p class="barrios__entrada">{t.territorio.entrada}</p>
     </div>
 
-    <Ciudad />
+    <Ciudad idioma={idioma} />
   </section>
 
-  <Barrios />
+  <Barrios idioma={idioma} />
 
   <!-- Inmuebles destacados -->
   <section class="destacados contenedor" aria-labelledby="titulo-destacados">
     <header class="seccion seccion--fila" data-revelar>
       <div>
-        <p class="antetitulo">Selección</p>
-        <h2 id="titulo-destacados" class="seccion__titulo" data-titular>Lo último que ha entrado</h2>
+        <p class="antetitulo">{t.destacados.antetitulo}</p>
+        <h2 id="titulo-destacados" class="seccion__titulo" data-titular>
+          {t.destacados.titulo}
+        </h2>
       </div>
-      <a class="boton boton--linea" href="/venta">Ver todos</a>
+      <a class="boton boton--linea" href={enlaceDe(idioma, '/venta')}>{todo.comun.verTodos}</a>
     </header>
 
     <div class="destacados__rejilla">
-      {seleccion.map((inmueble, i) => <Ficha inmueble={inmueble} retraso={i * 90} />)}
+      {
+        seleccion.map((inmueble, i) => (
+          <Ficha inmueble={inmueble} retraso={i * 90} idioma={idioma} />
+        ))
+      }
     </div>
   </section>
 
   <div class="contenedor">
-    <Tablon cuantas={3} titulo="Lo último en nuestras oficinas" />
+    <Tablon cuantas={3} titulo={t.tablon} idioma={idioma} />
   </div>
 
-  <Testimonios />
+  <Testimonios idioma={idioma} />
 
   <!-- Las cuatro oficinas -->
   <section class="oficinas contenedor" aria-labelledby="titulo-oficinas">
     <header class="seccion" data-revelar>
-      <p class="antetitulo">Dónde estamos</p>
+      <p class="antetitulo">{t.oficinas.antetitulo}</p>
       <h2 id="titulo-oficinas" class="seccion__titulo" data-titular>
-        Cuatro oficinas, cuatro barrios
+        {t.oficinas.titulo}
       </h2>
-      <p class="seccion__entrada">
-        No trabajamos desde un despacho en el centro. Estamos en la calle donde
-        está tu casa.
-      </p>
+      <p class="seccion__entrada">{t.oficinas.entrada}</p>
     </header>
 
     <ul class="oficinas__rejilla">
       {
         OFICINAS.map((oficina, i) => (
           <li class="oficina" data-revelar data-revelar-retraso={i * 80}>
-            {oficina.sede && <span class="oficina__sede">Sede central</span>}
+            {oficina.sede && <span class="oficina__sede">{t.oficinas.sede}</span>}
             <h3 class="oficina__nombre">
-              <a class="oficina__enlace" href={`/oficina/${oficina.id}`}>
+              <a class="oficina__enlace" href={enlaceDe(idioma, `/oficina/${oficina.id}`)}>
                 {oficina.nombre}
                 <span class="oficina__area" aria-hidden="true" />
               </a>

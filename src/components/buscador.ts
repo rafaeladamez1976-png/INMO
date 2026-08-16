@@ -1,15 +1,30 @@
-import { euros } from '../lib/hipoteca';
-
 /**
  * Filtrado en el navegador.
  *
  * Todos los inmuebles ya están en el HTML: se ocultan los que no encajan. Con
  * un catálogo de este tamaño es lo correcto — respuesta instantánea, sin
  * servidor, y el contenido sigue siendo visible para los buscadores.
+ *
+ * Los textos llegan por atributos desde la plantilla: este fichero corre en el
+ * navegador y no ve el diccionario del servidor.
  */
 export function iniciarBuscador(): void {
   const raiz = document.querySelector<HTMLElement>('[data-buscador]');
   if (!raiz) return;
+
+  const ingles = raiz.dataset.idioma === 'en';
+  const dice = {
+    sinLimite: raiz.dataset.sinLimite ?? 'Sin límite',
+    hasta: raiz.dataset.hasta ?? 'Hasta',
+    ninguno: raiz.dataset.ninguno ?? 'Ningún inmueble',
+    uno: raiz.dataset.uno ?? '1 inmueble',
+    varios: raiz.dataset.varios ?? 'inmuebles',
+  };
+
+  const euros = (n: number) =>
+    ingles
+      ? `€${Math.round(n).toLocaleString('en-GB')}`
+      : `${Math.round(n).toLocaleString('es-ES')} €`;
 
   const form = raiz.querySelector<HTMLFormElement>('[data-filtros]')!;
   const salidaPrecio = raiz.querySelector<HTMLElement>('[data-salida-precio]')!;
@@ -28,7 +43,7 @@ export function iniciarBuscador(): void {
     const precio = Number(datos.get('precio') ?? maximo);
 
     salidaPrecio.textContent =
-      precio >= maximo ? 'Sin límite' : `Hasta ${euros(precio)}`;
+      precio >= maximo ? dice.sinLimite : `${dice.hasta} ${euros(precio)}`;
 
     let visibles = 0;
 
@@ -44,11 +59,7 @@ export function iniciarBuscador(): void {
     }
 
     cuenta.textContent =
-      visibles === 0
-        ? 'Ningún inmueble'
-        : visibles === 1
-          ? '1 inmueble'
-          : `${visibles} inmuebles`;
+      visibles === 0 ? dice.ninguno : visibles === 1 ? dice.uno : `${visibles} ${dice.varios}`;
 
     vacio.hidden = visibles > 0;
   }

@@ -1,6 +1,25 @@
 ---
 import { BARRIOS, ASPECTOS, precioMetro } from '../data/barrios';
 import { OFICINAS } from '../data/empresa';
+import { textos, ruta as enlaceDe, type Idioma } from '../i18n';
+import { BARRIOS_EN } from '../i18n/datos';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma).barrios;
+
+/** Nombres de los aspectos que se puntúan de 1 a 5. */
+const ASPECTOS_EN: Record<string, string> = {
+  transporte: 'Transport',
+  zonasVerdes: 'Green space',
+  comercio: 'Shops',
+  tranquilidad: 'Quiet',
+};
+const nombreAspecto = (id: string, español: string) =>
+  idioma === 'en' ? (ASPECTOS_EN[id] ?? español) : español;
 
 /**
  * Comparador de barrios.
@@ -16,14 +35,11 @@ import { OFICINAS } from '../data/empresa';
 <section class="barrios" aria-labelledby="titulo-comparador">
   <div class="contenedor">
     <header class="barrios__cabecera">
-      <p class="antetitulo">Comparador</p>
+      <p class="antetitulo">{t.antetitulo}</p>
       <h2 id="titulo-comparador" class="barrios__titulo" data-titular>
-        Antes de elegir piso,<br />elige barrio
+        {t.titulo}<br />{t.titulo2}
       </h2>
-      <p class="barrios__entrada">
-        Los cuatro barrios donde trabajamos, comparados de verdad. Con lo bueno
-        y con lo que no nos gusta de cada uno.
-      </p>
+      <p class="barrios__entrada">{t.entrada}</p>
     </header>
 
     <div class="barrios__tabla">
@@ -37,21 +53,21 @@ import { OFICINAS } from '../data/empresa';
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <h3 class="barrio__nombre">{barrio.nombre}</h3>
-                <p class="barrio__distrito">Distrito {barrio.distrito}</p>
+                <p class="barrio__distrito">{t.distrito} {barrio.distrito}</p>
               </header>
 
               <dl class="barrio__cifras">
                 <div>
-                  <dt>Compra</dt>
+                  <dt>{t.compra}</dt>
                   <dd>{precioMetro(barrio.precioVenta)}</dd>
                 </div>
                 <div>
-                  <dt>Alquiler 2 dorm.</dt>
+                  <dt>{t.alquilerTipo}</dt>
                   <dd>{barrio.alquilerTipo} €</dd>
                 </div>
                 <div>
-                  <dt>Hasta Sol</dt>
-                  <dd>{barrio.minutosCentro} min</dd>
+                  <dt>{t.hastaSol}</dt>
+                  <dd>{barrio.minutosCentro} {t.min}</dd>
                 </div>
               </dl>
 
@@ -61,12 +77,10 @@ import { OFICINAS } from '../data/empresa';
                     const valor = barrio[aspecto.id];
                     return (
                       <li class="nota">
-                        <span class="nota__nombre">{aspecto.nombre}</span>
-                        <span
-                          class="nota__barras"
-                          role="img"
-                          aria-label={`${valor} sobre 5`}
-                        >
+                        <span class="nota__nombre">
+                          {nombreAspecto(aspecto.id, aspecto.nombre)}
+                        </span>
+                        <span class="nota__barras" role="img" aria-label={t.sobre5(valor)}>
                           {[1, 2, 3, 4, 5].map((n) => (
                             <span
                               class:list={['nota__barra', { 'nota__barra--llena': n <= valor }]}
@@ -81,23 +95,23 @@ import { OFICINAS } from '../data/empresa';
 
               <div class="barrio__juicio">
                 <p class="barrio__para">
-                  <span class="barrio__etiqueta">Encaja si</span>
-                  {barrio.paraQuien}
+                  <span class="barrio__etiqueta">{t.encajaSi}</span>
+                  {idioma === 'en' ? BARRIOS_EN[barrio.id]?.paraQuien : barrio.paraQuien}
                 </p>
                 <p class="barrio__favor">
-                  <span class="barrio__etiqueta barrio__etiqueta--bien">Lo mejor</span>
-                  {barrio.aFavor}
+                  <span class="barrio__etiqueta barrio__etiqueta--bien">{t.loMejor}</span>
+                  {idioma === 'en' ? BARRIOS_EN[barrio.id]?.aFavor : barrio.aFavor}
                 </p>
                 <p class="barrio__contra">
-                  <span class="barrio__etiqueta barrio__etiqueta--mal">La pega</span>
-                  {barrio.contra}
+                  <span class="barrio__etiqueta barrio__etiqueta--mal">{t.laPega}</span>
+                  {idioma === 'en' ? BARRIOS_EN[barrio.id]?.contra : barrio.contra}
                 </p>
               </div>
 
               {
                 oficina && (
-                  <a class="barrio__oficina" href={`/oficina/${oficina.id}`}>
-                    Oficina de {oficina.nombre}
+                  <a class="barrio__oficina" href={enlaceDe(idioma, `/oficina/${oficina.id}`)}>
+                    {textos(idioma).ficha.oficinaDe} {oficina.nombre}
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                       <path
                         d="M5 12h14M13 6l6 6-6 6"
@@ -117,10 +131,7 @@ import { OFICINAS } from '../data/empresa';
       }
     </div>
 
-    <p class="barrios__fuente">
-      Precios orientativos de referencia interna. Actualizados cada trimestre
-      con operaciones cerradas en nuestras oficinas.
-    </p>
+    <p class="barrios__fuente">{t.fuente}</p>
   </div>
 </section>
 

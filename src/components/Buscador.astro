@@ -2,12 +2,19 @@
 import Ficha from './Ficha.astro';
 import type { Inmueble } from '../data/inmuebles';
 import { TIPOS } from '../data/inmuebles';
+import { textos, ruta as enlaceDe, type Idioma } from '../i18n';
+import { tipoDe } from '../i18n/datos';
 
 interface Props {
   inmuebles: Inmueble[];
+  idioma?: Idioma;
 }
 
-const { inmuebles } = Astro.props;
+const { inmuebles, idioma = 'es' } = Astro.props;
+const todo = textos(idioma);
+const t = todo.buscador;
+const ninguno = idioma === 'en' ? 'No properties' : 'Ningún inmueble';
+const sinLimite = idioma === 'en' ? 'No limit' : 'Sin límite';
 
 /**
  * Buscador con filtros.
@@ -24,40 +31,53 @@ const precios = inmuebles.map((i) => i.precio);
 const maximo = Math.max(...precios);
 ---
 
-<div class="buscador" data-buscador data-maximo={maximo}>
+<div
+  class="buscador"
+  data-buscador
+  data-maximo={maximo}
+  data-idioma={idioma}
+  data-sin-limite={sinLimite}
+  data-hasta={todo.comun.hasta}
+  data-ninguno={ninguno}
+  data-uno={t.uno}
+  data-varios={t.varios}
+>
   <form class="filtros" data-filtros>
     <div class="filtros__fila">
       <label class="filtro">
-        <span class="filtro__nombre">Tipo</span>
+        <span class="filtro__nombre">{t.tipo}</span>
         <select class="filtro__control" name="tipo">
-          <option value="">Todos</option>
-          {tipos.map((tipo) => <option value={tipo}>{TIPOS[tipo]}</option>)}
+          <option value="">{t.todos}</option>
+          {tipos.map((tipo) => <option value={tipo}>{tipoDe(tipo, TIPOS[tipo], idioma)}</option>)}
         </select>
       </label>
 
       <label class="filtro">
-        <span class="filtro__nombre">Zona</span>
+        <span class="filtro__nombre">{t.zona}</span>
         <select class="filtro__control" name="zona">
-          <option value="">Todas</option>
+          <option value="">{t.todas}</option>
           {zonas.map((zona) => <option value={zona}>{zona}</option>)}
         </select>
       </label>
 
       <label class="filtro">
-        <span class="filtro__nombre">Habitaciones</span>
+        <span class="filtro__nombre">{t.habitaciones}</span>
         <select class="filtro__control" name="habitaciones">
-          <option value="">Cualquiera</option>
-          <option value="1">1 o más</option>
-          <option value="2">2 o más</option>
-          <option value="3">3 o más</option>
-          <option value="4">4 o más</option>
+          <option value="">{t.cualquiera}</option>
+          {
+            [1, 2, 3, 4].map((n) => (
+              <option value={String(n)}>
+                {n} {t.oMas}
+              </option>
+            ))
+          }
         </select>
       </label>
     </div>
 
     <label class="filtro filtro--precio">
       <span class="filtro__fila">
-        <span class="filtro__nombre">Precio máximo</span>
+        <span class="filtro__nombre">{t.precioMaximo}</span>
         <output class="filtro__valor" data-salida-precio></output>
       </span>
       <input
@@ -72,7 +92,7 @@ const maximo = Math.max(...precios);
 
     <div class="filtros__pie">
       <p class="filtros__cuenta" data-cuenta role="status"></p>
-      <button class="filtros__limpiar" type="button" data-limpiar>Quitar filtros</button>
+      <button class="filtros__limpiar" type="button" data-limpiar>{t.limpiar}</button>
     </div>
   </form>
 
@@ -87,15 +107,16 @@ const maximo = Math.max(...precios);
           data-habitaciones={inmueble.habitaciones}
           data-precio={inmueble.precio}
         >
-          <Ficha inmueble={inmueble} retraso={(i % 3) * 80} />
+          <Ficha inmueble={inmueble} retraso={(i % 3) * 80} idioma={idioma} />
         </div>
       ))
     }
   </div>
 
   <p class="vacio" data-vacio hidden>
-    No hay nada con esos filtros. Prueba a ampliar el precio o la zona, o
-    <a href="/cita">cuéntanos qué buscas</a> y te avisamos cuando entre.
+    {t.vacioAntes}{' '}
+    <a href={enlaceDe(idioma, '/alertas')}>{t.vacioEnlace}</a>{' '}
+    {t.vacioDespues}
   </p>
 </div>
 

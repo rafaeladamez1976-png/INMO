@@ -1,4 +1,13 @@
 ---
+import { textos, type Idioma } from '../../i18n';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma).portada.territorio;
+
 /**
  * Mapa 3D de los barrios.
  *
@@ -56,7 +65,7 @@
 
   <canvas class="portada__lienzo" data-ciudad hidden></canvas>
 
-  <p class="portada__pista" aria-hidden="true">Baja para sobrevolar</p>
+  <p class="portada__pista" aria-hidden="true">{t.pista}</p>
 </section>
 
 <script>

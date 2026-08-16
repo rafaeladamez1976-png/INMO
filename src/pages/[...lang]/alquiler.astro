@@ -1,0 +1,60 @@
+---
+import Base from '../../layouts/Base.astro';
+import Buscador from '../../components/Buscador.astro';
+import { porOperacion } from '../../data/inmuebles';
+import { EMPRESA } from '../../data/empresa';
+import { textos, rutasDeIdioma, type Idioma } from '../../i18n';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const t = textos(idioma).alquiler;
+const inmuebles = porOperacion('alquiler');
+---
+
+<Base
+  idioma={idioma}
+  titulo={`${t.tituloPagina} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.entrada}
+>
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1 class="portadilla__titulo">
+        {t.titulo}<br /><span class="acento">{t.acento}</span>
+      </h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
+    </header>
+
+    <Buscador inmuebles={inmuebles} idioma={idioma} />
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+</style>

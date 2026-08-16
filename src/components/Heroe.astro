@@ -3,6 +3,14 @@ import { Image } from 'astro:assets';
 import heroe from '../assets/inmuebles/heroe.jpg';
 import { EMPRESA, OFICINAS } from '../data/empresa';
 import { INMUEBLES } from '../data/inmuebles';
+import { textos, ruta as enlaceDe, type Idioma } from '../i18n';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma).heroe;
 
 /**
  * Portada.
@@ -15,21 +23,17 @@ import { INMUEBLES } from '../data/inmuebles';
  * pesan unos cientos de bytes en lugar de decenas de kilobytes.
  */
 
-const titulo = ['Encuentra', 'tu', 'lugar'];
+const titulo = t.palabras;
 
-const SELLOS = [
-  { icono: 'ubicacion', texto: 'Cuatro oficinas de barrio' },
-  { icono: 'casa', texto: 'Inmuebles verificados' },
-  { icono: 'trato', texto: 'Asesoramiento personal' },
-  { icono: 'escudo', texto: 'Operación segura' },
-];
+const ICONOS = ['ubicacion', 'casa', 'trato', 'escudo'];
+const SELLOS = t.sellos.map((texto, i) => ({ icono: ICONOS[i], texto }));
 ---
 
 <section class="heroe">
   <div class="heroe__foto" data-heroe-foto>
     <Image
       src={heroe}
-      alt="Villa moderna iluminada al anochecer con piscina desbordante"
+      alt={t.fotoAlt}
       widths={[900, 1400, 1920]}
       sizes="100vw"
       loading="eager"
@@ -42,7 +46,7 @@ const SELLOS = [
 
   <div class="contenedor heroe__texto">
     <p class="antetitulo heroe__antetitulo" data-entrada data-entrada-retraso="0">
-      {EMPRESA.ciudad} · {OFICINAS.length} oficinas
+      {EMPRESA.ciudad} · {OFICINAS.length} {t.oficinas}
     </p>
 
     <h1 class="heroe__titular">
@@ -62,18 +66,15 @@ const SELLOS = [
         ))
       }
       <span class="heroe__palabra heroe__acento" data-entrada data-entrada-retraso="450">
-        ideal
+        {t.acento}
       </span>
     </h1>
 
-    <p class="heroe__entrada" data-entrada data-entrada-retraso="600">
-      Vendemos y alquilamos en Cuatro Vientos, Aluche, Las Águilas y Latina.
-      No buscamos un piso en Madrid: buscamos el tuyo, en tu calle.
-    </p>
+    <p class="heroe__entrada" data-entrada data-entrada-retraso="600">{t.entrada}</p>
 
     <div class="heroe__acciones" data-entrada data-entrada-retraso="720">
-      <a class="boton boton--laton heroe__cta" href="/venta">
-        Ver propiedades
+      <a class="boton boton--laton heroe__cta" href={enlaceDe(idioma, '/venta')}>
+        {t.ver}
         <svg viewBox="0 0 24 24" aria-hidden="true" class="heroe__flecha">
           <path
             d="M5 12h14M13 6l6 6-6 6"
@@ -84,20 +85,22 @@ const SELLOS = [
             stroke-linejoin="round"></path>
         </svg>
       </a>
-      <a class="boton boton--linea heroe__linea" href="/valoracion">Vender mi casa</a>
+      <a class="boton boton--linea heroe__linea" href={enlaceDe(idioma, '/valoracion')}>
+        {t.vender}
+      </a>
     </div>
 
     <dl class="heroe__cifras" data-entrada data-entrada-retraso="850">
       <div>
-        <dt>Inmuebles</dt>
+        <dt>{t.cifras.inmuebles}</dt>
         <dd data-cuenta={INMUEBLES.length}>{INMUEBLES.length}</dd>
       </div>
       <div>
-        <dt>Oficinas</dt>
+        <dt>{t.cifras.oficinas}</dt>
         <dd data-cuenta={OFICINAS.length}>{OFICINAS.length}</dd>
       </div>
       <div>
-        <dt>Provincias</dt>
+        <dt>{t.cifras.provincias}</dt>
         <dd data-cuenta={EMPRESA.zonas.length}>{EMPRESA.zonas.length}</dd>
       </div>
     </dl>

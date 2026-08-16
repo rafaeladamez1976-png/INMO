@@ -1,17 +1,30 @@
 ---
 import { Image } from 'astro:assets';
 import type { Inmueble } from '../data/inmuebles';
-import { OPERACIONES, TIPOS, precioLegible } from '../data/inmuebles';
+import { OPERACIONES, TIPOS } from '../data/inmuebles';
 import Energia from './Energia.astro';
-import { euros } from '../lib/hipoteca';
+import { textos, ruta as enlaceDe, type Idioma } from '../i18n';
+import {
+  tituloDe,
+  tipoDe,
+  operacionDe,
+  precioDe,
+  extraDe,
+  plantaDe,
+} from '../i18n/datos';
 
 interface Props {
   inmueble: Inmueble;
   retraso?: number;
+  idioma?: Idioma;
 }
 
-const { inmueble, retraso = 0 } = Astro.props;
+const { inmueble, retraso = 0, idioma = 'es' } = Astro.props;
 const { operacion, tipo } = inmueble;
+const t = textos(idioma);
+
+const nombreTipo = tipoDe(tipo, TIPOS[tipo], idioma);
+const laOperacion = operacionDe(operacion, OPERACIONES[operacion], idioma);
 
 /**
  * Las fotografías se cargan del directorio de recursos y Astro las optimiza:
@@ -31,7 +44,7 @@ const foto = fotos[`../assets/inmuebles/${inmueble.imagen}.jpg`]?.default;
       foto && (
         <Image
           src={foto}
-          alt={`${TIPOS[tipo]} en ${inmueble.zona}`}
+          alt={idioma === 'en' ? `${nombreTipo} in ${inmueble.zona}` : `${nombreTipo} en ${inmueble.zona}`}
           widths={[400, 700, 1000]}
           sizes="(max-width: 48rem) 92vw, (max-width: 72rem) 46vw, 24rem"
           loading="lazy"
@@ -41,14 +54,14 @@ const foto = fotos[`../assets/inmuebles/${inmueble.imagen}.jpg`]?.default;
       )
     }
 
-    <span class="ficha__operacion">{OPERACIONES[operacion].titulo}</span>
+    <span class="ficha__operacion">{laOperacion.titulo}</span>
 
     <button
       class="favorito"
       type="button"
       data-favorito={inmueble.id}
       aria-pressed="false"
-      aria-label="Guardar en favoritos"
+      aria-label={t.comun.guardar}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -59,38 +72,46 @@ const foto = fotos[`../assets/inmuebles/${inmueble.imagen}.jpg`]?.default;
     </button>
 
     <div class="ficha__precio">
-      {precioLegible(inmueble.precio)}<span>{OPERACIONES[operacion].sufijo}</span>
+      {precioDe(inmueble.precio, idioma)}<span>{laOperacion.sufijo}</span>
     </div>
   </div>
 
   <div class="ficha__cuerpo">
-    <p class="ficha__zona">{TIPOS[tipo]} · {inmueble.zona}, {inmueble.provincia}</p>
+    <p class="ficha__zona">{nombreTipo} · {inmueble.zona}, {inmueble.provincia}</p>
 
     <h3 class="ficha__titulo">
-      <a class="ficha__enlace" href={`/inmueble/${inmueble.id}`}>
-        {inmueble.titulo}
+      <a class="ficha__enlace" href={enlaceDe(idioma, `/inmueble/${inmueble.id}`)}>
+        {tituloDe(inmueble, idioma)}
         <span class="ficha__area" aria-hidden="true"></span>
       </a>
     </h3>
 
     <ul class="ficha__datos">
-      {inmueble.habitaciones > 0 && <li>{inmueble.habitaciones} hab.</li>}
-      <li>{inmueble.banos} baños</li>
+      {
+        inmueble.habitaciones > 0 && (
+          <li>
+            {inmueble.habitaciones} {idioma === 'en' ? 'bed' : 'hab.'}
+          </li>
+        )
+      }
+      <li>{inmueble.banos} {idioma === 'en' ? 'bath' : 'baños'}</li>
       <li>{inmueble.metros} m²</li>
-      {inmueble.planta && <li>{inmueble.planta}</li>}
+      {inmueble.planta && <li>{plantaDe(inmueble.planta, idioma)}</li>}
     </ul>
 
     <p class="ficha__energia">
-      <Energia energia={inmueble.energia} forma="sello" />
+      <Energia energia={inmueble.energia} forma="sello" idioma={idioma} />
       {
         operacion === 'venta' && inmueble.metros > 0 && (
-          <span class="ficha__metro">{euros(inmueble.precio / inmueble.metros)}/m²</span>
+          <span class="ficha__metro">
+            {precioDe(Math.round(inmueble.precio / inmueble.metros), idioma)}/m²
+          </span>
         )
       }
     </p>
 
     <ul class="ficha__extras">
-      {inmueble.extras.map((extra) => <li>{extra}</li>)}
+      {inmueble.extras.map((extra) => <li>{extraDe(extra, idioma)}</li>)}
     </ul>
   </div>
 </article>

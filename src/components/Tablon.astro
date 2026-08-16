@@ -2,19 +2,32 @@
 import { NOVEDADES, ETIQUETAS, fechaCorta, novedadesDe } from '../data/novedades';
 import { OFICINAS } from '../data/empresa';
 import { porId } from '../data/inmuebles';
+import { textos, ruta as enlaceDe, type Idioma } from '../i18n';
+import { NOVEDADES_EN } from '../i18n/datos';
 
 interface Props {
   /** Identificador de oficina, o nada para el tablón general. */
   oficina?: string;
   /** Cuántas mostrar. */
   cuantas?: number;
-  /** Título de la sección. */
+  /** Título de la sección. Si no se pasa, el del diccionario. */
   titulo?: string;
+  idioma?: Idioma;
 }
 
-const { oficina, cuantas = 4, titulo = 'Novedades' } = Astro.props;
+const { oficina, cuantas = 4, titulo, idioma = 'es' } = Astro.props;
+const t = textos(idioma).tablon;
+const encabezado = titulo ?? t.titulo;
 
 const novedades = oficina ? novedadesDe(oficina, cuantas) : NOVEDADES.slice(0, cuantas);
+
+/** Fechas en inglés: "14 August", no "14 de agosto". */
+function fecha(iso: string): string {
+  if (idioma === 'es') return fechaCorta(iso);
+  const d = new Date(`${iso}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+}
 
 /**
  * Tablón de novedades.
@@ -30,14 +43,12 @@ const novedades = oficina ? novedadesDe(oficina, cuantas) : NOVEDADES.slice(0, c
     <section class="tablon" aria-labelledby="titulo-tablon">
       <header class="tablon__cabecera">
         <div>
-          <p class="antetitulo">Tablón</p>
+          <p class="antetitulo">{t.antetitulo}</p>
           <h2 id="titulo-tablon" class="tablon__titulo" data-titular>
-            {titulo}
+            {encabezado}
           </h2>
         </div>
-        <p class="tablon__cuenta">
-          Actualizado el {fechaCorta(novedades[0].fecha)}
-        </p>
+        <p class="tablon__cuenta">{t.actualizado(fecha(novedades[0].fecha))}</p>
       </header>
 
       <ol class="tablon__lista">
@@ -45,36 +56,44 @@ const novedades = oficina ? novedadesDe(oficina, cuantas) : NOVEDADES.slice(0, c
           const etiqueta = ETIQUETAS[novedad.tipo];
           const suya = OFICINAS.find((o) => o.id === novedad.oficina);
           const inmueble = novedad.inmueble ? porId(novedad.inmueble) : undefined;
+          const suyoEn = NOVEDADES_EN[novedad.id];
 
           return (
             <li class="apunte" data-revelar data-revelar-retraso={i * 80}>
               <div class="apunte__marca">
                 <time class="apunte__fecha" datetime={novedad.fecha}>
-                  {fechaCorta(novedad.fecha)}
+                  {fecha(novedad.fecha)}
                 </time>
                 <span class:list={['apunte__tipo', `apunte__tipo--${etiqueta.tono}`]}>
-                  {etiqueta.nombre}
+                  {idioma === 'en' ? t.etiquetas[novedad.tipo] : etiqueta.nombre}
                 </span>
               </div>
 
               <div class="apunte__cuerpo">
-                <h3 class="apunte__titulo">{novedad.titulo}</h3>
-                <p class="apunte__texto">{novedad.texto}</p>
+                <h3 class="apunte__titulo">
+                  {idioma === 'en' && suyoEn ? suyoEn.titulo : novedad.titulo}
+                </h3>
+                <p class="apunte__texto">
+                  {idioma === 'en' && suyoEn ? suyoEn.texto : novedad.texto}
+                </p>
 
                 <p class="apunte__pie">
                   {novedad.oficina === 'todas' ? (
-                    <span class="apunte__firma">Las cuatro oficinas</span>
+                    <span class="apunte__firma">{t.lasCuatro}</span>
                   ) : (
                     suya && (
-                      <a class="apunte__firma" href={`/oficina/${suya.id}`}>
-                        Oficina de {suya.nombre}
+                      <a class="apunte__firma" href={enlaceDe(idioma, `/oficina/${suya.id}`)}>
+                        {textos(idioma).ficha.oficinaDe} {suya.nombre}
                       </a>
                     )
                   )}
 
                   {inmueble && (
-                    <a class="apunte__inmueble" href={`/inmueble/${inmueble.id}`}>
-                      Ver el inmueble
+                    <a
+                      class="apunte__inmueble"
+                      href={enlaceDe(idioma, `/inmueble/${inmueble.id}`)}
+                    >
+                      {t.verInmueble}
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path
                           d="M5 12h14M13 6l6 6-6 6"

@@ -1,4 +1,13 @@
 ---
+import { textos, type Idioma } from '../i18n';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const dice = textos(idioma).testimonios;
+
 /**
  * Testimonios.
  *
@@ -13,37 +22,16 @@
  * clientes de verdad y publicarlos con su permiso por escrito.
  */
 
-const TESTIMONIOS = [
-  {
-    texto:
-      'Nos dijeron un precio más bajo que otras dos agencias y nos explicaron por qué. Se vendió en cinco semanas al precio que habían dicho.',
-    nombre: 'Carmen R.',
-    detalle: 'Vendió su piso en Aluche',
-    inicial: 'C',
-  },
-  {
-    texto:
-      'Llevábamos ocho meses buscando por nuestra cuenta. Nos enseñaron cuatro pisos y el tercero era el nuestro. Sabían exactamente qué queríamos.',
-    nombre: 'Javier y Nuria',
-    detalle: 'Compraron en Las Águilas',
-    inicial: 'J',
-  },
-  {
-    texto:
-      'Lo que más valoro es que me cogían el teléfono. Suena a poco hasta que has tratado con quien no lo hace.',
-    nombre: 'Antonio M.',
-    detalle: 'Alquiló su local en Latina',
-    inicial: 'A',
-  },
-];
+/* La inicial sale del nombre: así no hay que mantenerla en cada idioma. */
+const TESTIMONIOS = dice.lista.map((uno) => ({ ...uno, inicial: uno.nombre.charAt(0) }));
 ---
 
 <section class="testimonios" aria-labelledby="titulo-testimonios">
   <div class="contenedor">
     <header class="testimonios__cabecera" data-revelar>
-      <p class="antetitulo">Lo que dicen</p>
+      <p class="antetitulo">{dice.antetitulo}</p>
       <h2 id="titulo-testimonios" class="testimonios__titulo" data-titular>
-        La confianza no se anuncia,<br />se comprueba
+        {dice.titulo}<br />{dice.titulo2}
       </h2>
     </header>
 
@@ -71,9 +59,7 @@ const TESTIMONIOS = [
       }
     </ul>
 
-    <p class="testimonios__nota" data-revelar>
-      Ejemplos de cómo se mostrarían las opiniones reales de clientes.
-    </p>
+    <p class="testimonios__nota" data-revelar>{dice.nota}</p>
   </div>
 </section>
 

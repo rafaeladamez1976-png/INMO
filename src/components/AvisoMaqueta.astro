@@ -1,4 +1,13 @@
 ---
+import { textos, type Idioma } from '../i18n';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma).aviso;
+
 /**
  * Aviso permanente de que esto es una maqueta.
  *
@@ -9,10 +18,9 @@
 ---
 
 <p class="aviso" role="note">
-  <!-- El espacio va explícito: el compilador se come el salto de línea y
-       queda "demostración.Los". -->
-  <strong>Maqueta de demostración.</strong>{' '}
-  Los inmuebles son ejemplos inventados.
+  <!-- El espacio va explícito: el compilador se come el salto de línea. -->
+  <strong>{t.fuerte}</strong>{' '}
+  {t.resto}
 </p>
 
 <style>

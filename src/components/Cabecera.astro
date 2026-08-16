@@ -1,10 +1,26 @@
 ---
 import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
 import { PRINCIPALES, SECUNDARIOS, LEGALES } from '../data/navegacion';
+import { textos, ruta as enlaceDe, mismaPaginaEn, type Idioma } from '../i18n';
 
-const ruta = Astro.url.pathname;
-const activa = (href: string) => (href === '/' ? ruta === '/' : ruta.startsWith(href));
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma);
+
+const aqui = Astro.url.pathname;
+/** Compara sin prefijo de idioma: /en/venta está activa igual que /venta. */
+const sinIdioma = aqui.replace(/^\/en(?=\/|$)/, '') || '/';
+const activa = (href: string) =>
+  href === '/' ? sinIdioma === '/' : sinIdioma.startsWith(href);
 const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
+
+/** El otro idioma, en esta misma página. */
+const otro: Idioma = idioma === 'es' ? 'en' : 'es';
+const enlaceOtroIdioma = mismaPaginaEn(otro, aqui);
+const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
 
 /**
  * Cabecera.
@@ -21,7 +37,7 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
 
 <header class="cabecera">
   <div class="contenedor cabecera__interior">
-    <a class="marca" href="/">
+    <a class="marca" href={enlaceDe(idioma, '/')}>
       <svg class="marca__icono" viewBox="0 0 32 32" aria-hidden="true">
         <path
           d="M4 15 16 5l12 10v13a1 1 0 0 1-1 1h-7v-9h-8v9H5a1 1 0 0 1-1-1z"
@@ -37,7 +53,13 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     </a>
 
     <div class="cabecera__acciones">
-      <a class="icono" href="/favoritos" aria-label="Ver tus favoritos">
+      <!-- Conmutador de idioma. Lleva a esta misma página en el otro idioma,
+           no a la portada: quien está leyendo una ficha quiere esa ficha. -->
+      <a class="idioma" href={enlaceOtroIdioma} lang={otro} aria-label={t.nav.cambiarIdioma}>
+        {etiquetaOtro}
+      </a>
+
+      <a class="icono" href={enlaceDe(idioma, '/favoritos')} aria-label={t.nav.favoritos}>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M12 20s-7-4.4-7-9.3A4 4 0 0 1 12 8a4 4 0 0 1 7-2.7c0 4.9-7 9.3-7 9.3Z"
@@ -70,18 +92,18 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
         aria-controls="menu-movil"
       >
         <span class="hamburguesa__lineas" aria-hidden="true"><span></span><span></span></span>
-        <span class="hamburguesa__texto">Menú</span>
+        <span class="hamburguesa__texto">{t.nav.menu}</span>
       </button>
     </div>
   </div>
 
-  <nav class="nav" aria-label="Navegación principal">
+  <nav class="nav" aria-label={t.nav.principal}>
     <ul class="contenedor menu">
       <li>
         <a
-          href="/"
+          href={enlaceDe(idioma, '/')}
           class:list={['menu__enlace', { 'menu__enlace--activa': activa('/') }]}
-          aria-current={activa('/') ? 'page' : undefined}>Inicio</a
+          aria-current={activa('/') ? 'page' : undefined}>{t.comun.inicio}</a
         >
       </li>
 
@@ -89,11 +111,11 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
         PRINCIPALES.map((enlace) => (
           <li>
             <a
-              href={enlace.href}
+              href={enlaceDe(idioma, enlace.href)}
               class:list={['menu__enlace', { 'menu__enlace--activa': activa(enlace.href) }]}
               aria-current={activa(enlace.href) ? 'page' : undefined}
             >
-              {enlace.texto}
+              {enlace.texto[idioma]}
             </a>
           </li>
         ))
@@ -107,7 +129,7 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
           aria-expanded="false"
           aria-controls="menu-secundario"
         >
-          Más
+          {t.nav.mas}
           <svg class="menu__punta" viewBox="0 0 24 24" aria-hidden="true">
             <path
               d="m6 9 6 6 6-6"
@@ -131,12 +153,12 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
           SECUNDARIOS.map((enlace) => (
             <li>
               <a
-                href={enlace.href}
+                href={enlaceDe(idioma, enlace.href)}
                 class:list={['desplegable__enlace', { 'desplegable__enlace--activa': activa(enlace.href) }]}
               >
-                <span class="desplegable__titulo">{enlace.texto}</span>
+                <span class="desplegable__titulo">{enlace.texto[idioma]}</span>
                 {enlace.descripcion && (
-                  <span class="desplegable__detalle">{enlace.descripcion}</span>
+                  <span class="desplegable__detalle">{enlace.descripcion[idioma]}</span>
                 )}
               </a>
             </li>
@@ -151,7 +173,7 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
 <div class="panel" id="menu-movil" data-panel hidden>
   <div class="panel__cabeza">
     <p class="panel__marca">{EMPRESA.nombre}</p>
-    <button class="panel__cerrar" type="button" data-cerrar aria-label="Cerrar menú">
+    <button class="panel__cerrar" type="button" data-cerrar aria-label={t.nav.cerrar}>
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
           d="m6 6 12 12M18 6 6 18"
@@ -163,39 +185,42 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     </button>
   </div>
 
-  <nav class="panel__nav" aria-label="Todas las secciones">
-    <p class="panel__grupo">Buscar</p>
+  <nav class="panel__nav" aria-label={t.nav.todas}>
+    <p class="panel__grupo">{t.nav.buscar}</p>
     <ul class="panel__lista">
       <li>
-        <a href="/" class:list={['panel__enlace', { 'panel__enlace--activa': activa('/') }]}>
-          <span>Inicio</span>
+        <a
+          href={enlaceDe(idioma, '/')}
+          class:list={['panel__enlace', { 'panel__enlace--activa': activa('/') }]}
+        >
+          <span>{t.comun.inicio}</span>
         </a>
       </li>
       {
         PRINCIPALES.map((enlace) => (
           <li>
             <a
-              href={enlace.href}
+              href={enlaceDe(idioma, enlace.href)}
               class:list={['panel__enlace', { 'panel__enlace--activa': activa(enlace.href) }]}
             >
-              <span>{enlace.texto}</span>
+              <span>{enlace.texto[idioma]}</span>
             </a>
           </li>
         ))
       }
     </ul>
 
-    <p class="panel__grupo">La empresa</p>
+    <p class="panel__grupo">{t.nav.empresa}</p>
     <ul class="panel__lista">
       {
         SECUNDARIOS.map((enlace) => (
           <li>
             <a
-              href={enlace.href}
+              href={enlaceDe(idioma, enlace.href)}
               class:list={['panel__enlace', { 'panel__enlace--activa': activa(enlace.href) }]}
             >
-              <span>{enlace.texto}</span>
-              {enlace.descripcion && <em>{enlace.descripcion}</em>}
+              <span>{enlace.texto[idioma]}</span>
+              {enlace.descripcion && <em>{enlace.descripcion[idioma]}</em>}
             </a>
           </li>
         ))
@@ -204,13 +229,19 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
 
     <div class="panel__pie">
       <a class="boton boton--laton panel__cta" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
-        Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+        {t.comun.llamarAl} {telefonoLegible(EMPRESA.telefonoGratuito)}
       </a>
+
+      <!-- El idioma también aquí: en móvil la cabecera va muy justa. -->
+      <a class="panel__idioma" href={enlaceOtroIdioma} lang={otro}>
+        {t.nav.cambiarIdioma}
+      </a>
+
       <ul class="panel__legal">
         {
           LEGALES.map((enlace) => (
             <li>
-              <a href={enlace.href}>{enlace.texto}</a>
+              <a href={enlaceDe(idioma, enlace.href)}>{enlace.texto[idioma]}</a>
             </li>
           ))
         }
@@ -369,6 +400,32 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
     display: flex;
     align-items: center;
     gap: var(--e-2);
+  }
+
+  /* Conmutador de idioma: dos letras, que es lo que reconoce todo el mundo. */
+  .idioma {
+    display: grid;
+    place-items: center;
+    min-width: 2.6rem;
+    height: 2.6rem;
+    padding-inline: var(--e-2);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-pildora);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    color: var(--texto-suave);
+    transition:
+      border-color var(--dur-corta) var(--curva),
+      color var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .idioma:hover {
+      border-color: var(--laton);
+      color: var(--texto);
+    }
   }
 
   .icono {
@@ -722,6 +779,15 @@ const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
 
   .panel__cta {
     width: 100%;
+  }
+
+  .panel__idioma {
+    display: block;
+    margin-top: var(--e-4);
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    text-align: center;
+    color: var(--laton-claro);
   }
 
   .panel__legal {

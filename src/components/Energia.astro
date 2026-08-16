@@ -1,13 +1,16 @@
 ---
 import type { Inmueble } from '../data/inmuebles';
+import { textos, type Idioma } from '../i18n';
 
 interface Props {
   energia: Inmueble['energia'];
   /** 'sello' es la pastilla suelta; 'escala' pinta la escalera entera. */
   forma?: 'sello' | 'escala';
+  idioma?: Idioma;
 }
 
-const { energia, forma = 'escala' } = Astro.props;
+const { energia, forma = 'escala', idioma = 'es' } = Astro.props;
+const t = textos(idioma).energia;
 
 const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
 
@@ -28,16 +31,16 @@ const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
   forma === 'sello' ? (
     <span class:list={['sello', `sello--${energia.letra.toLowerCase()}`]}>
       <span class="sello__letra">{energia.letra}</span>
-      <span class="sello__texto">Energía</span>
+      <span class="sello__texto">{t.sello}</span>
     </span>
   ) : (
     <div class="certificado">
       <div class="certificado__cabeza">
-        <h3 class="certificado__titulo">Certificado energético</h3>
-        <p class="certificado__nota">Obligatorio por ley en todo anuncio</p>
+        <h3 class="certificado__titulo">{t.titulo}</h3>
+        <p class="certificado__nota">{t.nota}</p>
       </div>
 
-      <div class="escala" role="img" aria-label={`Calificación energética ${energia.letra} sobre una escala de A a G`}>
+      <div class="escala" role="img" aria-label={t.escala(energia.letra)}>
         {LETRAS.map((letra, i) => (
           <div
             class:list={[
@@ -48,22 +51,22 @@ const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
             style={`--ancho: ${52 + i * 8}%; --retraso: ${i * 60}ms`}
           >
             <span class="peldano__letra">{letra}</span>
-            {letra === energia.letra && <span class="peldano__marca">Este inmueble</span>}
+            {letra === energia.letra && <span class="peldano__marca">{t.esteInmueble}</span>}
           </div>
         ))}
       </div>
 
       <dl class="certificado__cifras">
         <div>
-          <dt>Consumo</dt>
+          <dt>{t.consumo}</dt>
           <dd>
-            {energia.consumo} <span>kWh/m² año</span>
+            {energia.consumo} <span>{t.consumoUnidad}</span>
           </dd>
         </div>
         <div>
-          <dt>Emisiones</dt>
+          <dt>{t.emisiones}</dt>
           <dd>
-            {energia.emisiones} <span>kg CO₂/m² año</span>
+            {energia.emisiones} <span>{t.emisionesUnidad}</span>
           </dd>
         </div>
       </dl>

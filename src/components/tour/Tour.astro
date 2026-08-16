@@ -1,12 +1,30 @@
 ---
 import type { Estancia } from '../../data/tours';
+import { textos, type Idioma } from '../../i18n';
 
 interface Props {
   estancias: Estancia[];
+  idioma?: Idioma;
 }
 
-const { estancias } = Astro.props;
+const { estancias, idioma = 'es' } = Astro.props;
+const todo = textos(idioma);
+const t = todo.tour;
 const primera = estancias[0];
+
+/** Nombres de estancia. Van por nombre porque en los datos son texto. */
+const ESTANCIAS_EN: Record<string, string> = {
+  Salón: 'Living room',
+  Cocina: 'Kitchen',
+  Dormitorio: 'Bedroom',
+  Baño: 'Bathroom',
+  Terraza: 'Terrace',
+  Jardín: 'Garden',
+  Local: 'Unit',
+  Patio: 'Courtyard',
+};
+const nombreEstancia = (nombre: string) =>
+  idioma === 'en' ? (ESTANCIAS_EN[nombre] ?? nombre) : nombre;
 
 /**
  * Tour virtual 360.
@@ -22,11 +40,11 @@ const primera = estancias[0];
 <section class="tour" data-tour aria-labelledby="titulo-tour">
   <header class="tour__cabecera">
     <div>
-      <p class="antetitulo">Visita virtual</p>
-      <h2 id="titulo-tour" class="tour__titulo">Entra sin moverte de casa</h2>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h2 id="titulo-tour" class="tour__titulo">{t.titulo}</h2>
     </div>
 
-    <nav class="tour__estancias" aria-label="Estancias">
+    <nav class="tour__estancias" aria-label={idioma === 'en' ? 'Rooms' : 'Estancias'}>
       {
         estancias.map((estancia, i) => (
           <button
@@ -35,7 +53,7 @@ const primera = estancias[0];
             data-estancia={estancia.id}
             aria-current={i === 0 ? 'true' : undefined}
           >
-            {estancia.nombre}
+            {nombreEstancia(estancia.nombre)}
           </button>
         ))
       }
@@ -46,7 +64,11 @@ const primera = estancias[0];
     <img
       class="tour__reserva"
       src={primera.imagen}
-      alt={`Panorámica del ${primera.nombre.toLowerCase()}`}
+      alt={
+        idioma === 'en'
+          ? `Panorama of the ${nombreEstancia(primera.nombre).toLowerCase()}`
+          : `Panorámica del ${primera.nombre.toLowerCase()}`
+      }
       loading="lazy"
       decoding="async"
     />
@@ -63,18 +85,15 @@ const primera = estancias[0];
           stroke-linecap="round"
           stroke-linejoin="round"></path>
       </svg>
-      Arrastra para mirar alrededor
+      {t.arrastra}
     </p>
 
-    <span class="tour__cargando" data-tour-cargando hidden>Cargando…</span>
+    <span class="tour__cargando" data-tour-cargando hidden>{todo.comun.cargando}</span>
   </div>
 
   <script type="application/json" data-tour-datos set:html={JSON.stringify(estancias)} />
 
-  <p class="tour__nota">
-    Panorámicas de ejemplo. En una vivienda real se capturan con cámara 360 en
-    una sola visita de media hora.
-  </p>
+  <p class="tour__nota">{t.pie}</p>
 </section>
 
 <script>

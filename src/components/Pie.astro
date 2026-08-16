@@ -1,5 +1,13 @@
 ---
 import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import { textos, ruta as enlaceDe, type Idioma } from '../i18n';
+
+interface Props {
+  idioma?: Idioma;
+}
+
+const { idioma = 'es' } = Astro.props;
+const t = textos(idioma);
 ---
 
 <footer class="pie">
@@ -18,7 +26,11 @@ import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empr
       {
         OFICINAS.map((oficina) => (
           <div class="pie__oficina">
-            <p class="pie__titulo"><a class="pie__oficina-enlace" href={`/oficina/${oficina.id}`}>{oficina.nombre}</a></p>
+            <p class="pie__titulo">
+              <a class="pie__oficina-enlace" href={enlaceDe(idioma, `/oficina/${oficina.id}`)}>
+                {oficina.nombre}
+              </a>
+            </p>
             <address class="pie__direccion">
               {oficina.direccion}
               <br />
@@ -32,7 +44,7 @@ import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empr
       }
     </div>
 
-    <p class="pie__firma">Maqueta de demostración · Diseño y desarrollo web</p>
+    <p class="pie__firma">{t.pie.firma}</p>
   </div>
 </footer>
 

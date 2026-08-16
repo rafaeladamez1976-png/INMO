@@ -1,45 +1,60 @@
 ---
 import { Image } from 'astro:assets';
-import Base from '../../layouts/Base.astro';
-import Ficha from '../../components/Ficha.astro';
-import Tour from '../../components/tour/Tour.astro';
-import {
-  INMUEBLES,
-  OPERACIONES,
-  TIPOS,
-  precioLegible,
-  parecidos,
-} from '../../data/inmuebles';
+import Base from '../../../layouts/Base.astro';
+import Ficha from '../../../components/Ficha.astro';
+import Tour from '../../../components/tour/Tour.astro';
+import { INMUEBLES, OPERACIONES, TIPOS, parecidos } from '../../../data/inmuebles';
 import {
   OFICINAS,
   EMPRESA,
   telefonoLegible,
   enlaceTelefono,
   enlaceWhatsApp,
-} from '../../data/empresa';
-import Energia from '../../components/Energia.astro';
-import { calcular, euros, desglosarGastos } from '../../lib/hipoteca';
-import { tourDe } from '../../data/tours';
+} from '../../../data/empresa';
+import Energia from '../../../components/Energia.astro';
+import { calcular, desglosarGastos } from '../../../lib/hipoteca';
+import { tourDe } from '../../../data/tours';
+import { textos, ruta as enlaceDe, IDIOMAS, type Idioma } from '../../../i18n';
+import {
+  tituloDe,
+  descripcionDe,
+  avisoDe,
+  tipoDe,
+  operacionDe,
+  precioDe,
+  extraDe,
+  plantaDe,
+  gastoDe,
+} from '../../../i18n/datos';
 
+/** Doce inmuebles por dos idiomas: veinticuatro páginas. */
 export function getStaticPaths() {
-  return INMUEBLES.map((inmueble) => ({
-    params: { id: inmueble.id },
-    props: { inmueble },
-  }));
+  return IDIOMAS.flatMap((lengua) =>
+    INMUEBLES.map((inmueble) => ({
+      params: { lang: lengua.id === 'es' ? undefined : lengua.id, id: inmueble.id },
+      props: { inmueble, idioma: lengua.id },
+    })),
+  );
 }
 
-const { inmueble } = Astro.props;
+const { inmueble, idioma } = Astro.props as { inmueble: (typeof INMUEBLES)[0]; idioma: Idioma };
 const { operacion, tipo } = inmueble;
 
+const todo = textos(idioma);
+const t = todo.ficha;
+const nombreTipo = tipoDe(tipo, TIPOS[tipo], idioma);
+const laOperacion = operacionDe(operacion, OPERACIONES[operacion], idioma);
+const euros = (n: number) => precioDe(Math.round(n), idioma);
+
 const fotos = import.meta.glob<{ default: ImageMetadata }>(
-  '../../assets/inmuebles/*.{jpg,jpeg,png,webp}',
+  '../../../assets/inmuebles/*.{jpg,jpeg,png,webp}',
   { eager: true },
 );
 
 const galeria = inmueble.galeria
   .map((nombre) => ({
     nombre,
-    imagen: fotos[`../../assets/inmuebles/${nombre}.jpg`]?.default,
+    imagen: fotos[`../../../assets/inmuebles/${nombre}.jpg`]?.default,
   }))
   .filter((f) => f.imagen);
 
@@ -71,35 +86,43 @@ const totalGastos = gastos ? gastos.reduce((t, g) => t + g.importe, 0) : 0;
 /** Precio por metro: el dato con el que se compara de verdad. */
 const precioMetro = inmueble.metros > 0 ? inmueble.precio / inmueble.metros : 0;
 
-const mensajeVisita = `Hola, me interesa el inmueble ${inmueble.id} (${inmueble.titulo}, ${inmueble.zona}). Quería concertar una visita.`;
+const mensajeVisita =
+  idioma === 'en'
+    ? `Hello, I am interested in property ${inmueble.id.toUpperCase()} (${tituloDe(inmueble, idioma)}, ${inmueble.zona}). I would like to arrange a viewing.`
+    : `Hola, me interesa el inmueble ${inmueble.id} (${inmueble.titulo}, ${inmueble.zona}). Quería concertar una visita.`;
 
 /** Recorrido 360 propio de cada tipo: un local no enseña dormitorio. */
 const estancias = tourDe(tipo);
 ---
 
 <Base
-  titulo={`${inmueble.titulo} en ${inmueble.zona} | Umbral Inmobiliaria`}
-  descripcion={inmueble.descripcion.slice(0, 155)}
+  idioma={idioma}
+  titulo={`${tituloDe(inmueble, idioma)}${idioma === 'en' ? ' in ' : ' en '}${inmueble.zona} | ${EMPRESA.nombreCompleto}`}
+  descripcion={descripcionDe(inmueble, idioma).slice(0, 155)}
 >
   <div class="contenedor">
-    <nav class="miga" aria-label="Dónde estás">
-      <a href="/">Inicio</a>
+    <nav class="miga" aria-label={todo.comun.dondeEstas}>
+      <a href={enlaceDe(idioma, '/')}>{todo.comun.inicio}</a>
       <span aria-hidden="true">›</span>
-      <a href={operacion === 'venta' ? '/venta' : '/alquiler'}>
-        {OPERACIONES[operacion].titulo}
+      <a href={enlaceDe(idioma, operacion === 'venta' ? '/venta' : '/alquiler')}>
+        {laOperacion.titulo}
       </a>
       <span aria-hidden="true">›</span>
       <span aria-current="page">{inmueble.zona}</span>
     </nav>
 
     <!-- Galería -->
-    <section class="galeria" aria-label="Fotografías del inmueble">
+    <section class="galeria" aria-label={todo.fotos}>
       {
         galeria.map((foto, i) => (
           <figure class:list={['galeria__hueco', { 'galeria__hueco--principal': i === 0 }]}>
             <Image
               src={foto.imagen!}
-              alt={`${TIPOS[tipo]} en ${inmueble.zona}`}
+              alt={
+                idioma === 'en'
+                  ? `${nombreTipo} in ${inmueble.zona}`
+                  : `${nombreTipo} en ${inmueble.zona}`
+              }
               widths={[600, 1000, 1600]}
               sizes={i === 0 ? '(max-width: 60rem) 92vw, 60vw' : '(max-width: 60rem) 46vw, 20vw'}
               loading={i === 0 ? 'eager' : 'lazy'}
@@ -114,10 +137,12 @@ const estancias = tourDe(tipo);
       <div class="detalle__principal">
         <header class="cabeza">
           <p class="cabeza__zona">
-            {TIPOS[tipo]} · {inmueble.zona}, {inmueble.provincia}
+            {nombreTipo} · {inmueble.zona}, {inmueble.provincia}
           </p>
-          <h1 class="cabeza__titulo">{inmueble.titulo}</h1>
-          <p class="cabeza__referencia">Referencia {inmueble.id.toUpperCase()}</p>
+          <h1 class="cabeza__titulo">{tituloDe(inmueble, idioma)}</h1>
+          <p class="cabeza__referencia">
+            {todo.comun.referencia} {inmueble.id.toUpperCase()}
+          </p>
         </header>
 
         <ul class="datos">
@@ -125,120 +150,120 @@ const estancias = tourDe(tipo);
             inmueble.habitaciones > 0 && (
               <li>
                 <span class="datos__cifra">{inmueble.habitaciones}</span>
-                <span class="datos__nombre">Dormitorios</span>
+                <span class="datos__nombre">{todo.comun.dormitorios}</span>
               </li>
             )
           }
           <li>
             <span class="datos__cifra">{inmueble.banos}</span>
-            <span class="datos__nombre">Baños</span>
+            <span class="datos__nombre">{todo.comun.banos}</span>
           </li>
           <li>
             <span class="datos__cifra">{inmueble.metros}</span>
-            <span class="datos__nombre">m² útiles</span>
+            <span class="datos__nombre">{idioma === 'en' ? 'usable m²' : 'm² útiles'}</span>
           </li>
           {
             inmueble.planta && (
               <li>
-                <span class="datos__cifra datos__cifra--texto">{inmueble.planta}</span>
-                <span class="datos__nombre">Planta</span>
+                <span class="datos__cifra datos__cifra--texto">
+                  {plantaDe(inmueble.planta, idioma)}
+                </span>
+                <span class="datos__nombre">{todo.comun.planta}</span>
               </li>
             )
           }
         </ul>
 
         <section class="descripcion">
-          <h2 class="apartado">Cómo es</h2>
-          <p>{inmueble.descripcion}</p>
+          <h2 class="apartado">{t.comoEs}</h2>
+          <p>{descripcionDe(inmueble, idioma)}</p>
 
           {
-            inmueble.aviso && (
+            avisoDe(inmueble, idioma) && (
               <p class="aviso">
-                <strong>Lo que conviene saber:</strong> {inmueble.aviso}
+                <strong>{t.conviene}</strong> {avisoDe(inmueble, idioma)}
               </p>
             )
           }
         </section>
 
         <section class="caracteristicas">
-          <h2 class="apartado">Características</h2>
+          <h2 class="apartado">{t.caracteristicas}</h2>
           <ul class="caracteristicas__lista">
-            {inmueble.extras.map((extra) => <li>{extra}</li>)}
+            {inmueble.extras.map((extra) => <li>{extraDe(extra, idioma)}</li>)}
           </ul>
         </section>
 
         <section class="energia">
-          <Energia energia={inmueble.energia} />
+          <Energia energia={inmueble.energia} idioma={idioma} />
         </section>
 
         {
           gastos && (
             <section class="gastos">
-              <h2 class="apartado">Lo que cuesta de verdad comprarlo</h2>
-              <p class="gastos__entrada">
-                Al precio hay que sumarle impuestos y papeleo. Aquí está el
-                desglose para vivienda usada en la Comunidad de Madrid, para que
-                nadie se lleve la sorpresa en la notaría.
-              </p>
+              <h2 class="apartado">{t.gastos.titulo}</h2>
+              <p class="gastos__entrada">{t.gastos.entrada}</p>
 
               <ul class="gastos__lista">
-                {gastos.map((gasto) => (
-                  <li class="gasto">
-                    <div class="gasto__linea">
-                      <span class="gasto__concepto">{gasto.concepto}</span>
-                      <span class="gasto__importe">{euros(gasto.importe)}</span>
-                    </div>
-                    <p class="gasto__nota">{gasto.nota}</p>
-                  </li>
-                ))}
+                {gastos.map((gasto) => {
+                  const dicho = gastoDe(gasto, idioma);
+                  return (
+                    <li class="gasto">
+                      <div class="gasto__linea">
+                        <span class="gasto__concepto">{dicho.concepto}</span>
+                        <span class="gasto__importe">{euros(gasto.importe)}</span>
+                      </div>
+                      <p class="gasto__nota">{dicho.nota}</p>
+                    </li>
+                  );
+                })}
               </ul>
 
               <div class="gastos__suma">
                 <div class="gastos__linea">
-                  <span>Precio del inmueble</span>
+                  <span>{t.gastos.precio}</span>
                   <span>{euros(inmueble.precio)}</span>
                 </div>
                 <div class="gastos__linea">
-                  <span>Gastos e impuestos</span>
+                  <span>{t.gastos.gastos}</span>
                   <span>{euros(totalGastos)}</span>
                 </div>
                 <div class="gastos__linea gastos__linea--total">
-                  <span>Desembolso total</span>
+                  <span>{t.gastos.total}</span>
                   <span>{euros(inmueble.precio + totalGastos)}</span>
                 </div>
               </div>
 
-              <p class="gastos__pie">
-                Cifras orientativas de agosto de 2026. La obra nueva tributa
-                distinto: paga IVA del 10 % en lugar de ITP.
-              </p>
+              <p class="gastos__pie">{t.gastos.pie}</p>
             </section>
           )
         }
 
-        <Tour estancias={estancias} />
+        <Tour estancias={estancias} idioma={idioma} />
       </div>
 
       <!-- Columna de contacto -->
       <aside class="lateral">
         <div class="tarjeta">
-          <p class="tarjeta__operacion">{OPERACIONES[operacion].titulo}</p>
+          <p class="tarjeta__operacion">{laOperacion.titulo}</p>
           <p class="tarjeta__precio">
-            {precioLegible(inmueble.precio)}<span>{OPERACIONES[operacion].sufijo}</span>
+            {precioDe(inmueble.precio, idioma)}<span>{laOperacion.sufijo}</span>
           </p>
 
           {
             operacion === 'venta' && precioMetro > 0 && (
-              <p class="tarjeta__metro">{euros(precioMetro)} el m² útil</p>
+              <p class="tarjeta__metro">
+                {euros(precioMetro)} {t.metroUtil}
+              </p>
             )
           }
 
           {
             hipoteca && (
               <p class="tarjeta__hipoteca">
-                Desde <strong>{euros(hipoteca.cuota)}/mes</strong> con un 20 % de
-                entrada a 25 años.
-                <a href="/calculadora-hipotecaria">Calcular la tuya</a>
+                {t.hipotecaAntes} <strong>{euros(hipoteca.cuota)}/{idioma === 'en' ? 'mo' : 'mes'}</strong>{' '}
+                {t.hipotecaDespues}
+                <a href={enlaceDe(idioma, '/calculadora-hipotecaria')}>{t.hipotecaEnlace}</a>
               </p>
             )
           }
@@ -247,16 +272,20 @@ const estancias = tourDe(tipo);
             class="boton boton--laton tarjeta__cta"
             href={enlaceWhatsApp(EMPRESA.whatsappCitas, mensajeVisita)}
           >
-            Pedir visita
+            {todo.comun.pedirVisita}
           </a>
 
           <a class="boton boton--linea tarjeta__llamar" href={enlaceTelefono(oficina.telefonos[0])}>
-            Llamar a {oficina.nombre}
+            {todo.comun.llamarA} {oficina.nombre}
           </a>
 
           <div class="tarjeta__oficina">
-            <p class="tarjeta__etiqueta">Lo lleva</p>
-            <p class="tarjeta__nombre"><a class="tarjeta__enlace-oficina" href={`/oficina/${oficina.id}`}>Oficina de {oficina.nombre}</a></p>
+            <p class="tarjeta__etiqueta">{t.loLleva}</p>
+            <p class="tarjeta__nombre">
+              <a class="tarjeta__enlace-oficina" href={enlaceDe(idioma, `/oficina/${oficina.id}`)}>
+                {t.oficinaDe} {oficina.nombre}
+              </a>
+            </p>
             <address class="tarjeta__direccion">
               {oficina.direccion}<br />
               {oficina.cp} Madrid
@@ -274,11 +303,11 @@ const estancias = tourDe(tipo);
       similares.length > 0 && (
         <section class="parecidos" aria-labelledby="titulo-parecidos">
           <h2 id="titulo-parecidos" class="parecidos__titulo" data-titular>
-            Si este no es, mira estos
+            {t.parecidos}
           </h2>
           <div class="parecidos__rejilla">
             {similares.map((otro, i) => (
-              <Ficha inmueble={otro} retraso={i * 90} />
+              <Ficha inmueble={otro} retraso={i * 90} idioma={idioma} />
             ))}
           </div>
         </section>
@@ -297,10 +326,14 @@ const estancias = tourDe(tipo);
   <div class="acciones" data-acciones>
     <div class="acciones__precio">
       <p class="acciones__cifra">
-        {precioLegible(inmueble.precio)}<span>{OPERACIONES[operacion].sufijo}</span>
+        {precioDe(inmueble.precio, idioma)}<span>{laOperacion.sufijo}</span>
       </p>
       {
-        hipoteca && <p class="acciones__cuota">{euros(hipoteca.cuota)}/mes orientativo</p>
+        hipoteca && (
+          <p class="acciones__cuota">
+            {euros(hipoteca.cuota)}/{idioma === 'en' ? 'mo estimated' : 'mes orientativo'}
+          </p>
+        )
       }
     </div>
 
@@ -310,7 +343,7 @@ const estancias = tourDe(tipo);
         type="button"
         data-favorito={inmueble.id}
         aria-pressed="false"
-        aria-label="Guardar en favoritos"
+        aria-label={todo.comun.guardar}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -323,7 +356,11 @@ const estancias = tourDe(tipo);
         </svg>
       </button>
 
-      <a class="acciones__llamar" href={enlaceTelefono(oficina.telefonos[0])} aria-label="Llamar">
+      <a
+        class="acciones__llamar"
+        href={enlaceTelefono(oficina.telefonos[0])}
+        aria-label={todo.comun.llamarA}
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 5.2 2 2 0 0 1 6.5 3Z"
@@ -338,7 +375,7 @@ const estancias = tourDe(tipo);
         class="acciones__visita"
         href={enlaceWhatsApp(EMPRESA.whatsappCitas, mensajeVisita)}
       >
-        Pedir visita
+        {todo.comun.pedirVisita}
       </a>
     </div>
   </div>

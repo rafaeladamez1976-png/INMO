@@ -7,24 +7,44 @@ import AvisoMaqueta from '../components/AvisoMaqueta.astro';
 import BotonWhatsApp from '../components/BotonWhatsApp.astro';
 import Grano from '../components/Grano.astro';
 import { EMPRESA } from '../data/empresa';
+import { textos, codigo, mismaPaginaEn, type Idioma } from '../i18n';
 
 interface Props {
   titulo: string;
   descripcion: string;
+  /** Por defecto español: las páginas que aún no son bilingües siguen igual. */
+  idioma?: Idioma;
 }
 
-const { titulo, descripcion } = Astro.props;
+const { titulo, descripcion, idioma = 'es' } = Astro.props;
+const t = textos(idioma);
 const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+const base = Astro.site ?? Astro.url.origin;
+
+/**
+ * hreflang: le dice al buscador que estas dos páginas son la misma en dos
+ * idiomas. Sin esto compiten entre sí en los resultados en lugar de sumar.
+ */
+const alternativas = [
+  { codigo: 'es-ES', href: new URL(mismaPaginaEn('es', Astro.url.pathname), base).href },
+  { codigo: 'en', href: new URL(mismaPaginaEn('en', Astro.url.pathname), base).href },
+];
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={codigo(idioma)}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{titulo}</title>
     <meta name="description" content={descripcion} />
     <link rel="canonical" href={canonica.href} />
+    {
+      alternativas.map((a) => (
+        <link rel="alternate" hreflang={a.codigo} href={a.href} />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={alternativas[0].href} />
 
     <!-- Es una maqueta de demostración: no debe indexarse. -->
     <meta name="robots" content="noindex, nofollow" />
@@ -33,7 +53,7 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
     <meta property="og:site_name" content={EMPRESA.nombreCompleto} />
     <meta property="og:title" content={titulo} />
     <meta property="og:description" content={descripcion} />
-    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale" content={idioma === 'en' ? 'en_GB' : 'es_ES'} />
     <meta name="theme-color" content="#14171c" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
@@ -47,15 +67,17 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
   </head>
 
   <body>
-    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <a class="saltar" href="#contenido">
+      {idioma === 'en' ? 'Skip to content' : 'Saltar al contenido'}
+    </a>
 
     <div class="avance" aria-hidden="true"><span data-avance></span></div>
-    <AvisoMaqueta />
-    <Cabecera />
+    <AvisoMaqueta idioma={idioma} />
+    <Cabecera idioma={idioma} />
     <main id="contenido">
       <slot />
     </main>
-    <Pie />
+    <Pie idioma={idioma} />
     <BotonWhatsApp />
     <Grano />
 
