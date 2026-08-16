@@ -34,12 +34,26 @@ export interface Inmueble {
   tono: 'grafito' | 'arena' | 'oliva' | 'terracota';
   /** Nombre del archivo en src/assets/inmuebles, sin extensión. */
   imagen: string;
+  /** Galería de la ficha de detalle. La primera es la principal. */
+  galeria: string[];
+  /** Identificador de la oficina que lo lleva. */
+  oficina: string;
+  /** Texto de la ficha. Escrito como lo escribiría un comercial. */
+  descripcion: string;
+  /** Lo que conviene saber antes de ir a verlo. Sin adornos. */
+  aviso?: string;
   destacado?: boolean;
 }
 
 export const INMUEBLES: Inmueble[] = [
   {
     id: 'v-001',
+    galeria: ['salon', 'cocina', 'dormitorio', 'bano'],
+    oficina: 'parque-europa',
+    descripcion:
+      'Piso reformado hace dos años en una de las calles más tranquilas de Cuatro Vientos. Da a un patio interior amplio, así que no se oye el tráfico, y el salón recibe sol de tarde. La cocina y los dos baños son nuevos; el suelo, de roble. Comunidad con ascensor y calefacción central incluida en los gastos.',
+    aviso:
+      'La plaza de garaje no está incluida, pero hay disponibles en el mismo edificio por unos 90 € al mes.',
     imagen: 'salon',
     titulo: 'Piso reformado junto al parque',
     operacion: 'venta',
@@ -57,6 +71,12 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-002',
+    galeria: ['atico', 'salon', 'cocina', 'bano'],
+    oficina: 'aluche',
+    descripcion:
+      'Ático con terraza de 20 m² orientada al oeste, con sitio de sobra para comer fuera en verano. La vivienda está en buen estado y no necesita obra, aunque la cocina es de los años noventa. Edificio con ascensor y portal reformado. A siete minutos andando del metro.',
+    aviso:
+      'El edificio tiene prevista una derrama para la fachada. Está aprobada y la cuantía la tenemos por escrito: pregúntanos antes de hacer números.',
     imagen: 'atico',
     titulo: 'Ático con terraza de 20 m²',
     operacion: 'venta',
@@ -74,6 +94,10 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-003',
+    galeria: ['villa', 'salon', 'cocina', 'dormitorio'],
+    oficina: 'las-aguilas',
+    descripcion:
+      'Adosado de cuatro dormitorios en urbanización con piscina comunitaria. Tiene jardín propio de unos 60 m², garaje para dos coches y trastero. La planta baja es diáfana entre salón y cocina, que es justo lo que busca la mayoría de las familias y muy poca vivienda de esta zona ofrece.',
     imagen: 'villa',
     titulo: 'Chalet adosado con jardín',
     operacion: 'venta',
@@ -90,6 +114,12 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-004',
+    galeria: ['dormitorio', 'salon', 'cocina'],
+    oficina: 'las-aguilas',
+    descripcion:
+      'Piso de dos dormitorios listo para entrar a vivir, con los muebles incluidos si te interesan. Cocina cambiada el año pasado. Primera planta sin ascensor, lo que se nota en el precio: por metros y estado, es de lo más ajustado que tenemos en Carabanchel.',
+    aviso:
+      'Primera planta sin ascensor. Son veintidós escalones y conviene subirlos antes de decidir.',
     imagen: 'dormitorio',
     titulo: 'Piso para entrar a vivir',
     operacion: 'venta',
@@ -106,6 +136,12 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-005',
+    galeria: ['edificio', 'salon', 'cocina'],
+    oficina: 'parque-europa',
+    descripcion:
+      'Casa de pueblo en el centro de Illescas, con patio trasero y mucho espacio. Necesita reforma completa: instalaciones, baño y cubierta. La estructura está bien y el precio está pensado para que la obra salga a cuenta. Sin gastos de comunidad.',
+    aviso:
+      'Necesita reforma integral. Antes de firmar recomendamos visitarla con un aparejador; te podemos acompañar.',
     imagen: 'edificio',
     titulo: 'Casa de pueblo con patio',
     operacion: 'venta',
@@ -121,6 +157,10 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-006',
+    galeria: ['local', 'portal'],
+    oficina: 'aluche',
+    descripcion:
+      'Local a pie de calle en esquina, con doble escaparate y mucho paso de peatones. Tiene licencia de actividad en vigor y aseo adaptado. Diáfano, así que admite casi cualquier distribución.',
     imagen: 'local',
     titulo: 'Local comercial a pie de calle',
     operacion: 'venta',
@@ -136,6 +176,10 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-007',
+    galeria: ['villa', 'salon', 'dormitorio', 'cocina'],
+    oficina: 'parque-europa',
+    descripcion:
+      'Unifamiliar en parcela de 600 m² con piscina y garaje, a las afueras de Navalmoral. Cuatro dormitorios, dos baños y porche cubierto. Muy buena opción como segunda residencia o para teletrabajar con espacio de verdad.',
     imagen: 'villa',
     titulo: 'Vivienda unifamiliar con parcela',
     operacion: 'venta',
@@ -151,6 +195,10 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'v-008',
+    galeria: ['cocina', 'salon', 'dormitorio', 'bano'],
+    oficina: 'san-ignacio',
+    descripcion:
+      'Piso exterior en quinta planta con ascensor, muy luminoso todo el día. Tres dormitorios, dos baños completos y trastero en el mismo edificio. El metro está a doscientos metros, lo que en esta zona marca bastante la diferencia de precio.',
     imagen: 'cocina',
     titulo: 'Piso luminoso junto al metro',
     operacion: 'venta',
@@ -168,6 +216,12 @@ export const INMUEBLES: Inmueble[] = [
 
   {
     id: 'a-001',
+    galeria: ['salon', 'cocina', 'dormitorio'],
+    oficina: 'aluche',
+    descripcion:
+      'Piso amueblado listo para entrar, con los gastos de comunidad incluidos en la renta. Dos dormitorios, uno de ellos con armario empotrado. Segunda planta con ascensor. Se alquila con contrato de larga duración.',
+    aviso:
+      'Se pide nómina o justificante de ingresos y un mes de fianza, según marca la ley. Sin avales de más.',
     imagen: 'salon',
     titulo: 'Piso amueblado listo para entrar',
     operacion: 'alquiler',
@@ -185,6 +239,10 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'a-002',
+    galeria: ['villa', 'salon', 'cocina', 'dormitorio'],
+    oficina: 'parque-europa',
+    descripcion:
+      'Adosado de cuatro dormitorios con jardín y garaje, sin amueblar. Pensado para familia: colegios cerca y calle sin tráfico de paso. Disponible desde el mes que viene.',
     imagen: 'villa',
     titulo: 'Adosado con jardín para familia',
     operacion: 'alquiler',
@@ -200,6 +258,10 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'a-003',
+    galeria: ['bano', 'salon'],
+    oficina: 'las-aguilas',
+    descripcion:
+      'Estudio reformado en bajo exterior, con patio de luces amplio que le da claridad. Amueblado y con electrodomésticos nuevos. Zona tranquila y bien comunicada.',
     imagen: 'bano',
     titulo: 'Estudio reformado en zona tranquila',
     operacion: 'alquiler',
@@ -216,6 +278,10 @@ export const INMUEBLES: Inmueble[] = [
   },
   {
     id: 'a-004',
+    galeria: ['local', 'portal'],
+    oficina: 'san-ignacio',
+    descripcion:
+      'Local diáfano de 120 m² en avenida principal, con doble escaparate y aire acondicionado instalado. Dos aseos. Ideal para clínica, academia o tienda con necesidad de escaparate.',
     imagen: 'local',
     titulo: 'Local diáfano en avenida',
     operacion: 'alquiler',
@@ -255,4 +321,35 @@ export function porOperacion(operacion: Operacion): Inmueble[] {
 
 export function destacados(): Inmueble[] {
   return INMUEBLES.filter((i) => i.destacado);
+}
+
+/** Busca un inmueble por su identificador. */
+export function porId(id: string): Inmueble | undefined {
+  return INMUEBLES.find((i) => i.id === id);
+}
+
+/**
+ * Inmuebles parecidos: misma operacion, y se prefieren los de la misma zona.
+ *
+ * Es la seccion que mas visitas encadena en una web inmobiliaria: quien mira
+ * un piso y no le encaja, casi siempre mira otro.
+ */
+export function parecidos(inmueble: Inmueble, cuantos = 3): Inmueble[] {
+  const resto = INMUEBLES.filter(
+    (i) => i.id !== inmueble.id && i.operacion === inmueble.operacion,
+  );
+
+  const puntuar = (otro: Inmueble): number => {
+    let puntos = 0;
+    if (otro.zona === inmueble.zona) puntos += 3;
+    if (otro.provincia === inmueble.provincia) puntos += 1;
+    if (otro.tipo === inmueble.tipo) puntos += 2;
+    // Cuanto mas cerca de precio, mas parecido.
+    const diferencia = Math.abs(otro.precio - inmueble.precio) / inmueble.precio;
+    if (diferencia < 0.2) puntos += 2;
+    else if (diferencia < 0.4) puntos += 1;
+    return puntos;
+  };
+
+  return [...resto].sort((a, b) => puntuar(b) - puntuar(a)).slice(0, cuantos);
 }

@@ -1,0 +1,298 @@
+---
+/**
+ * Tour virtual 360.
+ *
+ * Debajo del lienzo hay siempre una fotografía normal, así que quien no reciba
+ * el 3D ve la habitación igualmente. El aviso de arrastrar desaparece en cuanto
+ * alguien lo hace.
+ */
+
+const ESTANCIAS = [
+  { id: 'salon', nombre: 'Salón' },
+  { id: 'cocina', nombre: 'Cocina' },
+  { id: 'dormitorio', nombre: 'Dormitorio' },
+];
+---
+
+<section class="tour" data-tour aria-labelledby="titulo-tour">
+  <header class="tour__cabecera">
+    <div>
+      <p class="antetitulo">Visita virtual</p>
+      <h2 id="titulo-tour" class="tour__titulo">Entra sin moverte de casa</h2>
+    </div>
+
+    <nav class="tour__estancias" aria-label="Estancias">
+      {
+        ESTANCIAS.map((estancia, i) => (
+          <button
+            class:list={['tour__estancia', { 'tour__estancia--activa': i === 0 }]}
+            type="button"
+            data-estancia={estancia.id}
+            aria-current={i === 0 ? 'true' : undefined}
+          >
+            {estancia.nombre}
+          </button>
+        ))
+      }
+    </nav>
+  </header>
+
+  <div class="tour__marco">
+    <img
+      class="tour__reserva"
+      src="/tour/salon.jpg"
+      alt="Panorámica del salón de la vivienda"
+      loading="lazy"
+      decoding="async"
+    />
+
+    <canvas class="tour__lienzo" data-tour-lienzo hidden></canvas>
+
+    <p class="tour__pista" data-tour-pista hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M8 12H4m0 0 3-3m-3 3 3 3M16 12h4m0 0-3-3m3 3-3 3"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+      Arrastra para mirar alrededor
+    </p>
+
+    <span class="tour__cargando" data-tour-cargando hidden>Cargando…</span>
+  </div>
+
+  <p class="tour__nota">
+    Panorámicas de ejemplo para la maqueta. En una vivienda real se capturan con
+    cámara 360 en una sola visita.
+  </p>
+</section>
+
+<script>
+  import type { Tour, Estancia } from './tour';
+
+  const ESTANCIAS: Estancia[] = [
+    {
+      id: 'salon',
+      nombre: 'Salón',
+      imagen: '/tour/salon.jpg',
+      saltos: [
+        { a: 'cocina', etiqueta: 'Cocina', angulo: 60, altura: -6 },
+        { a: 'dormitorio', etiqueta: 'Dormitorio', angulo: -110, altura: -6 },
+      ],
+    },
+    {
+      id: 'cocina',
+      nombre: 'Cocina',
+      imagen: '/tour/cocina.jpg',
+      saltos: [{ a: 'salon', etiqueta: 'Salón', angulo: -140, altura: -6 }],
+    },
+    {
+      id: 'dormitorio',
+      nombre: 'Dormitorio',
+      imagen: '/tour/dormitorio.jpg',
+      saltos: [{ a: 'salon', etiqueta: 'Salón', angulo: 150, altura: -6 }],
+    },
+  ];
+
+  let vivo: Tour | null = null;
+
+  function montar() {
+    const raiz = document.querySelector<HTMLElement>('[data-tour]');
+    const lienzo = raiz?.querySelector<HTMLCanvasElement>('[data-tour-lienzo]');
+    if (!raiz || !lienzo || vivo) return;
+
+    // El tour se carga solo cuando el visitante llega a él: son tres
+    // panorámicas y no tiene sentido descargarlas si nunca baja hasta aquí.
+    const observador = new IntersectionObserver(
+      async ([entrada]) => {
+        if (!entrada.isIntersecting || vivo) return;
+        observador.disconnect();
+
+        const cargando = raiz.querySelector<HTMLElement>('[data-tour-cargando]');
+        if (cargando) cargando.hidden = false;
+
+        const { crearTour } = await import('./tour');
+        if (!document.body.contains(lienzo)) return;
+
+        lienzo.hidden = false;
+        raiz.classList.add('tour--vivo');
+
+        vivo = crearTour(lienzo, ESTANCIAS, (id) => {
+          for (const boton of raiz.querySelectorAll<HTMLElement>('[data-estancia]')) {
+            const suya = boton.dataset.estancia === id;
+            boton.classList.toggle('tour__estancia--activa', suya);
+            if (suya) boton.setAttribute('aria-current', 'true');
+            else boton.removeAttribute('aria-current');
+          }
+        });
+
+        if (cargando) cargando.hidden = true;
+        const pista = raiz.querySelector<HTMLElement>('[data-tour-pista]');
+        if (pista) pista.hidden = false;
+
+        // La pista sobra en cuanto alguien arrastra.
+        lienzo.addEventListener(
+          'pointerdown',
+          () => {
+            if (pista) pista.hidden = true;
+          },
+          { once: true },
+        );
+
+        for (const boton of raiz.querySelectorAll<HTMLButtonElement>('[data-estancia]')) {
+          boton.addEventListener('click', () => vivo?.irA(boton.dataset.estancia!));
+        }
+      },
+      { rootMargin: '200px' },
+    );
+
+    observador.observe(raiz);
+  }
+
+  function desmontar() {
+    vivo?.destruir();
+    vivo = null;
+  }
+
+  montar();
+  document.addEventListener('astro:after-swap', montar);
+  document.addEventListener('astro:before-swap', desmontar);
+</script>
+
+<style>
+  .tour {
+    margin-block: var(--e-16);
+  }
+
+  .tour__cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--e-4);
+    margin-bottom: var(--e-6);
+  }
+
+  .tour__titulo {
+    margin-top: var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .tour__estancias {
+    display: flex;
+    gap: var(--e-2);
+  }
+
+  .tour__estancia {
+    min-height: 2.6rem;
+    padding: var(--e-2) var(--e-5);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-pildora);
+    background: var(--papel);
+    font-size: var(--t-pequeno);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .tour__estancia:hover {
+      border-color: var(--laton);
+    }
+  }
+
+  .tour__estancia--activa {
+    background: var(--grafito);
+    border-color: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .tour__marco {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    box-shadow: 0 22px 60px var(--sombra-honda);
+  }
+
+  .tour__reserva,
+  .tour__lienzo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tour__lienzo {
+    z-index: 2;
+    touch-action: none;
+    cursor: grab;
+    transition: opacity var(--dur-media) var(--curva);
+  }
+
+  .tour__lienzo:active {
+    cursor: grabbing;
+  }
+
+  /* Fundido corto al cambiar de estancia: sin él, el salto es brusco. */
+  .tour__lienzo.tour--cambiando {
+    opacity: 0.25;
+  }
+
+  .tour--vivo .tour__reserva {
+    opacity: 0;
+    transition: opacity var(--dur-larga) var(--curva);
+  }
+
+  .tour__pista,
+  .tour__cargando {
+    position: absolute;
+    bottom: var(--e-4);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: var(--e-2);
+    padding: var(--e-2) var(--e-4);
+    border-radius: var(--radio-pildora);
+    background: rgba(20, 23, 28, 0.72);
+    backdrop-filter: blur(8px);
+    color: var(--texto-claro);
+    font-size: var(--t-micro);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+
+  .tour__pista svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .tour__nota {
+    margin-top: var(--e-3);
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  @media (max-width: 34rem) {
+    .tour__marco {
+      aspect-ratio: 4 / 3;
+    }
+
+    .tour__estancias {
+      width: 100%;
+    }
+
+    .tour__estancia {
+      flex: 1;
+      padding-inline: var(--e-2);
+    }
+  }
+</style>
