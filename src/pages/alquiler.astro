@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import Buscador from '../components/Buscador.astro';
+import { porOperacion } from '../data/inmuebles';
+
+const inmuebles = porOperacion('alquiler');
+---
+
+<Base
+  titulo="Viviendas en alquiler en Madrid | Raíz Inmobiliaria"
+  descripcion="Pisos, chalets y locales en alquiler en Madrid con contrato en regla y solvencia comprobada."
+>
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Alquilar</p>
+      <h1 class="portadilla__titulo">Viviendas<br /><span class="acento">en alquiler</span></h1>
+      <p class="portadilla__entrada">Pisos, chalets y locales en alquiler en Madrid con contrato en regla y solvencia comprobada.</p>
+    </header>
+
+    <Buscador inmuebles={inmuebles} />
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+</style>

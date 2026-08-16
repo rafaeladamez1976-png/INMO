@@ -1,0 +1,268 @@
+---
+import Ficha from './Ficha.astro';
+import type { Inmueble } from '../data/inmuebles';
+import { TIPOS } from '../data/inmuebles';
+
+interface Props {
+  inmuebles: Inmueble[];
+}
+
+const { inmuebles } = Astro.props;
+
+/**
+ * Buscador con filtros.
+ *
+ * Filtra al instante, sin recargar la página y sin servidor: los inmuebles ya
+ * están en el HTML y solo se ocultan los que no encajan. En un catálogo de este
+ * tamaño es la solución correcta, y además funciona con el buscador de Google
+ * porque todo sigue estando en la página.
+ */
+
+const zonas = [...new Set(inmuebles.map((i) => i.zona))].sort();
+const tipos = [...new Set(inmuebles.map((i) => i.tipo))];
+const precios = inmuebles.map((i) => i.precio);
+const maximo = Math.max(...precios);
+---
+
+<div class="buscador" data-buscador data-maximo={maximo}>
+  <form class="filtros" data-filtros>
+    <div class="filtros__fila">
+      <label class="filtro">
+        <span class="filtro__nombre">Tipo</span>
+        <select class="filtro__control" name="tipo">
+          <option value="">Todos</option>
+          {tipos.map((tipo) => <option value={tipo}>{TIPOS[tipo]}</option>)}
+        </select>
+      </label>
+
+      <label class="filtro">
+        <span class="filtro__nombre">Zona</span>
+        <select class="filtro__control" name="zona">
+          <option value="">Todas</option>
+          {zonas.map((zona) => <option value={zona}>{zona}</option>)}
+        </select>
+      </label>
+
+      <label class="filtro">
+        <span class="filtro__nombre">Habitaciones</span>
+        <select class="filtro__control" name="habitaciones">
+          <option value="">Cualquiera</option>
+          <option value="1">1 o más</option>
+          <option value="2">2 o más</option>
+          <option value="3">3 o más</option>
+          <option value="4">4 o más</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="filtro filtro--precio">
+      <span class="filtro__fila">
+        <span class="filtro__nombre">Precio máximo</span>
+        <output class="filtro__valor" data-salida-precio></output>
+      </span>
+      <input
+        type="range"
+        name="precio"
+        min="0"
+        max={maximo}
+        step={maximo > 5000 ? 5000 : 50}
+        value={maximo}
+      />
+    </label>
+
+    <div class="filtros__pie">
+      <p class="filtros__cuenta" data-cuenta role="status"></p>
+      <button class="filtros__limpiar" type="button" data-limpiar>Quitar filtros</button>
+    </div>
+  </form>
+
+  <div class="rejilla" data-rejilla>
+    {
+      inmuebles.map((inmueble, i) => (
+        <div
+          class="rejilla__hueco"
+          data-inmueble
+          data-tipo={inmueble.tipo}
+          data-zona={inmueble.zona}
+          data-habitaciones={inmueble.habitaciones}
+          data-precio={inmueble.precio}
+        >
+          <Ficha inmueble={inmueble} retraso={(i % 3) * 80} />
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="vacio" data-vacio hidden>
+    No hay nada con esos filtros. Prueba a ampliar el precio o la zona, o
+    <a href="/cita">cuéntanos qué buscas</a> y te avisamos cuando entre.
+  </p>
+</div>
+
+<script>
+  import { iniciarBuscador } from './buscador';
+  iniciarBuscador();
+  document.addEventListener('astro:after-swap', iniciarBuscador);
+</script>
+
+<style>
+  .filtros {
+    margin-bottom: var(--e-8);
+    padding: var(--e-6);
+    border-radius: var(--radio-grande);
+    background: var(--papel);
+    box-shadow: 0 2px 12px var(--sombra);
+  }
+
+  .filtros__fila {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--e-4);
+  }
+
+  .filtro {
+    display: block;
+  }
+
+  .filtro--precio {
+    margin-top: var(--e-6);
+  }
+
+  .filtro__fila {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-4);
+  }
+
+  .filtro__nombre {
+    display: block;
+    margin-bottom: var(--e-2);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .filtro__valor {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .filtro__control {
+    width: 100%;
+    min-height: 2.9rem;
+    padding: var(--e-2) var(--e-3);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: #fff;
+  }
+
+  .filtro input[type='range'] {
+    width: 100%;
+    height: 2rem;
+    appearance: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  .filtro input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--arena-honda);
+  }
+
+  .filtro input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin-top: -0.48rem;
+    border: 3px solid var(--papel);
+    border-radius: 50%;
+    background: var(--grafito);
+    box-shadow: 0 2px 8px var(--sombra);
+  }
+
+  .filtro input[type='range']::-moz-range-thumb {
+    width: 1.3rem;
+    height: 1.3rem;
+    border: 3px solid var(--papel);
+    border-radius: 50%;
+    background: var(--grafito);
+  }
+
+  .filtros__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-3);
+    margin-top: var(--e-4);
+    padding-top: var(--e-4);
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .filtros__cuenta {
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+  }
+
+  .filtros__limpiar {
+    padding: var(--e-2) var(--e-4);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-pildora);
+    background: none;
+    font-size: var(--t-micro);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .filtros__limpiar:hover {
+      background: var(--grafito);
+      color: var(--texto-claro);
+      border-color: var(--grafito);
+    }
+  }
+
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: var(--e-6);
+  }
+
+  /* Se oculta con animación en vez de desaparecer de golpe. */
+  .rejilla__hueco {
+    transition:
+      opacity var(--dur-media) var(--curva),
+      transform var(--dur-media) var(--curva);
+  }
+
+  .rejilla__hueco[hidden] {
+    display: none;
+  }
+
+  .rejilla__hueco--saliendo {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  .vacio {
+    max-width: none;
+    padding: var(--e-12);
+    border: 1px dashed var(--arena-honda);
+    border-radius: var(--radio-grande);
+    text-align: center;
+    color: var(--texto-suave);
+  }
+
+  .vacio a {
+    font-weight: 700;
+    color: var(--laton-hondo);
+  }
+</style>

@@ -1,0 +1,89 @@
+---
+import Base from '../layouts/Base.astro';
+import Agenda from '../components/Agenda.astro';
+import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<Base
+  titulo="Reservar cita | Raíz Inmobiliaria"
+  descripcion="Reserva tu cita en cualquiera de nuestras cuatro oficinas de Madrid. Elige día y hora y te confirmamos por WhatsApp."
+>
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Agenda</p>
+      <h1 class="portadilla__titulo">Reserva tu cita<br /><span class="acento">en un minuto</span></h1>
+      <p class="portadilla__entrada">
+        Sin llamadas, sin esperas y sin dar más datos de los necesarios. Eliges
+        día y hora, y te confirmamos por WhatsApp.
+      </p>
+    </header>
+
+    <Agenda />
+
+    <aside class="alternativa" data-revelar>
+      <h2 class="alternativa__titulo">También puedes venir sin cita</h2>
+      <p>
+        Nuestras {OFICINAS.length} oficinas están abiertas de lunes a viernes.
+        Si está abierto, te atendemos.
+      </p>
+      <div class="alternativa__acciones">
+        <a class="boton boton--linea" href="/oficinas">Ver las oficinas</a>
+        <a class="boton" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+          Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+        </a>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .alternativa {
+    margin-top: var(--e-16);
+    padding: var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--arena-honda);
+    text-align: center;
+  }
+
+  .alternativa__titulo {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .alternativa p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+  }
+
+  .alternativa__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    justify-content: center;
+  }
+</style>

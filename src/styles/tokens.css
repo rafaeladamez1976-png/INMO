@@ -1,0 +1,75 @@
+/*
+  Sistema visual de la maqueta.
+
+  Paleta de inmobiliaria premium: grafito profundo como base, arena cálida como
+  papel y latón como acento. Nada de azul corporativo ni degradados morados,
+  que es donde acaban todas las webs del sector.
+*/
+
+:root {
+  --grafito: #14171c;
+  --grafito-medio: #232830;
+  --grafito-suave: #3c434f;
+
+  --arena: #f4f0e9;
+  --arena-honda: #e6dfd3;
+  --papel: #fbf9f5;
+
+  --laton: #b8935a;
+  --laton-claro: #d8b984;
+  --laton-hondo: #8f6f3d;
+
+  --oliva: #5c6b4a;
+  --terracota: #a55c42;
+
+  --texto: #14171c;
+  --texto-suave: #5a616c;
+  --texto-claro: #f4f0e9;
+
+  --sombra: rgba(20, 23, 28, 0.1);
+  --sombra-honda: rgba(20, 23, 28, 0.28);
+
+  --fuente-titular: 'Fraunces Variable', Georgia, serif;
+  --fuente-texto: 'Karla', system-ui, sans-serif;
+
+  --t-micro: 0.72rem;
+  --t-pequeno: 0.88rem;
+  --t-base: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
+  --t-medio: clamp(1.1rem, 1.04rem + 0.32vw, 1.35rem);
+  --t-grande: clamp(1.45rem, 1.25rem + 1vw, 2.1rem);
+  --t-titulo: clamp(1.9rem, 1.4rem + 2.4vw, 3.3rem);
+  --t-heroe: clamp(2.6rem, 1.5rem + 5.4vw, 6.2rem);
+
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-6: 1.5rem;
+  --e-8: 2rem;
+  --e-12: 3rem;
+  --e-16: 4rem;
+  --e-24: 6rem;
+  --e-32: 8rem;
+
+  --radio: 0.35rem;
+  --radio-grande: 0.9rem;
+  --radio-pildora: 999px;
+
+  --ancho-texto: 62ch;
+  --ancho-pagina: 78rem;
+
+  --curva: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-corta: 200ms;
+  --dur-media: 420ms;
+  --dur-larga: 720ms;
+
+  --alto-pegajoso: 3.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-corta: 1ms;
+    --dur-media: 1ms;
+    --dur-larga: 1ms;
+  }
+}

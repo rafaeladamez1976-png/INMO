@@ -1,0 +1,456 @@
+---
+import { EMPRESA, OFICINAS, telefonoLegible } from '../data/empresa';
+import { MOTIVOS } from '../lib/citas';
+
+/**
+ * Agenda de visitas.
+ *
+ * El cliente elige motivo, oficina, día y hora, y el mensaje sale por WhatsApp
+ * al número de citas. Sin registro, sin correo y sin servidor: la agencia
+ * recibe la cita donde ya trabaja.
+ *
+ * Es la mejora más rentable frente a un formulario de contacto: una cita con
+ * día y hora vale mucho más que un "me interesa" perdido en una bandeja.
+ */
+---
+
+<section class="agenda" data-agenda>
+  <header class="agenda__cabecera">
+    <p class="antetitulo">Reserva tu cita</p>
+    <h2 class="agenda__titulo">Ven cuando te venga bien</h2>
+    <p class="agenda__entrada">
+      Elige día y hora. Te confirmamos por WhatsApp en cuanto lo veamos.
+    </p>
+  </header>
+
+  <form class="agenda__form" data-form novalidate>
+    <!-- Motivo -->
+    <fieldset class="campo-grupo">
+      <legend class="etiqueta">¿Qué necesitas?</legend>
+      <div class="fichas">
+        {
+          MOTIVOS.map((motivo) => (
+            <label class="ficha-op">
+              <input type="radio" name="motivo" value={motivo} />
+              <span>{motivo}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <!-- Oficina -->
+    <fieldset class="campo-grupo">
+      <legend class="etiqueta">¿En qué oficina?</legend>
+      <div class="fichas">
+        {
+          OFICINAS.map((oficina) => (
+            <label class="ficha-op">
+              <input
+                type="radio"
+                name="oficina"
+                value={`${oficina.nombre} (${oficina.barrio})`}
+              />
+              <span>
+                {oficina.nombre}
+                <em>{oficina.barrio}</em>
+              </span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <!-- Calendario -->
+    <fieldset class="campo-grupo">
+      <legend class="etiqueta">¿Qué día?</legend>
+      <div class="dias" data-dias role="group" aria-label="Días disponibles"></div>
+      <p class="nota">
+        Lunes a viernes de 10:00 a 14:00 y de 17:00 a 20:00. Sábados solo por la
+        mañana.
+      </p>
+    </fieldset>
+
+    <!-- Horas -->
+    <fieldset class="campo-grupo" data-bloque-horas hidden>
+      <legend class="etiqueta">¿A qué hora?</legend>
+      <div class="horas" data-horas role="group" aria-label="Horas disponibles"></div>
+    </fieldset>
+
+    <!-- Nombre -->
+    <label class="campo">
+      <span class="etiqueta">Tu nombre</span>
+      <input
+        class="campo__control"
+        type="text"
+        name="nombre"
+        maxlength="40"
+        placeholder="Marta"
+        autocomplete="given-name"
+      />
+    </label>
+
+    <!-- Resumen y envío -->
+    <div class="cierre">
+      <blockquote class="cierre__resumen" data-resumen>
+        Elige motivo, oficina, día y hora para ver aquí tu cita.
+      </blockquote>
+
+      <a class="boton boton--laton cierre__enviar" data-enviar href="#" aria-disabled="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M20 12a8 8 0 0 1-11.9 7L4 20l1-4.1A8 8 0 1 1 20 12Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"></path>
+        </svg>
+        Reservar por WhatsApp
+      </a>
+
+      <p class="cierre__aviso">
+        La cita no está confirmada hasta que te respondamos. Si te surge algo,
+        avísanos por el mismo WhatsApp.
+      </p>
+
+      <p class="cierre__telefono">
+        ¿Prefieres llamar? <strong>{telefonoLegible(EMPRESA.telefonoGratuito)}</strong>
+      </p>
+    </div>
+  </form>
+
+  <noscript>
+    <p class="nota">
+      Para reservar cita, escríbenos al WhatsApp
+      <strong>{telefonoLegible(EMPRESA.whatsappCitas)}</strong> indicando motivo,
+      oficina y cuándo te viene bien.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  import { iniciarAgenda } from './agenda';
+  iniciarAgenda();
+  document.addEventListener('astro:after-swap', iniciarAgenda);
+</script>
+
+<style>
+  .agenda {
+    padding: var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--papel);
+    box-shadow: 0 2px 12px var(--sombra);
+  }
+
+  @media (min-width: 48rem) {
+    .agenda {
+      padding: var(--e-12);
+    }
+  }
+
+  .agenda__cabecera {
+    margin-bottom: var(--e-8);
+    padding-bottom: var(--e-6);
+    border-bottom: 1px solid var(--arena-honda);
+  }
+
+  .agenda__titulo {
+    margin-block: var(--e-3) var(--e-2);
+    font-size: var(--t-titulo);
+  }
+
+  .agenda__entrada {
+    color: var(--texto-suave);
+  }
+
+  .campo-grupo {
+    padding: 0;
+    border: 0;
+    margin: 0 0 var(--e-8) 0;
+  }
+
+  .etiqueta {
+    display: block;
+    padding: 0;
+    margin-bottom: var(--e-3);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--laton-hondo);
+  }
+
+  .fichas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--e-2);
+  }
+
+  .ficha-op {
+    position: relative;
+    display: block;
+    cursor: pointer;
+  }
+
+  .ficha-op input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .ficha-op span {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 3rem;
+    padding: var(--e-2) var(--e-4);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: #fff;
+    font-size: var(--t-pequeno);
+    font-weight: 600;
+    transition: all var(--dur-corta) var(--curva);
+  }
+
+  .ficha-op em {
+    font-style: normal;
+    font-size: var(--t-micro);
+    font-weight: 400;
+    color: var(--texto-suave);
+  }
+
+  @media (hover: hover) {
+    .ficha-op:hover span {
+      border-color: var(--laton);
+    }
+  }
+
+  .ficha-op input:focus-visible + span {
+    outline: 3px solid var(--laton);
+    outline-offset: 2px;
+  }
+
+  .ficha-op input:checked + span {
+    background: var(--grafito);
+    border-color: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .ficha-op input:checked + span em {
+    color: #cfc9bd;
+  }
+
+  /* ---- Calendario ---- */
+
+  .dias {
+    display: flex;
+    gap: var(--e-2);
+    overflow-x: auto;
+    padding-bottom: var(--e-2);
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dia {
+    position: relative;
+    flex: 0 0 auto;
+    cursor: pointer;
+  }
+
+  .dia input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .dia__cuerpo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1em;
+    width: 3.6rem;
+    height: 4.4rem;
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: #fff;
+    transition: all var(--dur-corta) var(--curva);
+  }
+
+  .dia__letra {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .dia__numero {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .dia__mes {
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--texto-suave);
+  }
+
+  @media (hover: hover) {
+    .dia:hover .dia__cuerpo {
+      border-color: var(--laton);
+    }
+  }
+
+  .dia input:focus-visible + .dia__cuerpo {
+    outline: 3px solid var(--laton);
+    outline-offset: 2px;
+  }
+
+  .dia input:checked + .dia__cuerpo {
+    background: var(--grafito);
+    border-color: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .dia input:checked + .dia__cuerpo .dia__letra,
+  .dia input:checked + .dia__cuerpo .dia__mes {
+    color: var(--laton-claro);
+  }
+
+  .horas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+    gap: var(--e-2);
+    animation: aparecer var(--dur-media) var(--curva);
+  }
+
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  .hora {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .hora input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .hora span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.9rem;
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: #fff;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    transition: all var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .hora:hover span {
+      border-color: var(--laton);
+    }
+  }
+
+  .hora input:focus-visible + span {
+    outline: 3px solid var(--laton);
+    outline-offset: 2px;
+  }
+
+  .hora input:checked + span {
+    background: var(--laton);
+    border-color: var(--laton);
+    color: var(--grafito);
+  }
+
+  .campo {
+    display: block;
+    margin-bottom: var(--e-8);
+  }
+
+  .campo__control {
+    width: 100%;
+    max-width: 22rem;
+    min-height: 3rem;
+    padding: var(--e-3) var(--e-4);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: #fff;
+  }
+
+  .nota {
+    margin-top: var(--e-3);
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  /* ---- Cierre ---- */
+
+  .cierre {
+    padding-top: var(--e-6);
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .cierre__resumen {
+    margin: 0 0 var(--e-6) 0;
+    padding: var(--e-6);
+    border-left: 3px solid var(--laton);
+    background: var(--arena);
+    font-size: var(--t-pequeno);
+    line-height: 1.8;
+    color: var(--texto-suave);
+  }
+
+  .cierre__resumen[data-listo] {
+    color: var(--texto);
+    font-weight: 500;
+  }
+
+  .cierre__enviar {
+    width: 100%;
+    min-height: 3.4rem;
+    font-size: var(--t-medio);
+  }
+
+  .cierre__enviar[aria-disabled='true'] {
+    opacity: 0.42;
+    pointer-events: none;
+  }
+
+  .cierre__enviar svg {
+    width: 1.3em;
+    height: 1.3em;
+  }
+
+  .cierre__aviso {
+    margin-top: var(--e-3);
+    font-size: var(--t-pequeno);
+    text-align: center;
+    color: var(--texto-suave);
+  }
+
+  .cierre__telefono {
+    margin-top: var(--e-4);
+    font-size: var(--t-pequeno);
+    text-align: center;
+  }
+</style>

@@ -1,0 +1,176 @@
+---
+import Base from '../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<Base titulo="Politica de privacidad | Raiz Inmobiliaria" descripcion="Que datos tratamos, para que y cuales son tus derechos.">
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Legal</p>
+      <h1 class="portadilla__titulo">Politica<br /><span class="acento">de privacidad</span></h1>
+      <p class="portadilla__entrada">En cristiano: que datos te pedimos, para que los usamos y como los borras cuando quieras.</p>
+    </header>
+
+    <div class="prosa" data-revelar>
+      <h2>Quien trata tus datos</h2>
+      <p>
+        El responsable es la empresa titular de esta web. Puedes contactar por
+        cualquiera de los medios que aparecen en la pagina de contacto.
+      </p>
+
+      <h2>Que datos y para que</h2>
+      <ul>
+        <li><strong>Nombre y telefono:</strong> para atender tu consulta o tu cita.</li>
+        <li><strong>Datos del inmueble:</strong> para valorarlo o publicarlo, si nos lo encargas.</li>
+        <li><strong>Nada mas.</strong> No pedimos DNI ni datos bancarios por la web.</li>
+      </ul>
+
+      <h2>Cuanto tiempo</h2>
+      <p>
+        Mientras dure la relacion y, despues, el plazo que exija la ley para
+        atender posibles reclamaciones. Pasado ese plazo, se eliminan.
+      </p>
+
+      <h2>Con quien los compartimos</h2>
+      <p>
+        Con nadie con fines comerciales. Solo con quien sea imprescindible para
+        la operacion: notaria, gestoria o entidad financiera, y siempre porque
+        tu lo has pedido.
+      </p>
+
+      <h2>Tus derechos</h2>
+      <p>
+        Puedes acceder a tus datos, corregirlos, borrarlos, limitarlos, oponerte
+        al tratamiento y pedir que te los entreguemos en un archivo. Escribenos y
+        lo resolvemos. Si crees que no lo hemos hecho bien, puedes reclamar ante
+        la Agencia Espanola de Proteccion de Datos.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>
+        Esta web no usa cookies de seguimiento ni analitica de terceros. No hay
+        banner que aceptar porque no hay nada que consentir.
+      </p>
+
+      <p>
+        <strong>Nota de la maqueta:</strong> este texto es un borrador
+        orientativo. Antes de publicar, un abogado debe revisarlo y completarlo
+        con los datos identificativos de la sociedad.
+      </p>
+    </div>
+
+    <aside class="cierre" data-revelar>
+      <h2>Alguna duda con tus datos?</h2>
+      <p>Escribenos y te contestamos por escrito.</p>
+      <div class="cierre__acciones">
+        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+          {telefonoLegible(EMPRESA.telefonoGratuito)}
+        </a>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .bloques {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--e-8);
+    margin-bottom: var(--e-16);
+  }
+
+  .bloque {
+    padding-top: var(--e-4);
+    border-top: 2px solid var(--grafito);
+  }
+
+  .bloque h2,
+  .bloque h3 {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .bloque p {
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .prosa {
+    max-width: 42rem;
+    margin-bottom: var(--e-16);
+  }
+
+  .prosa h2 {
+    margin-block: var(--e-8) var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .prosa p,
+  .prosa li {
+    margin-bottom: var(--e-3);
+    color: var(--texto-suave);
+  }
+
+  .prosa ul {
+    margin-bottom: var(--e-4);
+    padding-left: var(--e-6);
+    list-style: disc;
+  }
+
+  .cierre {
+    padding: var(--e-12) var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+    text-align: center;
+  }
+
+  .cierre h2 {
+    margin-bottom: var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .cierre p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+    color: #cfc9bd;
+  }
+
+  .cierre__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    justify-content: center;
+  }
+
+  .cierre__linea {
+    color: var(--texto-claro);
+    border-color: rgba(244, 240, 233, 0.4);
+  }
+</style>

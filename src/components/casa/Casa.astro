@@ -1,0 +1,179 @@
+---
+interface Props {
+  /** Texto alternativo del dibujo de reserva. */
+  alt?: string;
+}
+
+const { alt = 'Chalet unifamiliar con jardín y piscina' } = Astro.props;
+
+/**
+ * La casa en 3D, girable con el dedo.
+ *
+ * Debajo del lienzo hay siempre una silueta dibujada: quien no reciba el 3D ve
+ * una casa, no un hueco.
+ */
+---
+
+<figure class="casa" data-casa>
+  <canvas class="casa__lienzo" data-casa-lienzo hidden></canvas>
+
+  <svg class="casa__silueta" viewBox="0 0 480 360" role="img" aria-label={alt}>
+    <defs>
+      <linearGradient id="cieloCasa" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8eef4" />
+        <stop offset="100%" stop-color="#dfe4d8" />
+      </linearGradient>
+    </defs>
+    <rect width="480" height="360" fill="url(#cieloCasa)" rx="14" />
+
+    <ellipse cx="240" cy="300" rx="200" ry="46" fill="#6f8a4a" />
+    <ellipse cx="240" cy="300" rx="200" ry="46" fill="#5c7440" opacity="0.35" />
+
+    <!-- Casa -->
+    <rect x="150" y="168" width="180" height="118" fill="#f2ece2" />
+    <rect x="144" y="272" width="192" height="18" fill="#c9bda9" />
+    <path d="M138 172 L240 104 L342 172 Z" fill="#b45c39" />
+    <path d="M138 172 L240 104 L342 172 Z" fill="none" stroke="#8f462b" stroke-width="6" />
+    <rect x="186" y="86" width="24" height="42" fill="#e3dbcd" />
+    <rect x="181" y="80" width="34" height="9" fill="#8f462b" />
+
+    <!-- Ventanas -->
+    <g fill="#ffcf8a" stroke="#f7f4ee" stroke-width="4">
+      <rect x="170" y="192" width="36" height="42" />
+      <rect x="274" y="192" width="36" height="42" fill="#9fc4d6" />
+      <rect x="170" y="132" width="30" height="30" fill="#9fc4d6" />
+      <rect x="225" y="132" width="30" height="30" />
+      <rect x="280" y="132" width="30" height="30" fill="#9fc4d6" />
+    </g>
+
+    <!-- Puerta y porche -->
+    <rect x="222" y="212" width="38" height="74" fill="#4a3423" />
+    <circle cx="252" cy="252" r="3.4" fill="#c9a227" />
+    <rect x="196" y="200" width="90" height="8" fill="#f7f4ee" />
+    <rect x="198" y="204" width="7" height="82" fill="#f7f4ee" />
+    <rect x="277" y="204" width="7" height="82" fill="#f7f4ee" />
+
+    <!-- Árboles -->
+    <g>
+      <rect x="76" y="242" width="10" height="42" fill="#5a4433" />
+      <circle cx="81" cy="232" r="30" fill="#4e6b39" />
+      <circle cx="62" cy="246" r="20" fill="#53703c" />
+      <rect x="398" y="248" width="9" height="38" fill="#5a4433" />
+      <circle cx="402" cy="240" r="25" fill="#4e6b39" />
+    </g>
+
+    <!-- Piscina -->
+    <ellipse cx="366" cy="300" rx="52" ry="19" fill="#d6cec0" />
+    <ellipse cx="366" cy="300" rx="43" ry="13" fill="#4fa3c7" />
+
+    <!-- Camino -->
+    <g fill="#d6cec0">
+      <ellipse cx="240" cy="300" rx="17" ry="6" />
+      <ellipse cx="238" cy="316" rx="17" ry="6" />
+      <ellipse cx="243" cy="332" rx="17" ry="6" />
+    </g>
+  </svg>
+
+  <figcaption class="casa__pista" data-pista>Arrástrala para girarla</figcaption>
+</figure>
+
+<script>
+  import { nivelCiudad } from '../ciudad/condiciones';
+  import type { Casa } from './casa';
+
+  // Un mapa y no una variable suelta: así funciona aunque haya varias casas
+  // en la misma página.
+  const vivas = new Map<HTMLCanvasElement, Casa>();
+
+  function montar() {
+    const lienzos = document.querySelectorAll<HTMLCanvasElement>('[data-casa-lienzo]');
+    if (!lienzos.length) return;
+
+    const nivel = nivelCiudad();
+    if (!nivel) return;
+
+    const arrancar = async () => {
+      const { crearCasa } = await import('./casa');
+
+      for (const lienzo of lienzos) {
+        if (vivas.has(lienzo) || !document.body.contains(lienzo)) continue;
+        lienzo.hidden = false;
+        lienzo.closest('.casa')?.classList.add('casa--viva');
+        vivas.set(lienzo, crearCasa(lienzo, nivel));
+      }
+    };
+
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(() => void arrancar(), { timeout: 3000 });
+    } else {
+      addEventListener('load', () => void arrancar(), { once: true });
+    }
+  }
+
+  function desmontar() {
+    for (const casa of vivas.values()) casa.destruir();
+    vivas.clear();
+  }
+
+  montar();
+  document.addEventListener('astro:after-swap', montar);
+  document.addEventListener('astro:before-swap', desmontar);
+</script>
+
+<style>
+  .casa {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radio-grande);
+    background: linear-gradient(180deg, #e8eef4, #dfe4d8);
+    box-shadow: 0 18px 46px var(--sombra);
+  }
+
+  .casa__lienzo,
+  .casa__silueta {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .casa__lienzo {
+    z-index: 2;
+    /* Al arrastrar se gira la casa, no se hace scroll de la página. */
+    touch-action: none;
+    cursor: grab;
+  }
+
+  .casa__lienzo:active {
+    cursor: grabbing;
+  }
+
+  .casa--viva .casa__silueta {
+    opacity: 0;
+    transition: opacity var(--dur-larga) var(--curva);
+  }
+
+  .casa__pista {
+    position: absolute;
+    bottom: var(--e-3);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    padding: 0.3em 1em;
+    border-radius: var(--radio-pildora);
+    background: rgba(20, 23, 28, 0.72);
+    color: var(--texto-claro);
+    font-size: var(--t-micro);
+    letter-spacing: 0.06em;
+    opacity: 0;
+    transition: opacity var(--dur-media) var(--curva);
+    pointer-events: none;
+  }
+
+  /* La pista solo aparece cuando hay 3D que girar. */
+  .casa--viva .casa__pista {
+    opacity: 1;
+  }
+</style>

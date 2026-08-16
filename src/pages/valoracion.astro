@@ -1,0 +1,148 @@
+---
+import Base from '../layouts/Base.astro';
+import Valoracion from '../components/Valoracion.astro';
+import Casa from '../components/casa/Casa.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<Base
+  titulo="Vende tu casa en Madrid — Valoración gratuita | Raíz Inmobiliaria"
+  descripcion="Te decimos lo que vale tu vivienda con datos de operaciones cerradas en tu calle. Sin coste y sin compromiso."
+>
+  <div class="contenedor">
+    <header class="portadilla portadilla--casa">
+      <div data-revelar>
+      <p class="antetitulo">Valoración gratuita</p>
+      <h1 class="portadilla__titulo">
+        ¿Cuánto vale<br /><span class="acento">tu casa</span>?
+      </h1>
+      <p class="portadilla__entrada">
+        No te damos un número inflado para captarte y luego bajarlo. Te damos
+        el precio al que se están cerrando operaciones en tu calle.
+      </p>
+
+      <ul class="promesas">
+        <li>
+          <strong>Sin coste</strong>
+          <span>La valoración es gratis y no obliga a nada.</span>
+        </li>
+        <li>
+          <strong>En 48 horas</strong>
+          <span>Visitamos, comparamos y te llamamos con el precio.</span>
+        </li>
+        <li>
+          <strong>Con datos, no con corazonadas</strong>
+          <span>Operaciones cerradas en tu zona, no anuncios publicados.</span>
+        </li>
+      </ul>
+      </div>
+
+      <div class="portadilla__casa" data-revelar data-revelar-retraso="160">
+        <Casa alt="Villa moderna con piscina, girable en 3D" />
+      </div>
+    </header>
+
+    <Valoracion />
+
+    <aside class="prefiero" data-revelar>
+      <h2 class="prefiero__titulo">¿Prefieres que hablemos?</h2>
+      <p>
+        Llámanos y te atendemos desde la oficina de tu barrio. Sin centralita
+        ni musiquita de espera.
+      </p>
+      <a class="boton" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+        Llamar al {telefonoLegible(EMPRESA.telefonoGratuito)}
+      </a>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla--casa {
+    display: grid;
+    gap: var(--e-8);
+    align-items: center;
+  }
+
+  @media (min-width: 60rem) {
+    .portadilla--casa {
+      grid-template-columns: 1fr 26rem;
+      gap: var(--e-16);
+    }
+  }
+
+  .portadilla__casa {
+    order: -1;
+  }
+
+  @media (min-width: 60rem) {
+    .portadilla__casa {
+      order: 0;
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .promesas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--e-6);
+    margin-top: var(--e-12);
+  }
+
+  .promesas li {
+    padding-top: var(--e-3);
+    border-top: 2px solid var(--laton);
+  }
+
+  .promesas strong {
+    display: block;
+    margin-bottom: var(--e-1);
+  }
+
+  .promesas span {
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .prefiero {
+    margin-top: var(--e-16);
+    padding: var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--arena-honda);
+    text-align: center;
+  }
+
+  .prefiero__titulo {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .prefiero p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+  }
+</style>

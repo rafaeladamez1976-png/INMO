@@ -1,0 +1,119 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import Cabecera from '../components/Cabecera.astro';
+import Pie from '../components/Pie.astro';
+import AvisoMaqueta from '../components/AvisoMaqueta.astro';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import { EMPRESA } from '../data/empresa';
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+}
+
+const { titulo, descripcion } = Astro.props;
+const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica.href} />
+
+    <!-- Es una maqueta de demostración: no debe indexarse. -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={EMPRESA.nombreCompleto} />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:locale" content="es_ES" />
+    <meta name="theme-color" content="#14171c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <ClientRouter />
+
+    <script is:inline>
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('con-revelado');
+      }
+    </script>
+  </head>
+
+  <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+    <div class="avance" aria-hidden="true"><span data-avance></span></div>
+    <AvisoMaqueta />
+    <Cabecera />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Pie />
+    <BotonWhatsApp />
+
+    <script>
+      import { activarAnimaciones } from '../scripts/animaciones';
+      activarAnimaciones();
+      document.addEventListener('astro:after-swap', activarAnimaciones);
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  /* Barra de avance de lectura. */
+  .avance {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 60;
+    width: 100%;
+    height: 3px;
+    pointer-events: none;
+  }
+
+  .avance span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--laton-claro), var(--laton-hondo));
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .avance {
+      display: none;
+    }
+  }
+
+  /* Transición entre páginas: se funde, no parpadea. */
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root) {
+      animation: salirPagina 200ms var(--curva) both;
+    }
+
+    ::view-transition-new(root) {
+      animation: entrarPagina 360ms var(--curva) both;
+    }
+  }
+
+  @keyframes salirPagina {
+    to {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes entrarPagina {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+</style>

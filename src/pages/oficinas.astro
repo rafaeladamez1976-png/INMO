@@ -1,0 +1,291 @@
+---
+import Base from '../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import oficina1 from '../assets/inmuebles/oficina-1.jpg';
+import oficina2 from '../assets/inmuebles/oficina-2.jpg';
+import oficina3 from '../assets/inmuebles/oficina-3.jpg';
+import oficina4 from '../assets/inmuebles/oficina-4.jpg';
+import {
+  EMPRESA,
+  OFICINAS,
+  telefonoLegible,
+  enlaceTelefono,
+  enlaceWhatsApp,
+} from '../data/empresa';
+
+/** Cada oficina con su fotografía, en el mismo orden que OFICINAS. */
+const FOTOS = [oficina1, oficina2, oficina3, oficina4];
+
+const mapa = (direccion: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${direccion}, Madrid`,
+  )}`;
+---
+
+<Base
+  titulo="Nuestras oficinas en Madrid | Raíz Inmobiliaria"
+  descripcion="Cuatro oficinas en Cuatro Vientos, Aluche, Las Águilas y Latina. Entra sin cita."
+>
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Dónde estamos</p>
+      <h1 class="portadilla__titulo">Cuatro barrios,<br />cuatro puertas</h1>
+      <p class="portadilla__entrada">
+        Entra sin cita. Si está abierto, te atendemos.
+      </p>
+    </header>
+
+    <ul class="oficinas">
+      {
+        OFICINAS.map((oficina, i) => (
+          <li class="oficina" data-revelar data-revelar-retraso={i * 90}>
+            <div class="oficina__foto">
+              <Image
+                src={FOTOS[i % FOTOS.length]}
+                alt={`Oficina de ${oficina.nombre}`}
+                widths={[500, 800, 1200]}
+                sizes="(max-width: 48rem) 92vw, 30rem"
+                loading="lazy"
+                decoding="async"
+                class="oficina__imagen"
+              />
+            </div>
+
+            <div class="oficina__cabecera">
+              <div>
+                {oficina.sede && <span class="oficina__sede">Sede central</span>}
+                <h2 class="oficina__nombre">{oficina.nombre}</h2>
+                <p class="oficina__barrio">{oficina.barrio}</p>
+              </div>
+              <span class="oficina__numero" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+            </div>
+
+            <address class="oficina__direccion">
+              {oficina.direccion}
+              <br />
+              {oficina.cp} Madrid
+            </address>
+
+            <ul class="oficina__telefonos">
+              {oficina.telefonos.map((telefono) => (
+                <li>
+                  <a href={enlaceTelefono(telefono)}>{telefonoLegible(telefono)}</a>
+                </li>
+              ))}
+            </ul>
+
+            <p class="oficina__email">{oficina.email}</p>
+
+            <div class="oficina__acciones">
+              <a class="boton" href={mapa(oficina.direccion)} target="_blank" rel="noopener">
+                Cómo llegar
+              </a>
+              <a
+                class="boton boton--linea"
+                href={enlaceWhatsApp(
+                  oficina.telefonos[1],
+                  `Hola, escribo desde la web. Quería consultar sobre la oficina de ${oficina.nombre}.`,
+                )}
+              >
+                WhatsApp
+              </a>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <aside class="general" data-revelar>
+      <h2 class="general__titulo">Teléfono general</h2>
+      <p class="general__numero">
+        <a href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+          {telefonoLegible(EMPRESA.telefonoGratuito)}
+        </a>
+      </p>
+      <p class="general__texto">
+        Si no sabes qué oficina te toca, llama aquí y te pasamos con la de tu
+        barrio.
+      </p>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .oficinas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: var(--e-6);
+  }
+
+  .oficina {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: var(--radio-grande);
+    background: var(--papel);
+    box-shadow: 0 2px 10px var(--sombra);
+    transition:
+      transform var(--dur-media) var(--curva),
+      box-shadow var(--dur-media) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .oficina:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 54px var(--sombra-honda);
+    }
+
+    .oficina:hover .oficina__imagen {
+      transform: scale(1.06);
+    }
+  }
+
+  .oficina__foto {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--grafito-medio);
+  }
+
+  .oficina__imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.1s var(--curva);
+  }
+
+  .oficina > :not(.oficina__foto) {
+    margin-inline: var(--e-8);
+  }
+
+  .oficina__cabecera {
+    margin-top: var(--e-6);
+  }
+
+  .oficina__acciones {
+    margin-bottom: var(--e-8);
+  }
+
+  .oficina__cabecera {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--e-4);
+  }
+
+  .oficina__sede {
+    display: inline-block;
+    margin-bottom: var(--e-2);
+    padding: 0.15em 0.7em;
+    border-radius: var(--radio-pildora);
+    background: var(--laton);
+    color: var(--grafito);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .oficina__nombre {
+    font-size: var(--t-grande);
+  }
+
+  .oficina__barrio {
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--laton-hondo);
+  }
+
+  .oficina__numero {
+    font-family: var(--fuente-titular);
+    font-size: 2.6rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--arena-honda);
+  }
+
+  .oficina__direccion {
+    margin-block: var(--e-6) var(--e-4);
+    font-style: normal;
+    line-height: 1.7;
+  }
+
+  .oficina__telefonos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-4);
+    font-weight: 700;
+  }
+
+  .oficina__email {
+    margin-top: var(--e-2);
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .oficina__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    margin-top: var(--e-6);
+  }
+
+  .general {
+    margin-top: var(--e-16);
+    padding: var(--e-12) var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+    text-align: center;
+  }
+
+  .general__titulo {
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--laton-claro);
+  }
+
+  .general__numero {
+    margin-block: var(--e-3);
+    margin-inline: auto;
+    font-family: var(--fuente-titular);
+    font-size: clamp(2.2rem, 1.5rem + 3vw, 3.6rem);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .general__numero a {
+    color: var(--laton-claro);
+    text-decoration: none;
+  }
+
+  .general__texto {
+    margin-inline: auto;
+    font-size: var(--t-pequeno);
+    opacity: 0.8;
+  }
+</style>

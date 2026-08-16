@@ -1,0 +1,398 @@
+---
+import { Image } from 'astro:assets';
+import heroe from '../assets/inmuebles/heroe.jpg';
+import { EMPRESA, OFICINAS } from '../data/empresa';
+import { INMUEBLES } from '../data/inmuebles';
+
+/**
+ * Portada.
+ *
+ * Fotografía a sangre con acercamiento lento y paralaje, titular que entra
+ * palabra a palabra y sellos de confianza abajo. El titular va en HTML real:
+ * ni un buscador ni un móvil viejo se quedan sin contenido.
+ *
+ * Las animaciones están escritas a mano en vez de traídas de una librería:
+ * pesan unos cientos de bytes en lugar de decenas de kilobytes.
+ */
+
+const titulo = ['Encuentra', 'tu', 'lugar'];
+
+const SELLOS = [
+  { icono: 'ubicacion', texto: 'Cuatro oficinas de barrio' },
+  { icono: 'casa', texto: 'Inmuebles verificados' },
+  { icono: 'trato', texto: 'Asesoramiento personal' },
+  { icono: 'escudo', texto: 'Operación segura' },
+];
+---
+
+<section class="heroe">
+  <div class="heroe__foto" data-heroe-foto>
+    <Image
+      src={heroe}
+      alt="Villa moderna iluminada al anochecer con piscina desbordante"
+      widths={[900, 1400, 1920]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      class="heroe__imagen"
+    />
+  </div>
+
+  <div class="heroe__velo" aria-hidden="true"></div>
+
+  <div class="contenedor heroe__texto">
+    <p class="antetitulo heroe__antetitulo" data-entrada data-entrada-retraso="0">
+      {EMPRESA.ciudad} · {OFICINAS.length} oficinas
+    </p>
+
+    <h1 class="heroe__titular">
+      {
+        titulo.map((palabra, i) => (
+          <span class="heroe__palabra" data-entrada data-entrada-retraso={120 + i * 110}>
+            {palabra}
+          </span>
+        ))
+      }
+      <span class="heroe__palabra heroe__acento" data-entrada data-entrada-retraso="450">
+        ideal
+      </span>
+    </h1>
+
+    <p class="heroe__entrada" data-entrada data-entrada-retraso="600">
+      Vendemos y alquilamos en Cuatro Vientos, Aluche, Las Águilas y Latina.
+      No buscamos un piso en Madrid: buscamos el tuyo, en tu calle.
+    </p>
+
+    <div class="heroe__acciones" data-entrada data-entrada-retraso="720">
+      <a class="boton boton--laton heroe__cta" href="/inmuebles">
+        Ver propiedades
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="heroe__flecha">
+          <path
+            d="M5 12h14M13 6l6 6-6 6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+      <a class="boton boton--linea heroe__linea" href="/vender">Vender mi casa</a>
+    </div>
+
+    <dl class="heroe__cifras" data-entrada data-entrada-retraso="850">
+      <div>
+        <dt>Inmuebles</dt>
+        <dd data-cuenta={INMUEBLES.length}>{INMUEBLES.length}</dd>
+      </div>
+      <div>
+        <dt>Oficinas</dt>
+        <dd data-cuenta={OFICINAS.length}>{OFICINAS.length}</dd>
+      </div>
+      <div>
+        <dt>Provincias</dt>
+        <dd data-cuenta={EMPRESA.zonas.length}>{EMPRESA.zonas.length}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <p class="heroe__pista" aria-hidden="true">
+    <span></span>
+  </p>
+</section>
+
+<!-- Sellos de confianza -->
+<section class="sellos" aria-label="Por qué elegirnos">
+  <ul class="contenedor sellos__lista">
+    {
+      SELLOS.map((sello, i) => (
+        <li class="sello" data-revelar data-revelar-retraso={i * 90}>
+          <svg class="sello__icono" viewBox="0 0 24 24" aria-hidden="true">
+            {sello.icono === 'ubicacion' && (
+              <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+                <path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z" />
+                <circle cx="12" cy="10" r="2.6" />
+              </g>
+            )}
+            {sello.icono === 'casa' && (
+              <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+                <path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" />
+              </g>
+            )}
+            {sello.icono === 'trato' && (
+              <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12h3l3 3 3-3 3 3 3-3h3" />
+                <path d="M7 12 5 8h14l-2 4" />
+              </g>
+            )}
+            {sello.icono === 'escudo' && (
+              <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+                <path d="M12 3 5 6v6c0 4.4 3 8 7 9 4-1 7-4.6 7-9V6z" />
+                <path d="m9 12 2 2 4-4" stroke-linecap="round" />
+              </g>
+            )}
+          </svg>
+          <span class="sello__texto">{sello.texto}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .heroe {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: min(94svh, 58rem);
+    overflow: hidden;
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .heroe__foto {
+    position: absolute;
+    /* Sobresale por abajo para que el paralaje no descubra el fondo. */
+    inset: -8% 0 -8% 0;
+    will-change: transform;
+  }
+
+  .heroe__imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Acercamiento lentísimo: se percibe como profundidad, no como zoom. */
+    animation: acercar 26s var(--curva) forwards;
+  }
+
+  @keyframes acercar {
+    from {
+      transform: scale(1.14);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .heroe__imagen {
+      animation: none;
+    }
+  }
+
+  .heroe__velo {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        95deg,
+        rgba(14, 17, 22, 0.94) 0%,
+        rgba(14, 17, 22, 0.78) 34%,
+        rgba(14, 17, 22, 0.25) 62%,
+        rgba(14, 17, 22, 0.05) 100%
+      ),
+      linear-gradient(to top, rgba(14, 17, 22, 0.65), transparent 40%);
+  }
+
+  .heroe__texto {
+    position: relative;
+    z-index: 2;
+    padding-block: var(--e-24) var(--e-16);
+  }
+
+  .heroe__antetitulo {
+    color: var(--laton-claro);
+  }
+
+  .heroe__titular {
+    margin-block: var(--e-4) var(--e-6);
+    font-size: var(--t-heroe);
+    font-variation-settings: 'SOFT' 8, 'opsz' 144;
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+  }
+
+  .heroe__palabra {
+    display: inline-block;
+    margin-right: 0.24em;
+  }
+
+  .heroe__acento {
+    display: block;
+    margin-right: 0;
+    color: var(--laton-claro);
+    font-style: italic;
+  }
+
+  .heroe__entrada {
+    max-width: 33rem;
+    margin-bottom: var(--e-8);
+    font-size: var(--t-medio);
+    color: #d3cec5;
+  }
+
+  .heroe__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+  }
+
+  .heroe__cta {
+    padding-inline: var(--e-8);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .heroe__flecha {
+    width: 1.1em;
+    height: 1.1em;
+    transition: transform var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .heroe__cta:hover .heroe__flecha {
+      transform: translateX(4px);
+    }
+  }
+
+  .heroe__linea {
+    color: var(--texto-claro);
+    border-color: rgba(244, 240, 233, 0.4);
+  }
+
+  .heroe__cifras {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-8);
+    margin-top: var(--e-16);
+    padding-top: var(--e-6);
+    border-top: 1px solid rgba(244, 240, 233, 0.18);
+  }
+
+  .heroe__cifras dt {
+    font-size: var(--t-micro);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #9a948a;
+  }
+
+  .heroe__cifras dd {
+    margin: 0;
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 8, 'opsz' 144;
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--laton-claro);
+  }
+
+  /* Línea que baja despacio, en lugar de una flecha parpadeando. */
+  .heroe__pista {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    z-index: 2;
+    width: 1px;
+    height: 4.5rem;
+    background: rgba(244, 240, 233, 0.2);
+    overflow: hidden;
+  }
+
+  .heroe__pista span {
+    display: block;
+    width: 100%;
+    height: 45%;
+    background: var(--laton-claro);
+    animation: bajar 2.6s var(--curva) infinite;
+  }
+
+  @keyframes bajar {
+    0% {
+      transform: translateY(-120%);
+    }
+    60%,
+    100% {
+      transform: translateY(320%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .heroe__pista span {
+      animation: none;
+      transform: translateY(100%);
+    }
+  }
+
+  /* ---- Entrada del texto ---- */
+
+  .con-revelado [data-entrada] {
+    opacity: 0;
+    transform: translateY(26px);
+    filter: blur(6px);
+  }
+
+  .con-revelado [data-entrada].entrado {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition:
+      opacity 900ms var(--curva),
+      transform 900ms var(--curva),
+      filter 900ms var(--curva);
+  }
+
+  /* ---- Sellos ---- */
+
+  .sellos {
+    padding-block: var(--e-8);
+    background: var(--papel);
+    border-bottom: 1px solid var(--arena-honda);
+  }
+
+  .sellos__lista {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--e-6) var(--e-4);
+  }
+
+  @media (min-width: 56rem) {
+    .sellos__lista {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .sello {
+    display: flex;
+    align-items: center;
+    gap: var(--e-3);
+  }
+
+  .sello__icono {
+    width: 1.9rem;
+    height: 1.9rem;
+    flex-shrink: 0;
+    color: var(--laton);
+  }
+
+  .sello__texto {
+    font-size: var(--t-pequeno);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+
+  @media (max-width: 30rem) {
+    .heroe__acciones {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .heroe__cifras {
+      gap: var(--e-6);
+      margin-top: var(--e-12);
+    }
+
+    .heroe__cifras dd {
+      font-size: 1.9rem;
+    }
+  }
+</style>

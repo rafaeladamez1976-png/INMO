@@ -1,0 +1,223 @@
+---
+import { Image } from 'astro:assets';
+import casa from '../assets/inmuebles/casa-venta.jpg';
+
+interface Props {
+  /** Cifra que flota sobre la tarjeta. */
+  etiqueta?: string;
+  valor?: string;
+}
+
+const { etiqueta = 'Valoración media en tu zona', valor = '+12 %' } = Astro.props;
+
+/**
+ * Fotografía de la vivienda con volumen real.
+ *
+ * En lugar de una casa modelada en polígonos, una fotografía inclinándose en
+ * perspectiva según dónde esté el ratón, con brillo que la recorre y dos
+ * elementos que flotan por delante a distinta profundidad. Se percibe como un
+ * objeto físico, no como una imagen pegada.
+ *
+ * En táctil se queda quieta: sin puntero no hay nada que seguir, y el efecto
+ * costaría fluidez a cambio de nada.
+ */
+---
+
+<div class="casa3d" data-casa3d>
+  <div class="casa3d__escena">
+    <div class="casa3d__tarjeta" data-tarjeta>
+      <Image
+        src={casa}
+        alt="Vivienda unifamiliar con jardín al atardecer"
+        widths={[600, 900, 1400]}
+        sizes="(max-width: 60rem) 92vw, 32rem"
+        loading="lazy"
+        decoding="async"
+        class="casa3d__imagen"
+      />
+
+      <span class="casa3d__brillo" aria-hidden="true"></span>
+
+      <div class="casa3d__dato casa3d__dato--valor">
+        <span class="casa3d__cifra">{valor}</span>
+        <span class="casa3d__etiqueta">{etiqueta}</span>
+      </div>
+
+      <div class="casa3d__dato casa3d__dato--sello">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 3 5 6v6c0 4.4 3 8 7 9 4-1 7-4.6 7-9V6z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"></path>
+          <path
+            d="m9 12 2 2 4-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+        <span>Tasación sin coste</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /**
+   * Inclinación en perspectiva siguiendo el puntero.
+   *
+   * Solo con ratón. La rotación se amortigua para que no vaya a tirones, y se
+   * detiene sola al salir el elemento de la pantalla.
+   */
+  function activarCasa3D() {
+    const raices = document.querySelectorAll<HTMLElement>('[data-casa3d]');
+    if (!raices.length) return;
+
+    const finos = window.matchMedia('(pointer: fine)').matches;
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!finos || quieto) return;
+
+    for (const raiz of raices) {
+      const tarjeta = raiz.querySelector<HTMLElement>('[data-tarjeta]');
+      if (!tarjeta) continue;
+
+      let objetivoX = 0;
+      let objetivoY = 0;
+      let x = 0;
+      let y = 0;
+      let animando = false;
+
+      const dibujar = () => {
+        x += (objetivoX - x) * 0.09;
+        y += (objetivoY - y) * 0.09;
+
+        tarjeta.style.transform = `rotateY(${x * 9}deg) rotateX(${-y * 7}deg)`;
+        tarjeta.style.setProperty('--brillo-x', `${50 + x * 45}%`);
+        tarjeta.style.setProperty('--brillo-y', `${50 + y * 45}%`);
+
+        if (Math.abs(objetivoX - x) > 0.001 || Math.abs(objetivoY - y) > 0.001) {
+          requestAnimationFrame(dibujar);
+        } else {
+          animando = false;
+        }
+      };
+
+      const arrancar = () => {
+        if (animando) return;
+        animando = true;
+        requestAnimationFrame(dibujar);
+      };
+
+      raiz.addEventListener('pointermove', (evento) => {
+        const caja = raiz.getBoundingClientRect();
+        objetivoX = (evento.clientX - caja.left) / caja.width - 0.5;
+        objetivoY = (evento.clientY - caja.top) / caja.height - 0.5;
+        arrancar();
+      });
+
+      raiz.addEventListener('pointerleave', () => {
+        objetivoX = 0;
+        objetivoY = 0;
+        arrancar();
+      });
+    }
+  }
+
+  activarCasa3D();
+  document.addEventListener('astro:after-swap', activarCasa3D);
+</script>
+
+<style>
+  .casa3d {
+    perspective: 1100px;
+  }
+
+  .casa3d__escena {
+    transform-style: preserve-3d;
+  }
+
+  .casa3d__tarjeta {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radio-grande);
+    transform-style: preserve-3d;
+    box-shadow: 0 30px 70px rgba(20, 23, 28, 0.4);
+    will-change: transform;
+  }
+
+  .casa3d__imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Brillo que recorre la superficie: es lo que da sensación de cristal. */
+  .casa3d__brillo {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--brillo-x, 50%) var(--brillo-y, 50%),
+      rgba(255, 255, 255, 0.28),
+      rgba(255, 255, 255, 0) 55%
+    );
+    pointer-events: none;
+  }
+
+  /* Los datos flotan por delante de la fotografía. */
+  .casa3d__dato {
+    position: absolute;
+    display: flex;
+    border-radius: var(--radio);
+    background: rgba(250, 249, 246, 0.94);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(20, 23, 28, 0.28);
+    transform: translateZ(48px);
+  }
+
+  .casa3d__dato--valor {
+    flex-direction: column;
+    top: var(--e-4);
+    left: var(--e-4);
+    padding: var(--e-3) var(--e-4);
+  }
+
+  .casa3d__cifra {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--laton-hondo);
+  }
+
+  .casa3d__etiqueta {
+    margin-top: 0.2em;
+    max-width: 11rem;
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .casa3d__dato--sello {
+    align-items: center;
+    gap: var(--e-2);
+    right: var(--e-4);
+    bottom: var(--e-4);
+    padding: var(--e-2) var(--e-4);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    transform: translateZ(70px);
+  }
+
+  .casa3d__dato--sello svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--laton);
+  }
+</style>

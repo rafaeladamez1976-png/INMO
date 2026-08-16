@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<Base titulo="Contacto | Raiz Inmobiliaria" descripcion="Telefono, WhatsApp y las cuatro oficinas de Madrid. Te contestamos el mismo dia.">
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Contacto</p>
+      <h1 class="portadilla__titulo">Hablamos<br /><span class="acento">cuando quieras</span></h1>
+      <p class="portadilla__entrada">Por telefono, por WhatsApp o entrando por la puerta. Lo que te resulte mas comodo.</p>
+    </header>
+
+    <div class="bloques" data-revelar>
+      <div class="bloque">
+        <h2>Por telefono</h2>
+        <p>
+          El 900 es gratuito y te pasa con la oficina de tu barrio. De lunes a
+          viernes de 10:00 a 14:00 y de 17:00 a 20:00.
+        </p>
+      </div>
+      <div class="bloque">
+        <h2>Por WhatsApp</h2>
+        <p>
+          Es lo mas rapido para una consulta corta o para pedir cita.
+          Contestamos en horario de oficina.
+        </p>
+      </div>
+      <div class="bloque">
+        <h2>En persona</h2>
+        <p>
+          Cuatro oficinas a pie de calle. Puedes pedir cita o entrar
+          directamente: si esta abierto, te atendemos.
+        </p>
+      </div>
+    </div>
+
+    <div class="prosa" data-revelar>
+      <h2>Antes de escribirnos</h2>
+      <p>
+        Si nos dices desde el principio que buscas, en que zona y para cuando,
+        te ahorramos tres mensajes de ida y vuelta. Y si es sobre un inmueble
+        concreto, pasanos la referencia.
+      </p>
+    </div>
+
+    <aside class="cierre" data-revelar>
+      <h2>Pide cita y no esperes</h2>
+      <p>Eliges dia y hora, y te confirmamos por WhatsApp.</p>
+      <div class="cierre__acciones">
+        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+          {telefonoLegible(EMPRESA.telefonoGratuito)}
+        </a>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .bloques {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--e-8);
+    margin-bottom: var(--e-16);
+  }
+
+  .bloque {
+    padding-top: var(--e-4);
+    border-top: 2px solid var(--grafito);
+  }
+
+  .bloque h2,
+  .bloque h3 {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .bloque p {
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .prosa {
+    max-width: 42rem;
+    margin-bottom: var(--e-16);
+  }
+
+  .prosa h2 {
+    margin-block: var(--e-8) var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .prosa p,
+  .prosa li {
+    margin-bottom: var(--e-3);
+    color: var(--texto-suave);
+  }
+
+  .prosa ul {
+    margin-bottom: var(--e-4);
+    padding-left: var(--e-6);
+    list-style: disc;
+  }
+
+  .cierre {
+    padding: var(--e-12) var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+    text-align: center;
+  }
+
+  .cierre h2 {
+    margin-bottom: var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .cierre p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+    color: #cfc9bd;
+  }
+
+  .cierre__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    justify-content: center;
+  }
+
+  .cierre__linea {
+    color: var(--texto-claro);
+    border-color: rgba(244, 240, 233, 0.4);
+  }
+</style>

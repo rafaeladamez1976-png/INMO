@@ -1,0 +1,389 @@
+---
+import { EMPRESA, OFICINAS, telefonoLegible } from '../data/empresa';
+
+/**
+ * Captación de valoraciones.
+ *
+ * Es la pieza que hace ganar dinero a una inmobiliaria: una agencia vive de
+ * conseguir encargos de venta, no de recibir visitas. Cuatro preguntas, sin
+ * registro, y el mensaje sale por WhatsApp a la oficina del barrio que
+ * corresponda.
+ *
+ * Sin servidor: el formulario construye un enlace.
+ */
+
+const TIPOS = ['Piso', 'Ático', 'Chalet', 'Casa', 'Local'];
+const HABITACIONES = ['1', '2', '3', '4', '5 o más'];
+const PLAZOS = ['Cuanto antes', 'En 3 o 6 meses', 'Este año', 'Solo quiero saber el precio'];
+---
+
+<section class="valoracion" data-valoracion data-revelar>
+  <div class="valoracion__cabecera">
+    <p class="valoracion__paso" data-etiqueta-paso>Paso 1 de 4</p>
+    <div class="valoracion__barra" aria-hidden="true">
+      <span data-barra></span>
+    </div>
+  </div>
+
+  <form class="valoracion__form" data-form novalidate>
+    <fieldset class="panel" data-panel="1">
+      <legend class="pregunta">¿Qué quieres valorar?</legend>
+      <div class="opciones">
+        {
+          TIPOS.map((tipo) => (
+            <label class="opcion">
+              <input type="radio" name="tipo" value={tipo} />
+              <span class="opcion__cuerpo">{tipo}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="panel" data-panel="2" hidden>
+      <legend class="pregunta">¿En qué zona está?</legend>
+      <p class="ayuda">Elige la oficina que te pilla más cerca.</p>
+      <div class="opciones opciones--anchas">
+        {
+          OFICINAS.map((oficina) => (
+            <label class="opcion">
+              <input type="radio" name="zona" value={`${oficina.nombre} (${oficina.barrio})`} data-oficina={oficina.id} />
+              <span class="opcion__cuerpo opcion__cuerpo--doble">
+                <span class="opcion__titulo">{oficina.nombre}</span>
+                <span class="opcion__detalle">{oficina.barrio}</span>
+              </span>
+            </label>
+          ))
+        }
+        <label class="opcion">
+          <input type="radio" name="zona" value="Otra zona" data-oficina="parque-europa" />
+          <span class="opcion__cuerpo opcion__cuerpo--doble">
+            <span class="opcion__titulo">Otra zona</span>
+            <span class="opcion__detalle">Toledo, Extremadura…</span>
+          </span>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="panel" data-panel="3" hidden>
+      <legend class="pregunta">¿Cuántas habitaciones?</legend>
+      <div class="opciones opciones--compactas">
+        {
+          HABITACIONES.map((h) => (
+            <label class="opcion">
+              <input type="radio" name="habitaciones" value={h} />
+              <span class="opcion__cuerpo">{h}</span>
+            </label>
+          ))
+        }
+      </div>
+
+      <label class="campo">
+        <span class="campo__etiqueta">Metros cuadrados (aproximados)</span>
+        <input class="campo__control" type="number" name="metros" min="10" max="2000" placeholder="90" />
+      </label>
+    </fieldset>
+
+    <fieldset class="panel" data-panel="4" hidden>
+      <legend class="pregunta">¿Para cuándo?</legend>
+      <div class="opciones opciones--anchas">
+        {
+          PLAZOS.map((plazo) => (
+            <label class="opcion">
+              <input type="radio" name="plazo" value={plazo} />
+              <span class="opcion__cuerpo">{plazo}</span>
+            </label>
+          ))
+        }
+      </div>
+
+      <label class="campo">
+        <span class="campo__etiqueta">Tu nombre</span>
+        <input class="campo__control" type="text" name="nombre" maxlength="40" placeholder="María" autocomplete="given-name" />
+      </label>
+    </fieldset>
+
+    <section class="panel resumen" data-panel="5" hidden>
+      <h2 class="pregunta">Esto es lo que enviaremos</h2>
+      <blockquote class="resumen__mensaje" data-mensaje></blockquote>
+
+      <a class="boton boton--laton resumen__enviar" data-enviar href="#">
+        Pedir valoración por WhatsApp
+      </a>
+
+      <p class="resumen__aviso">
+        Te llamamos en menos de 48 horas. No compartimos tus datos con nadie.
+      </p>
+
+      <p class="resumen__telefono">
+        ¿Prefieres llamar? <strong>{telefonoLegible(EMPRESA.telefonoGratuito)}</strong>
+      </p>
+    </section>
+
+    <div class="navegacion" data-navegacion>
+      <button class="boton boton--linea" type="button" data-atras hidden>Atrás</button>
+      <button class="boton" type="button" data-siguiente disabled>Siguiente</button>
+    </div>
+  </form>
+
+  <noscript>
+    <p class="sin-js">
+      Para pedir tu valoración, llámanos al
+      <strong>{telefonoLegible(EMPRESA.telefonoGratuito)}</strong>.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  import { iniciarValoracion } from './valoracion';
+  iniciarValoracion();
+  document.addEventListener('astro:after-swap', iniciarValoracion);
+</script>
+
+<style>
+  .valoracion {
+    padding: var(--e-8);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-grande);
+    background: var(--papel);
+  }
+
+  @media (min-width: 48rem) {
+    .valoracion {
+      padding: var(--e-12);
+    }
+  }
+
+  .valoracion__cabecera {
+    margin-bottom: var(--e-8);
+  }
+
+  .valoracion__paso {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--laton-hondo);
+  }
+
+  .valoracion__barra {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--arena-honda);
+    overflow: hidden;
+  }
+
+  .valoracion__barra span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: var(--laton);
+    transform: scaleX(0.2);
+    transform-origin: left;
+    transition: transform var(--dur-media) var(--curva);
+  }
+
+  .panel {
+    padding: 0;
+    border: 0;
+    margin: 0;
+  }
+
+  .panel:not([hidden]) {
+    animation: entrar var(--dur-media) var(--curva) both;
+  }
+
+  @keyframes entrar {
+    from {
+      opacity: 0;
+      transform: translateX(14px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel:not([hidden]) {
+      animation: none;
+    }
+  }
+
+  .pregunta {
+    padding: 0;
+    margin-bottom: var(--e-2);
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: var(--t-grande);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .ayuda {
+    margin-bottom: var(--e-6);
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .opciones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: var(--e-3);
+    margin-top: var(--e-6);
+  }
+
+  .opciones--anchas {
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  }
+
+  .opciones--compactas {
+    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+  }
+
+  .opcion {
+    position: relative;
+    display: block;
+    cursor: pointer;
+  }
+
+  .opcion input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .opcion__cuerpo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 3.2rem;
+    padding: var(--e-3) var(--e-4);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: #fff;
+    font-weight: 600;
+    text-align: center;
+    transition: all var(--dur-corta) var(--curva);
+  }
+
+  .opcion__cuerpo--doble {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.1em;
+  }
+
+  .opcion__detalle {
+    font-size: var(--t-micro);
+    font-weight: 400;
+    color: var(--texto-suave);
+  }
+
+  @media (hover: hover) {
+    .opcion:hover .opcion__cuerpo {
+      border-color: var(--laton);
+    }
+  }
+
+  .opcion input:focus-visible + .opcion__cuerpo {
+    outline: 3px solid var(--laton);
+    outline-offset: 2px;
+  }
+
+  .opcion input:checked + .opcion__cuerpo {
+    border-color: var(--grafito);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .opcion input:checked + .opcion__cuerpo .opcion__detalle {
+    color: #cfc9bd;
+  }
+
+  .campo {
+    display: block;
+    margin-top: var(--e-6);
+  }
+
+  .campo__etiqueta {
+    display: block;
+    margin-bottom: var(--e-2);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .campo__control {
+    width: 100%;
+    max-width: 20rem;
+    min-height: 3rem;
+    padding: var(--e-3) var(--e-4);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: #fff;
+  }
+
+  .resumen__mensaje {
+    margin-block: var(--e-6);
+    padding: var(--e-6);
+    border-left: 3px solid var(--laton);
+    background: var(--arena);
+    font-size: var(--t-pequeno);
+    line-height: 1.8;
+  }
+
+  .resumen__enviar {
+    width: 100%;
+    font-size: var(--t-medio);
+    min-height: 3.4rem;
+  }
+
+  .resumen__aviso {
+    margin-top: var(--e-3);
+    font-size: var(--t-pequeno);
+    text-align: center;
+    color: var(--texto-suave);
+  }
+
+  .resumen__telefono {
+    margin-top: var(--e-6);
+    padding-top: var(--e-4);
+    border-top: 1px solid var(--arena-honda);
+    font-size: var(--t-pequeno);
+    text-align: center;
+  }
+
+  .navegacion {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--e-3);
+    margin-top: var(--e-8);
+    padding-top: var(--e-6);
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .navegacion [data-siguiente] {
+    margin-left: auto;
+  }
+
+  .sin-js {
+    padding: var(--e-4);
+    background: var(--arena-honda);
+    border-radius: var(--radio);
+  }
+
+  @media (max-width: 30rem) {
+    .navegacion {
+      flex-direction: column-reverse;
+    }
+
+    .navegacion [data-siguiente],
+    .navegacion [data-atras] {
+      width: 100%;
+      margin-left: 0;
+    }
+  }
+</style>

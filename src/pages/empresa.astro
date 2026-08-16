@@ -1,0 +1,175 @@
+---
+import Base from '../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<Base titulo="La empresa | Raiz Inmobiliaria" descripcion="Cuatro oficinas de barrio en Madrid. Como trabajamos y por que lo hacemos asi.">
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Quienes somos</p>
+      <h1 class="portadilla__titulo">Somos de barrio,<br /><span class="acento">y se nota</span></h1>
+      <p class="portadilla__entrada">No tenemos un despacho en el centro con vistas. Tenemos cuatro oficinas a pie de calle donde la gente entra sin cita.</p>
+    </header>
+
+    <div class="bloques" data-revelar>
+      <div class="bloque">
+        <h2>Precio realista</h2>
+        <p>
+          No inflamos la valoracion para captar un encargo y pedirte despues que
+          bajes. El precio que te damos es al que se cierran operaciones en tu
+          calle.
+        </p>
+      </div>
+      <div class="bloque">
+        <h2>Una persona, no un buzon</h2>
+        <p>
+          Tu operacion la lleva alguien con nombre, de la oficina de tu barrio.
+          Sabes a quien llamar, y contesta esa persona.
+        </p>
+      </div>
+      <div class="bloque">
+        <h2>Todo por escrito</h2>
+        <p>
+          Honorarios, plazos y condiciones antes de firmar nada. Si algo no esta
+          claro en el papel, es que no esta claro.
+        </p>
+      </div>
+      <div class="bloque">
+        <h2>Conocimiento de zona</h2>
+        <p>
+          Cuatro Vientos, Aluche, Las Aguilas y Latina. Sabemos que portal tiene
+          ascensor, que calle es ruidosa y que colegio pilla cerca.
+        </p>
+      </div>
+    </div>
+
+    <div class="prosa" data-revelar>
+      <h2>Que hacemos</h2>
+      <p>
+        Compraventa, alquiler, alquiler con opcion a compra, alquiler de
+        temporada, traspasos de local y alquiler vitalicio. Y valoracion
+        gratuita de tu vivienda, vayas a vender o no.
+      </p>
+      <h2>Donde trabajamos</h2>
+      <p>
+        Madrid capital, sobre todo el sur y el oeste, y ademas Toledo,
+        Extremadura y Castilla-La Mancha para segunda residencia y casa de
+        pueblo.
+      </p>
+    </div>
+
+    <aside class="cierre" data-revelar>
+      <h2>Nos conocemos?</h2>
+      <p>Entra en cualquiera de nuestras oficinas. Si esta abierto, te atendemos.</p>
+      <div class="cierre__acciones">
+        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+          {telefonoLegible(EMPRESA.telefonoGratuito)}
+        </a>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .bloques {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--e-8);
+    margin-bottom: var(--e-16);
+  }
+
+  .bloque {
+    padding-top: var(--e-4);
+    border-top: 2px solid var(--grafito);
+  }
+
+  .bloque h2,
+  .bloque h3 {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .bloque p {
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .prosa {
+    max-width: 42rem;
+    margin-bottom: var(--e-16);
+  }
+
+  .prosa h2 {
+    margin-block: var(--e-8) var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .prosa p,
+  .prosa li {
+    margin-bottom: var(--e-3);
+    color: var(--texto-suave);
+  }
+
+  .prosa ul {
+    margin-bottom: var(--e-4);
+    padding-left: var(--e-6);
+    list-style: disc;
+  }
+
+  .cierre {
+    padding: var(--e-12) var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+    text-align: center;
+  }
+
+  .cierre h2 {
+    margin-bottom: var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .cierre p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+    color: #cfc9bd;
+  }
+
+  .cierre__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    justify-content: center;
+  }
+
+  .cierre__linea {
+    color: var(--texto-claro);
+    border-color: rgba(244, 240, 233, 0.4);
+  }
+</style>

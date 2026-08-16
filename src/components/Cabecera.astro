@@ -1,0 +1,401 @@
+---
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import { PRINCIPALES, SECUNDARIOS } from '../data/navegacion';
+
+const ruta = Astro.url.pathname;
+const activa = (href: string) => (href === '/' ? ruta === '/' : ruta.startsWith(href));
+const algunaSecundariaActiva = SECUNDARIOS.some((e) => activa(e.href));
+---
+
+<header class="cabecera">
+  <div class="contenedor cabecera__interior">
+    <a class="marca" href="/">
+      <svg class="marca__icono" viewBox="0 0 32 32" aria-hidden="true">
+        <path
+          d="M4 15 16 5l12 10v13a1 1 0 0 1-1 1h-7v-9h-8v9H5a1 1 0 0 1-1-1z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linejoin="round"></path>
+      </svg>
+      <span class="marca__texto">
+        <span class="marca__nombre">{EMPRESA.nombre}</span>
+        <span class="marca__bajada">{EMPRESA.descriptor}</span>
+      </span>
+    </a>
+
+    <a class="telefono" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 5.2 2 2 0 0 1 6.5 3Z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linejoin="round"></path>
+      </svg>
+      <span>{telefonoLegible(EMPRESA.telefonoGratuito)}</span>
+    </a>
+  </div>
+
+  <nav class="nav" aria-label="Navegación principal">
+    <ul class="contenedor menu">
+      <li>
+        <a
+          href="/"
+          class:list={['menu__enlace', { 'menu__enlace--activa': activa('/') }]}
+          aria-current={activa('/') ? 'page' : undefined}>Inicio</a
+        >
+      </li>
+
+      {
+        PRINCIPALES.map((enlace) => (
+          <li>
+            <a
+              href={enlace.href}
+              class:list={['menu__enlace', { 'menu__enlace--activa': activa(enlace.href) }]}
+              aria-current={activa(enlace.href) ? 'page' : undefined}
+            >
+              <span class="menu__corto">{enlace.corto ?? enlace.texto}</span>
+              <span class="menu__largo">{enlace.texto}</span>
+            </a>
+          </li>
+        ))
+      }
+
+      <li class="menu__mas">
+        <button
+          class:list={['menu__enlace', 'menu__boton', { 'menu__enlace--activa': algunaSecundariaActiva }]}
+          type="button"
+          data-mas
+          aria-expanded="false"
+          aria-controls="menu-secundario"
+        >
+          Más
+          <svg class="menu__punta" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="m6 9 6 6 6-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </button>
+
+      </li>
+    </ul>
+
+    <!--
+      El panel vive FUERA de la lista a propósito: la lista tiene overflow-x
+      para poder deslizarse en móvil, y un contenedor con overflow recorta todo
+      lo que se posicione dentro. Dentro de la lista, el desplegable se abría
+      pero no se veía.
+    -->
+    <div class="desplegable" id="menu-secundario" data-desplegable hidden>
+      <ul class="desplegable__lista">
+        {
+          SECUNDARIOS.map((enlace) => (
+            <li>
+              <a
+                href={enlace.href}
+                class:list={['desplegable__enlace', { 'desplegable__enlace--activa': activa(enlace.href) }]}
+              >
+                <span class="desplegable__titulo">{enlace.texto}</span>
+                {enlace.descripcion && (
+                  <span class="desplegable__detalle">{enlace.descripcion}</span>
+                )}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<script>
+  /**
+   * Desplegable de "Mas".
+   *
+   * Las escuchas globales se registran una sola vez, aunque activarMenu() se
+   * llame otra vez al navegar: si no, se acumulan y el panel se cierra solo
+   * nada mas abrirlo.
+   */
+  let enganchado = false;
+
+  function activarMenu() {
+    const boton = document.querySelector<HTMLButtonElement>('[data-mas]');
+    const panel = document.querySelector<HTMLElement>('[data-desplegable]');
+    if (!boton || !panel) return;
+
+    const cerrar = () => {
+      if (panel.hidden) return;
+      panel.hidden = true;
+      boton.setAttribute('aria-expanded', 'false');
+    };
+
+    boton.addEventListener('click', (evento) => {
+      evento.stopPropagation();
+      const abierto = !panel.hidden;
+      panel.hidden = abierto;
+      boton.setAttribute('aria-expanded', String(!abierto));
+    });
+
+    if (enganchado) return;
+    enganchado = true;
+
+    document.addEventListener('click', (evento) => {
+      const panelVivo = document.querySelector<HTMLElement>('[data-desplegable]');
+      const botonVivo = document.querySelector<HTMLButtonElement>('[data-mas]');
+      if (!panelVivo || !botonVivo || panelVivo.hidden) return;
+
+      const destino = evento.target as Node;
+      if (!panelVivo.contains(destino) && !botonVivo.contains(destino)) {
+        panelVivo.hidden = true;
+        botonVivo.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key !== 'Escape') return;
+      const panelVivo = document.querySelector<HTMLElement>('[data-desplegable]');
+      const botonVivo = document.querySelector<HTMLButtonElement>('[data-mas]');
+      if (!panelVivo || panelVivo.hidden) return;
+      panelVivo.hidden = true;
+      botonVivo?.setAttribute('aria-expanded', 'false');
+      // El foco vuelve al boton: si no, se pierde al final del documento.
+      botonVivo?.focus();
+    });
+  }
+
+  activarMenu();
+  document.addEventListener('astro:after-swap', activarMenu);
+</script>
+
+<style>
+  .cabecera {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: rgba(244, 240, 233, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--arena-honda);
+  }
+
+  .cabecera__interior {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-4);
+    padding-block: var(--e-3) var(--e-2);
+  }
+
+  .marca {
+    display: flex;
+    align-items: center;
+    gap: var(--e-3);
+    text-decoration: none;
+    line-height: 1;
+  }
+
+  .marca__icono {
+    width: 2rem;
+    height: 2rem;
+    color: var(--laton);
+    flex-shrink: 0;
+  }
+
+  .marca__nombre {
+    display: block;
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .marca__bajada {
+    display: block;
+    margin-top: 0.2em;
+    font-size: 0.58rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--laton-hondo);
+  }
+
+  .telefono {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-2);
+    min-height: 2.4rem;
+    padding: var(--e-2) var(--e-4);
+    border-radius: var(--radio-pildora);
+    background: var(--grafito);
+    color: var(--texto-claro);
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color var(--dur-corta) var(--curva);
+  }
+
+  .telefono svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  @media (hover: hover) {
+    .telefono:hover {
+      background: var(--laton);
+      color: var(--grafito);
+    }
+  }
+
+  .nav {
+    position: relative;
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .menu {
+    display: flex;
+    /* "safe center" centra cuando cabe y deja de centrar cuando no: sin el
+       "safe", al desbordar se cortarian los primeros enlaces. */
+    justify-content: safe center;
+    gap: var(--e-1);
+    margin: 0;
+    /* En móvil se desliza: son siete destinos y no caben de otra forma sin
+       partirlos en tres filas que se comerían la pantalla. */
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  .menu > li {
+    flex: 0 0 auto;
+  }
+
+  .menu__enlace {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-1);
+    min-height: 3.2rem;
+    padding: var(--e-3) var(--e-4);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--texto-suave);
+    cursor: pointer;
+    transition:
+      color var(--dur-corta) var(--curva),
+      border-color var(--dur-corta) var(--curva);
+  }
+
+  .menu__largo {
+    display: none;
+  }
+
+  @media (min-width: 34rem) {
+    .menu__corto {
+      display: none;
+    }
+
+    .menu__largo {
+      display: inline;
+    }
+
+    .menu__enlace {
+      padding-inline: var(--e-6);
+      font-size: 1.02rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .menu__enlace {
+      font-size: 1.08rem;
+      padding-inline: var(--e-8);
+    }
+  }
+
+  .menu__enlace--activa {
+    color: var(--texto);
+    border-bottom-color: var(--laton);
+  }
+
+  @media (hover: hover) {
+    .menu__enlace:hover {
+      color: var(--texto);
+      border-bottom-color: var(--arena-honda);
+    }
+  }
+
+  .menu__punta {
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+
+  .desplegable {
+    position: absolute;
+    top: calc(100% - 1px);
+    right: max(1rem, calc((100% - var(--ancho-pagina)) / 2 + 2rem));
+    z-index: 40;
+    min-width: 17rem;
+    padding: var(--e-2);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    background: var(--papel);
+    box-shadow: 0 18px 46px var(--sombra-honda);
+    animation: caer var(--dur-corta) var(--curva);
+  }
+
+  @keyframes caer {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  .desplegable__lista {
+    display: grid;
+    gap: 2px;
+  }
+
+  .desplegable__enlace {
+    display: block;
+    padding: var(--e-3);
+    border-radius: var(--radio);
+    text-decoration: none;
+    transition: background-color var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .desplegable__enlace:hover {
+      background: var(--arena);
+    }
+  }
+
+  .desplegable__enlace--activa {
+    background: var(--arena);
+  }
+
+  .desplegable__titulo {
+    display: block;
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+  }
+
+  .desplegable__detalle {
+    display: block;
+    margin-top: 0.15em;
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+</style>

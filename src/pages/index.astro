@@ -1,0 +1,390 @@
+---
+import Base from '../layouts/Base.astro';
+import Heroe from '../components/Heroe.astro';
+import Ciudad from '../components/ciudad/Ciudad.astro';
+import Ficha from '../components/Ficha.astro';
+import Casa from '../components/casa/Casa.astro';
+import Testimonios from '../components/Testimonios.astro';
+import {
+  EMPRESA,
+  OFICINAS,
+  SERVICIOS,
+  telefonoLegible,
+  enlaceTelefono,
+} from '../data/empresa';
+import { destacados } from '../data/inmuebles';
+
+const seleccion = destacados();
+---
+
+<Base
+  titulo={`${EMPRESA.nombreCompleto} — Compra, venta y alquiler en Madrid`}
+  descripcion="Inmobiliaria con cuatro oficinas en Cuatro Vientos, Aluche, Las Águilas y Latina. Compra, venta, alquiler y valoración gratuita."
+>
+  <Heroe />
+
+  <!-- Servicios -->
+  <section class="servicios contenedor" aria-labelledby="titulo-servicios">
+    <header class="seccion" data-revelar>
+      <p class="antetitulo">Lo que hacemos</p>
+      <h2 id="titulo-servicios" class="seccion__titulo">
+        Todo lo que puede pasarle a una vivienda
+      </h2>
+      <p class="seccion__entrada">
+        Comprar, vender, alquilar o traspasar. Sea cual sea tu caso, hay una
+        oficina nuestra a menos de diez minutos.
+      </p>
+    </header>
+
+    <ul class="servicios__rejilla">
+      {
+        SERVICIOS.map((servicio, i) => (
+          <li class="servicio" data-revelar data-revelar-retraso={i * 70}>
+            <span class="servicio__numero">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="servicio__titulo">{servicio.titulo}</h3>
+            <p class="servicio__texto">{servicio.texto}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Captación: es de donde vive una inmobiliaria -->
+  <section class="captacion" aria-labelledby="titulo-captacion">
+    <div class="contenedor captacion__interior">
+      <div data-revelar>
+        <p class="antetitulo captacion__antetitulo">Vende con nosotros</p>
+        <h2 id="titulo-captacion" class="captacion__titulo">
+          ¿Sabes lo que vale hoy tu casa?
+        </h2>
+        <p class="captacion__texto">
+          El precio de tu calle ha cambiado en el último año. Te decimos lo que
+          vale la tuya con datos reales de operaciones cerradas en tu zona, sin
+          coste y sin que te comprometas a nada.
+        </p>
+        <div class="captacion__acciones">
+          <a class="boton boton--laton" href="/vender">Pedir valoración gratuita</a>
+          <a
+            class="boton boton--linea captacion__linea"
+            href={enlaceTelefono(EMPRESA.telefonoGratuito)}
+          >
+            {telefonoLegible(EMPRESA.telefonoGratuito)}
+          </a>
+        </div>
+      </div>
+
+      <div class="captacion__casa" data-revelar data-revelar-retraso="140">
+        <Casa alt="Villa moderna con piscina, girable en 3D" />
+      </div>
+    </div>
+
+    <div class="contenedor">
+      <ul class="captacion__pasos" data-revelar data-revelar-retraso="220">
+        <li><strong>Nos llamas</strong> o rellenas el formulario</li>
+        <li><strong>Visitamos</strong> la vivienda sin compromiso</li>
+        <li><strong>Te damos un precio</strong> razonado, no inflado</li>
+        <li><strong>Decides tú</strong>, sin ninguna obligación</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- El mapa 3D de los barrios donde trabajan -->
+  <section class="barrios" aria-labelledby="titulo-barrios">
+    <div class="contenedor barrios__cabecera" data-revelar>
+      <p class="antetitulo barrios__antetitulo">Nuestro territorio</p>
+      <h2 id="titulo-barrios" class="barrios__titulo">
+        Trabajamos donde vives
+      </h2>
+      <p class="barrios__entrada">
+        Sobrevuela nuestros cuatro barrios. Cada aguja dorada es una oficina
+        con la puerta abierta.
+      </p>
+    </div>
+
+    <Ciudad />
+  </section>
+
+  <!-- Inmuebles destacados -->
+  <section class="destacados contenedor" aria-labelledby="titulo-destacados">
+    <header class="seccion seccion--fila" data-revelar>
+      <div>
+        <p class="antetitulo">Selección</p>
+        <h2 id="titulo-destacados" class="seccion__titulo">Lo último que ha entrado</h2>
+      </div>
+      <a class="boton boton--linea" href="/inmuebles">Ver todos</a>
+    </header>
+
+    <div class="destacados__rejilla">
+      {seleccion.map((inmueble, i) => <Ficha inmueble={inmueble} retraso={i * 90} />)}
+    </div>
+  </section>
+
+  <Testimonios />
+
+  <!-- Las cuatro oficinas -->
+  <section class="oficinas contenedor" aria-labelledby="titulo-oficinas">
+    <header class="seccion" data-revelar>
+      <p class="antetitulo">Dónde estamos</p>
+      <h2 id="titulo-oficinas" class="seccion__titulo">
+        Cuatro oficinas, cuatro barrios
+      </h2>
+      <p class="seccion__entrada">
+        No trabajamos desde un despacho en el centro. Estamos en la calle donde
+        está tu casa.
+      </p>
+    </header>
+
+    <ul class="oficinas__rejilla">
+      {
+        OFICINAS.map((oficina, i) => (
+          <li class="oficina" data-revelar data-revelar-retraso={i * 80}>
+            {oficina.sede && <span class="oficina__sede">Sede central</span>}
+            <h3 class="oficina__nombre">{oficina.nombre}</h3>
+            <p class="oficina__barrio">{oficina.barrio}</p>
+            <address class="oficina__direccion">
+              {oficina.direccion}
+              <br />
+              {oficina.cp} Madrid
+            </address>
+            <a class="oficina__telefono" href={enlaceTelefono(oficina.telefonos[0])}>
+              {telefonoLegible(oficina.telefonos[0])}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .seccion {
+    margin-bottom: var(--e-12);
+  }
+
+  .seccion--fila {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--e-6);
+  }
+
+  .seccion__titulo {
+    margin-top: var(--e-3);
+    font-size: var(--t-titulo);
+  }
+
+  .seccion__entrada {
+    margin-top: var(--e-3);
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  /* ---- Servicios ---- */
+
+  .servicios {
+    padding-block: var(--e-24) var(--e-16);
+  }
+
+  .servicios__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--e-8);
+  }
+
+  .servicio {
+    padding-top: var(--e-4);
+    border-top: 2px solid var(--grafito);
+  }
+
+  .servicio__numero {
+    display: block;
+    font-family: var(--fuente-titular);
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--laton-hondo);
+  }
+
+  .servicio__titulo {
+    margin-block: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .servicio__texto {
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  /* ---- Captación ---- */
+
+  .captacion {
+    padding-block: var(--e-24);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .captacion__interior {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+    gap: var(--e-12);
+    align-items: center;
+  }
+
+  .captacion__antetitulo {
+    color: var(--laton-claro);
+  }
+
+  .captacion__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-titulo);
+  }
+
+  .captacion__texto {
+    color: #cfc9bd;
+  }
+
+  .captacion__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    margin-top: var(--e-8);
+  }
+
+  .captacion__linea {
+    color: var(--texto-claro);
+    border-color: rgba(244, 240, 233, 0.35);
+  }
+
+  .captacion__casa {
+    max-width: 30rem;
+    width: 100%;
+    justify-self: center;
+  }
+
+  .captacion__pasos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--e-4);
+    margin-top: var(--e-12);
+  }
+
+  .captacion__pasos li {
+    padding: var(--e-4) var(--e-6);
+    border-left: 2px solid var(--laton);
+    background: rgba(244, 240, 233, 0.04);
+    font-size: var(--t-pequeno);
+    color: #cfc9bd;
+  }
+
+  .captacion__pasos strong {
+    display: block;
+    color: var(--texto-claro);
+    font-size: var(--t-base);
+  }
+
+  /* ---- Barrios ---- */
+
+  .barrios {
+    position: relative;
+    padding-top: var(--e-24);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .barrios__cabecera {
+    position: relative;
+    z-index: 3;
+    padding-bottom: var(--e-8);
+  }
+
+  .barrios__antetitulo {
+    color: var(--laton-claro);
+  }
+
+  .barrios__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-titulo);
+  }
+
+  .barrios__entrada {
+    max-width: 32rem;
+    color: #cfc9bd;
+  }
+
+  /* ---- Destacados ---- */
+
+  .destacados {
+    padding-block: var(--e-24);
+  }
+
+  .destacados__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: var(--e-6);
+  }
+
+  /* ---- Oficinas ---- */
+
+  .oficinas {
+    padding-bottom: var(--e-16);
+  }
+
+  .oficinas__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--e-4);
+  }
+
+  .oficina {
+    position: relative;
+    padding: var(--e-6);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio-grande);
+    background: var(--papel);
+  }
+
+  .oficina__sede {
+    display: inline-block;
+    margin-bottom: var(--e-2);
+    padding: 0.15em 0.7em;
+    border-radius: var(--radio-pildora);
+    background: var(--laton);
+    color: var(--grafito);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .oficina__nombre {
+    font-size: var(--t-medio);
+  }
+
+  .oficina__barrio {
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--laton-hondo);
+  }
+
+  .oficina__direccion {
+    margin-block: var(--e-4) var(--e-3);
+    font-style: normal;
+    font-size: var(--t-pequeno);
+    line-height: 1.7;
+    color: var(--texto-suave);
+  }
+
+  .oficina__telefono {
+    font-weight: 700;
+    font-size: var(--t-pequeno);
+  }
+
+  @media (max-width: 30rem) {
+    .captacion__acciones {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>

@@ -1,0 +1,189 @@
+---
+/**
+ * Mapa 3D de los barrios.
+ *
+ * Sobrevuelo de una manzana de Madrid con las cuatro oficinas marcadas. Debajo
+ * del lienzo hay siempre una silueta dibujada, así que quien no reciba el 3D ve
+ * un horizonte de ciudad y no un hueco.
+ */
+---
+
+<section class="portada">
+  <!-- Silueta de reserva: no es un hueco esperando al 3D, es una portada. -->
+  <div class="portada__fondo" aria-hidden="true">
+    <svg viewBox="0 0 1400 700" preserveAspectRatio="xMidYMax slice" class="portada__svg">
+      <defs>
+        <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1b202a" />
+          <stop offset="55%" stop-color="#2e3440" />
+          <stop offset="100%" stop-color="#4a4438" />
+        </linearGradient>
+      </defs>
+      <rect width="1400" height="700" fill="url(#cielo)" />
+      <circle cx="1120" cy="185" r="52" fill="#d8b984" opacity="0.28" />
+      <circle cx="1120" cy="185" r="30" fill="#e8cfa4" opacity="0.5" />
+
+      <g fill="#20242d">
+        <rect x="60" y="430" width="110" height="270" />
+        <rect x="185" y="360" width="90" height="340" />
+        <rect x="290" y="470" width="120" height="230" />
+        <rect x="425" y="300" width="100" height="400" />
+        <rect x="540" y="415" width="86" height="285" />
+        <rect x="640" y="255" width="118" height="445" />
+        <rect x="775" y="380" width="94" height="320" />
+        <rect x="885" y="330" width="108" height="370" />
+        <rect x="1010" y="450" width="88" height="250" />
+        <rect x="1115" y="390" width="116" height="310" />
+        <rect x="1248" y="470" width="96" height="230" />
+      </g>
+
+      <g fill="#ffb347" opacity="0.55">
+        <rect x="80" y="455" width="12" height="16" /><rect x="106" y="455" width="12" height="16" />
+        <rect x="80" y="495" width="12" height="16" /><rect x="132" y="495" width="12" height="16" />
+        <rect x="205" y="385" width="12" height="16" /><rect x="235" y="385" width="12" height="16" />
+        <rect x="205" y="425" width="12" height="16" /><rect x="235" y="465" width="12" height="16" />
+        <rect x="445" y="325" width="12" height="16" /><rect x="478" y="325" width="12" height="16" />
+        <rect x="445" y="368" width="12" height="16" /><rect x="478" y="410" width="12" height="16" />
+        <rect x="660" y="280" width="12" height="16" /><rect x="695" y="280" width="12" height="16" />
+        <rect x="660" y="322" width="12" height="16" /><rect x="726" y="364" width="12" height="16" />
+        <rect x="905" y="355" width="12" height="16" /><rect x="940" y="355" width="12" height="16" />
+        <rect x="905" y="397" width="12" height="16" /><rect x="968" y="439" width="12" height="16" />
+        <rect x="1135" y="415" width="12" height="16" /><rect x="1170" y="415" width="12" height="16" />
+        <rect x="1135" y="457" width="12" height="16" /><rect x="1200" y="499" width="12" height="16" />
+      </g>
+    </svg>
+  </div>
+
+  <canvas class="portada__lienzo" data-ciudad hidden></canvas>
+
+  <p class="portada__pista" aria-hidden="true">Baja para sobrevolar</p>
+</section>
+
+<script>
+  import { nivelCiudad } from './condiciones';
+  import type { Ciudad } from './ciudad';
+
+  let viva: Ciudad | null = null;
+
+  function montar() {
+    const lienzo = document.querySelector<HTMLCanvasElement>('[data-ciudad]');
+    if (!lienzo || viva) return;
+
+    const nivel = nivelCiudad();
+    if (!nivel) return;
+
+    const arrancar = async () => {
+      const { crearCiudad } = await import('./ciudad');
+      if (!document.body.contains(lienzo)) return;
+      lienzo.hidden = false;
+      lienzo.closest('.portada')?.classList.add('portada--viva');
+      viva = crearCiudad(lienzo, nivel);
+    };
+
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(() => void arrancar(), { timeout: 2500 });
+    } else {
+      addEventListener('load', () => void arrancar(), { once: true });
+    }
+  }
+
+  function desmontar() {
+    viva?.destruir();
+    viva = null;
+  }
+
+  montar();
+  document.addEventListener('astro:after-swap', montar);
+  document.addEventListener('astro:before-swap', desmontar);
+</script>
+
+<style>
+  .portada {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: min(72svh, 40rem);
+    overflow: hidden;
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .portada__fondo,
+  .portada__lienzo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .portada__svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .portada--viva .portada__fondo {
+    opacity: 0;
+    transition: opacity var(--dur-larga) var(--curva);
+  }
+
+  /* Velo para que el texto se lea sobre la ciudad sin apagarla. */
+  .portada::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(20, 23, 28, 0.55) 0%,
+      rgba(20, 23, 28, 0) 30%,
+      rgba(20, 23, 28, 0) 70%,
+      rgba(20, 23, 28, 0.6) 100%
+    );
+    pointer-events: none;
+  }
+
+
+
+
+
+
+
+
+
+
+
+  .portada__pista {
+    position: absolute;
+    bottom: var(--e-6);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    font-size: var(--t-micro);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #8c867c;
+    animation: respirar 3.5s var(--curva) infinite;
+  }
+
+  @keyframes respirar {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: translate(-50%, 0);
+    }
+    50% {
+      opacity: 0.9;
+      transform: translate(-50%, 5px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portada__pista {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 30rem) {
+  
+  
+    }
+</style>

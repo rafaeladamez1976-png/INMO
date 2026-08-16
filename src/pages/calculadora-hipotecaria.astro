@@ -1,0 +1,328 @@
+---
+import Base from '../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<Base
+  titulo="Calculadora de hipoteca | Raíz Inmobiliaria"
+  descripcion="Calcula tu cuota mensual, los intereses totales y el ahorro que necesitas para comprar. Al instante y sin dejar tus datos."
+>
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Calculadora</p>
+      <h1 class="portadilla__titulo">
+        ¿Cuánto pagarías<br /><span class="acento">al mes</span>?
+      </h1>
+      <p class="portadilla__entrada">
+        Mueve las barras y verás la cuota al instante. No te pedimos ni el
+        correo: esto es para que hagas tus cuentas, no para captarte.
+      </p>
+    </header>
+
+    <div class="calc" data-calc>
+      <form class="calc__mandos">
+        <label class="mando">
+          <span class="mando__fila">
+            <span class="mando__nombre">Precio de la vivienda</span>
+            <output class="mando__valor" data-salida="precio">200.000 €</output>
+          </span>
+          <input type="range" name="precio" min="40000" max="900000" step="5000" value="200000" />
+        </label>
+
+        <label class="mando">
+          <span class="mando__fila">
+            <span class="mando__nombre">Ahorro que aportas</span>
+            <output class="mando__valor" data-salida="entrada">40.000 €</output>
+          </span>
+          <input type="range" name="entrada" min="0" max="500000" step="2500" value="40000" />
+          <span class="mando__nota" data-nota-entrada></span>
+        </label>
+
+        <label class="mando">
+          <span class="mando__fila">
+            <span class="mando__nombre">Plazo</span>
+            <output class="mando__valor" data-salida="anios">25 años</output>
+          </span>
+          <input type="range" name="anios" min="5" max="40" step="1" value="25" />
+        </label>
+
+        <label class="mando">
+          <span class="mando__fila">
+            <span class="mando__nombre">Interés anual</span>
+            <output class="mando__valor" data-salida="interes">3,20 %</output>
+          </span>
+          <input type="range" name="interes" min="0" max="8" step="0.05" value="3.2" />
+        </label>
+      </form>
+
+      <div class="calc__resultado">
+        <p class="calc__etiqueta">Cuota mensual</p>
+        <p class="calc__cuota" data-salida="cuota">778,32 €</p>
+
+        <dl class="calc__desglose">
+          <div>
+            <dt>Pides al banco</dt>
+            <dd data-salida="capital">160.000 €</dd>
+          </div>
+          <div>
+            <dt>Intereses totales</dt>
+            <dd data-salida="intereses">73.497 €</dd>
+          </div>
+          <div>
+            <dt>Gastos de compra</dt>
+            <dd data-salida="gastos">22.000 €</dd>
+          </div>
+          <div>
+            <dt>Ahorro necesario</dt>
+            <dd data-salida="ahorro">62.000 €</dd>
+          </div>
+        </dl>
+
+        <p class="calc__aviso" data-aviso></p>
+
+        <a class="boton boton--laton calc__cta" href="/cita">Hablar con un asesor</a>
+      </div>
+    </div>
+
+    <aside class="letra-pequena" data-revelar>
+      <h2>Lo que este cálculo no incluye</h2>
+      <p>
+        Es una estimación con sistema de amortización francés, el de casi todas
+        las hipotecas en España. Los gastos de compra se calculan al 11 % del
+        precio, que es la horquilla habitual entre impuestos, notaría, registro
+        y gestoría, pero varían según la comunidad autónoma y según si la
+        vivienda es nueva o de segunda mano.
+      </p>
+      <p>
+        No incluye seguros vinculados, comisión de apertura ni la revisión de
+        tipo si la hipoteca es variable. Para números en firme, habla con
+        nosotros: te acompañamos a la negociación con el banco.
+      </p>
+      <p class="letra-pequena__telefono">
+        <a href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+          {telefonoLegible(EMPRESA.telefonoGratuito)}
+        </a>
+      </p>
+    </aside>
+  </div>
+</Base>
+
+<script>
+  import { iniciarCalculadora } from '../components/calculadora';
+  iniciarCalculadora();
+  document.addEventListener('astro:after-swap', iniciarCalculadora);
+</script>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .calc {
+    display: grid;
+    gap: var(--e-6);
+  }
+
+  @media (min-width: 56rem) {
+    .calc {
+      grid-template-columns: 1fr 22rem;
+      gap: var(--e-8);
+      align-items: start;
+    }
+  }
+
+  .calc__mandos {
+    display: grid;
+    gap: var(--e-8);
+    padding: var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--papel);
+    box-shadow: 0 2px 12px var(--sombra);
+  }
+
+  .mando__fila {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-4);
+    margin-bottom: var(--e-3);
+  }
+
+  .mando__nombre {
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .mando__valor {
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.35rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mando__nota {
+    display: block;
+    margin-top: var(--e-2);
+    font-size: var(--t-micro);
+    color: var(--laton-hondo);
+  }
+
+  input[type='range'] {
+    width: 100%;
+    height: 2rem;
+    appearance: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--arena-honda);
+  }
+
+  input[type='range']::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--arena-honda);
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-top: -0.5rem;
+    border: 3px solid var(--papel);
+    border-radius: 50%;
+    background: var(--grafito);
+    box-shadow: 0 2px 8px var(--sombra);
+    transition: transform var(--dur-corta) var(--curva);
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 1.4rem;
+    height: 1.4rem;
+    border: 3px solid var(--papel);
+    border-radius: 50%;
+    background: var(--grafito);
+  }
+
+  input[type='range']:hover::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+
+  .calc__resultado {
+    position: sticky;
+    top: 9rem;
+    padding: var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+    box-shadow: 0 20px 50px var(--sombra-honda);
+  }
+
+  .calc__etiqueta {
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--laton-claro);
+  }
+
+  .calc__cuota {
+    margin-block: var(--e-2) var(--e-6);
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 8, 'opsz' 144;
+    font-size: clamp(2.4rem, 1.8rem + 3vw, 3.4rem);
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc__desglose {
+    display: grid;
+    gap: var(--e-3);
+    padding-top: var(--e-4);
+    border-top: 1px solid rgba(244, 240, 233, 0.16);
+  }
+
+  .calc__desglose > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-4);
+  }
+
+  .calc__desglose dt {
+    font-size: var(--t-pequeno);
+    color: #a9a49a;
+  }
+
+  .calc__desglose dd {
+    margin: 0;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc__aviso {
+    margin-top: var(--e-4);
+    padding: var(--e-3) var(--e-4);
+    border-left: 2px solid var(--laton);
+    background: rgba(244, 240, 233, 0.06);
+    font-size: var(--t-micro);
+    color: #cfc9bd;
+  }
+
+  .calc__cta {
+    width: 100%;
+    margin-top: var(--e-6);
+  }
+
+  .letra-pequena {
+    margin-top: var(--e-16);
+    padding: var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--arena-honda);
+  }
+
+  .letra-pequena h2 {
+    margin-bottom: var(--e-3);
+    font-size: var(--t-medio);
+  }
+
+  .letra-pequena p {
+    margin-bottom: var(--e-3);
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .letra-pequena__telefono {
+    font-size: var(--t-medio) !important;
+    font-weight: 700;
+  }
+</style>

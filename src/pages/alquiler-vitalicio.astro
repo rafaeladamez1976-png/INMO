@@ -1,0 +1,174 @@
+---
+import Base from '../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<Base titulo="Alquiler vitalicio | Raiz Inmobiliaria" descripcion="Cobra por tu vivienda cada mes y sigue viviendo en ella. Te lo explicamos entero, con sus ventajas y sus inconvenientes.">
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Para mayores de 65</p>
+      <h1 class="portadilla__titulo">Cobra por tu casa<br /><span class="acento">y sigue viviendo en ella</span></h1>
+      <p class="portadilla__entrada">Es una decision importante y por eso te la contamos entera, con lo bueno y con lo que hay que pensarse dos veces.</p>
+    </header>
+
+    <div class="bloques" data-revelar>
+      <div class="bloque">
+        <h2>Que es</h2>
+        <p>
+          Vendes la nuda propiedad de tu vivienda pero conservas el derecho a
+          vivir en ella mientras vivas. Recibes un dinero al firmar y, segun la
+          formula, una renta cada mes.
+        </p>
+      </div>
+      <div class="bloque">
+        <h2>Para quien tiene sentido</h2>
+        <p>
+          Para quien tiene vivienda en propiedad, una pension ajustada y ningun
+          interes en dejar el piso en herencia. Si quieres dejarselo a tus
+          hijos, esta no es tu operacion.
+        </p>
+      </div>
+      <div class="bloque">
+        <h2>Que NO es</h2>
+        <p>
+          No es una hipoteca inversa ni un prestamo. Vendes de verdad, y eso es
+          irreversible. Por eso insistimos en que lo consultes con tu familia y
+          con un abogado antes de firmar.
+        </p>
+      </div>
+    </div>
+
+    <div class="prosa" data-revelar>
+      <h2>Como lo hacemos nosotros</h2>
+      <p>
+        Primero valoramos tu vivienda y calculamos que te corresponderia segun
+        tu edad y la formula que elijas. Ese numero te lo damos por escrito y
+        sin compromiso.
+      </p>
+      <p>
+        Despues te damos tiempo. No firmamos nada en la primera visita ni en la
+        segunda. Queremos que lo hables con quien tengas que hablarlo.
+      </p>
+      <ul>
+        <li>Valoracion y propuesta por escrito, gratis</li>
+        <li>Revision con el abogado que tu elijas</li>
+        <li>Firma ante notario, con el derecho de uso inscrito en el Registro</li>
+        <li>Acompanamiento despues de la firma: no desaparecemos</li>
+      </ul>
+    </div>
+
+    <aside class="cierre" data-revelar>
+      <h2>Hablemoslo con calma</h2>
+      <p>Ven a la oficina, traete a quien quieras y te lo explicamos todo. Sin prisa y sin compromiso.</p>
+      <div class="cierre__acciones">
+        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+          {telefonoLegible(EMPRESA.telefonoGratuito)}
+        </a>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .bloques {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--e-8);
+    margin-bottom: var(--e-16);
+  }
+
+  .bloque {
+    padding-top: var(--e-4);
+    border-top: 2px solid var(--grafito);
+  }
+
+  .bloque h2,
+  .bloque h3 {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .bloque p {
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .prosa {
+    max-width: 42rem;
+    margin-bottom: var(--e-16);
+  }
+
+  .prosa h2 {
+    margin-block: var(--e-8) var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .prosa p,
+  .prosa li {
+    margin-bottom: var(--e-3);
+    color: var(--texto-suave);
+  }
+
+  .prosa ul {
+    margin-bottom: var(--e-4);
+    padding-left: var(--e-6);
+    list-style: disc;
+  }
+
+  .cierre {
+    padding: var(--e-12) var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+    text-align: center;
+  }
+
+  .cierre h2 {
+    margin-bottom: var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .cierre p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+    color: #cfc9bd;
+  }
+
+  .cierre__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    justify-content: center;
+  }
+
+  .cierre__linea {
+    color: var(--texto-claro);
+    border-color: rgba(244, 240, 233, 0.4);
+  }
+</style>

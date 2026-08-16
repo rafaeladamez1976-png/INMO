@@ -1,0 +1,34 @@
+---
+/**
+ * Aviso permanente de que esto es una maqueta.
+ *
+ * Va arriba del todo y no se puede cerrar. Los teléfonos y las oficinas que se
+ * muestran son reales; los inmuebles no. Sin este aviso alguien podría llamar
+ * por un piso que no existe, y eso no es aceptable ni en una demostración.
+ */
+---
+
+<p class="aviso" role="note">
+  <strong>Maqueta de demostración.</strong>
+  Los inmuebles son ejemplos inventados.
+</p>
+
+<style>
+  .aviso {
+    position: relative;
+    z-index: 40;
+    max-width: none;
+    margin: 0;
+    padding: var(--e-2) var(--e-4);
+    background: var(--laton);
+    color: var(--grafito);
+    font-size: var(--t-micro);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+
+  .aviso strong {
+    font-weight: 700;
+  }
+</style>

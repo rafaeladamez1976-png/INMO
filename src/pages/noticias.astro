@@ -1,0 +1,167 @@
+---
+import Base from '../layouts/Base.astro';
+import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<Base titulo="Noticias y consejos | Raiz Inmobiliaria" descripcion="Mercado inmobiliario de Madrid, consejos para vender y comprar, y novedades de normativa.">
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">Revista</p>
+      <h1 class="portadilla__titulo">Lo que conviene<br /><span class="acento">saber antes</span></h1>
+      <p class="portadilla__entrada">Mercado, normativa y consejos practicos. Sin relleno y sin copiar notas de prensa.</p>
+    </header>
+
+    <div class="bloques" data-revelar>
+      <article class="bloque">
+        <h2>Cuanto tarda hoy en venderse un piso en Madrid</h2>
+        <p>
+          El plazo medio en nuestras zonas y que hace que una vivienda se venda
+          en tres semanas o en ocho meses. Casi siempre es el precio.
+        </p>
+      </article>
+      <article class="bloque">
+        <h2>Los gastos de comprar que nadie te cuenta</h2>
+        <p>
+          Impuestos, notaria, registro y gestoria. Cuanto suman de verdad y
+          cuando hay que tenerlos ahorrados.
+        </p>
+      </article>
+      <article class="bloque">
+        <h2>Alquilar sin sustos: como comprobamos la solvencia</h2>
+        <p>
+          Que documentacion pedimos a un inquilino y por que el seguro de impago
+          no siempre compensa.
+        </p>
+      </article>
+      <article class="bloque">
+        <h2>Reformar antes de vender: cuando sale a cuenta</h2>
+        <p>
+          Que reformas devuelven lo invertido y cuales no. Pintar si, cambiar la
+          cocina casi nunca.
+        </p>
+      </article>
+    </div>
+
+    <div class="prosa" data-revelar>
+      <p>
+        <strong>Nota de la maqueta:</strong> los articulos de esta seccion son
+        titulares de ejemplo para ensenar como quedaria la revista. El contenido
+        real se escribiria con vosotros.
+      </p>
+    </div>
+
+    <aside class="cierre" data-revelar>
+      <h2>Te resolvemos una duda concreta?</h2>
+      <p>Muchas veces se contesta en dos minutos por telefono.</p>
+      <div class="cierre__acciones">
+        <a class="boton boton--laton" href="/cita">Pedir cita</a>
+        <a class="boton boton--linea cierre__linea" href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+          {telefonoLegible(EMPRESA.telefonoGratuito)}
+        </a>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .portadilla {
+    padding-block: var(--e-12) var(--e-8);
+  }
+
+  @media (min-width: 48rem) {
+    .portadilla {
+      padding-block: var(--e-16) var(--e-12);
+    }
+  }
+
+  .portadilla__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .portadilla__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .bloques {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--e-8);
+    margin-bottom: var(--e-16);
+  }
+
+  .bloque {
+    padding-top: var(--e-4);
+    border-top: 2px solid var(--grafito);
+  }
+
+  .bloque h2,
+  .bloque h3 {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-medio);
+  }
+
+  .bloque p {
+    font-size: var(--t-pequeno);
+    color: var(--texto-suave);
+  }
+
+  .prosa {
+    max-width: 42rem;
+    margin-bottom: var(--e-16);
+  }
+
+  .prosa h2 {
+    margin-block: var(--e-8) var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .prosa p,
+  .prosa li {
+    margin-bottom: var(--e-3);
+    color: var(--texto-suave);
+  }
+
+  .prosa ul {
+    margin-bottom: var(--e-4);
+    padding-left: var(--e-6);
+    list-style: disc;
+  }
+
+  .cierre {
+    padding: var(--e-12) var(--e-8);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+    text-align: center;
+  }
+
+  .cierre h2 {
+    margin-bottom: var(--e-3);
+    font-size: var(--t-grande);
+  }
+
+  .cierre p {
+    margin-inline: auto;
+    margin-bottom: var(--e-6);
+    color: #cfc9bd;
+  }
+
+  .cierre__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    justify-content: center;
+  }
+
+  .cierre__linea {
+    color: var(--texto-claro);
+    border-color: rgba(244, 240, 233, 0.4);
+  }
+</style>

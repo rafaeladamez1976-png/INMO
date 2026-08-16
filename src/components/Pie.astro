@@ -1,0 +1,109 @@
+---
+import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empresa';
+---
+
+<footer class="pie">
+  <div class="contenedor">
+    <div class="pie__rejilla">
+      <div class="pie__marca">
+        <p class="pie__nombre">{EMPRESA.nombre}</p>
+        <p class="pie__descriptor">{EMPRESA.descriptor}</p>
+        <p class="pie__telefono">
+          <a href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
+            {telefonoLegible(EMPRESA.telefonoGratuito)}
+          </a>
+        </p>
+      </div>
+
+      {
+        OFICINAS.map((oficina) => (
+          <div class="pie__oficina">
+            <p class="pie__titulo">{oficina.nombre}</p>
+            <address class="pie__direccion">
+              {oficina.direccion}
+              <br />
+              {oficina.cp} Madrid
+            </address>
+            <a class="pie__enlace" href={enlaceTelefono(oficina.telefonos[0])}>
+              {telefonoLegible(oficina.telefonos[0])}
+            </a>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="pie__firma">Maqueta de demostración · Diseño y desarrollo web</p>
+  </div>
+</footer>
+
+<style>
+  .pie {
+    margin-top: var(--e-24);
+    padding-block: var(--e-16) var(--e-8);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .pie__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--e-8);
+  }
+
+  .pie__nombre {
+    font-family: var(--fuente-titular);
+    font-size: 1.7rem;
+    font-weight: 600;
+  }
+
+  .pie__descriptor {
+    font-size: var(--t-micro);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--laton-claro);
+  }
+
+  .pie__telefono {
+    margin-top: var(--e-4);
+    font-size: var(--t-medio);
+    font-weight: 700;
+  }
+
+  .pie__telefono a {
+    color: var(--laton-claro);
+    text-decoration: none;
+  }
+
+  .pie__titulo {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--laton-claro);
+  }
+
+  .pie__direccion {
+    font-style: normal;
+    font-size: var(--t-pequeno);
+    line-height: 1.7;
+    opacity: 0.8;
+  }
+
+  .pie__enlace {
+    display: inline-block;
+    margin-top: var(--e-2);
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    color: var(--texto-claro);
+  }
+
+  .pie__firma {
+    max-width: none;
+    margin-top: var(--e-16);
+    padding-top: var(--e-6);
+    border-top: 1px solid rgba(244, 240, 233, 0.14);
+    font-size: var(--t-micro);
+    opacity: 0.6;
+  }
+</style>

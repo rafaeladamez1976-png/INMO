@@ -1,0 +1,152 @@
+/**
+ * Datos de la maqueta.
+ *
+ * MAQUETA DE DEMOSTRACIÓN. El nombre comercial es inventado a propósito, para
+ * que quede claro que esto no es la web de nadie ni la suplanta.
+ *
+ * Las oficinas, teléfonos y zonas sí son los reales del negocio al que se le
+ * va a enseñar, para que reconozca su empresa de un vistazo. Los datos de
+ * contacto de una empresa son información factual y no propiedad intelectual;
+ * sus textos de marketing y sus fotografías sí lo son, y por eso aquí no hay
+ * ni uno solo: todo lo que se lee está escrito de cero para esta maqueta.
+ *
+ * Para cambiar el nombre comercial basta con tocar MARCA, aquí debajo.
+ */
+
+const MARCA = {
+  nombre: 'Raíz',
+  descriptor: 'Inmobiliaria',
+} as const;
+
+export interface Oficina {
+  id: string;
+  nombre: string;
+  barrio: string;
+  direccion: string;
+  cp: string;
+  telefonos: string[];
+  email: string;
+  sede?: boolean;
+  /** Posición relativa en la maqueta 3D de la ciudad. */
+  mapa: { x: number; z: number };
+}
+
+export const EMPRESA = {
+  nombre: MARCA.nombre,
+  descriptor: MARCA.descriptor,
+  nombreCompleto: `${MARCA.nombre} ${MARCA.descriptor}`,
+  ciudad: 'Madrid',
+
+  telefonoGratuito: '900701034',
+  telefonoMovil: '648900215',
+  emailGeneral: 'info@raizinmobiliaria.es',
+
+  /** WhatsApp de citas: el que atiende la agenda. */
+  whatsappCitas: '669152412',
+
+  /** Zonas donde tienen inmuebles publicados. */
+  zonas: ['Madrid', 'Toledo', 'Extremadura', 'Castilla-La Mancha'],
+} as const;
+
+export const OFICINAS: Oficina[] = [
+  {
+    id: 'parque-europa',
+    nombre: 'Parque Europa',
+    barrio: 'Cuatro Vientos',
+    direccion: 'C/ Fuente de Lima 19, Local B',
+    cp: '28024',
+    telefonos: ['917060416', '615750579'],
+    email: 'info@raizinmobiliaria.es',
+    sede: true,
+    mapa: { x: -3.2, z: -2.4 },
+  },
+  {
+    id: 'aluche',
+    nombre: 'Aluche',
+    barrio: 'Campamento',
+    direccion: 'C/ Tembleque 111',
+    cp: '28024',
+    telefonos: ['915099717', '660857803'],
+    email: 'campamento@raizinmobiliaria.es',
+    mapa: { x: 2.6, z: -3.1 },
+  },
+  {
+    id: 'las-aguilas',
+    nombre: 'Las Águilas',
+    barrio: 'Carabanchel',
+    direccion: 'C/ José de Cadalso 53',
+    cp: '28044',
+    telefonos: ['911377269', '648714915'],
+    email: 'lasaguilas@raizinmobiliaria.es',
+    mapa: { x: -2.1, z: 3.0 },
+  },
+  {
+    id: 'san-ignacio',
+    nombre: 'San Ignacio',
+    barrio: 'Latina',
+    direccion: 'C/ Oliva de Plasencia 1',
+    cp: '28044',
+    telefonos: ['910149563', '638499936'],
+    email: 'sanignacio@raizinmobiliaria.es',
+    mapa: { x: 3.4, z: 2.2 },
+  },
+];
+
+export interface Servicio {
+  id: string;
+  titulo: string;
+  texto: string;
+}
+
+/** Servicios que la empresa presta. Textos redactados para esta web. */
+export const SERVICIOS: Servicio[] = [
+  {
+    id: 'venta',
+    titulo: 'Compraventa',
+    texto:
+      'Ponemos tu inmueble en el mercado con precio realista y lo defendemos hasta la firma.',
+  },
+  {
+    id: 'alquiler',
+    titulo: 'Alquiler',
+    texto:
+      'Buscamos inquilino, comprobamos su solvencia y redactamos el contrato. Tú solo firmas.',
+  },
+  {
+    id: 'opcion-compra',
+    titulo: 'Alquiler con opción a compra',
+    texto:
+      'Para quien quiere comprar pero aún no puede. Se alquila hoy y se descuenta de la compra mañana.',
+  },
+  {
+    id: 'temporada',
+    titulo: 'Alquiler de temporada',
+    texto:
+      'Estancias de meses para traslados de trabajo, obras o estudios, con contrato en regla.',
+  },
+  {
+    id: 'traspasos',
+    titulo: 'Traspasos',
+    texto:
+      'Locales en funcionamiento: valoramos el negocio, no solo los metros cuadrados.',
+  },
+  {
+    id: 'valoracion',
+    titulo: 'Valoración gratuita',
+    texto:
+      'Te decimos lo que vale tu casa hoy, con datos de tu calle y sin compromiso.',
+  },
+];
+
+/** Formatea un teléfono para mostrarlo: 917060416 → 917 06 04 16 */
+export function telefonoLegible(numero: string): string {
+  return numero.replace(/^(\d{3})(\d{2})(\d{2})(\d{2})$/, '$1 $2 $3 $4');
+}
+
+export function enlaceTelefono(numero: string): string {
+  return `tel:+34${numero}`;
+}
+
+export function enlaceWhatsApp(numero: string, mensaje: string): string {
+  return `https://wa.me/34${numero}?text=${encodeURIComponent(mensaje)}`;
+}
