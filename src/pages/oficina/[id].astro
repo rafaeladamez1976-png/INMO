@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Ficha from '../../components/Ficha.astro';
+import Tablon from '../../components/Tablon.astro';
 import {
   OFICINAS,
   HORARIO,
@@ -194,6 +195,12 @@ const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre
         </section>
       )
     }
+
+    <Tablon
+      oficina={oficina.id}
+      cuantas={4}
+      titulo={`Novedades de ${oficina.nombre}`}
+    />
 
     <!-- Cartera de la oficina -->
     {

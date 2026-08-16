@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
+import Tablon from '../components/Tablon.astro';
 ---
 
 <Base titulo="Noticias y consejos | Raiz Inmobiliaria" descripcion="Mercado inmobiliario de Madrid, consejos para vender y comprar, y novedades de normativa.">
@@ -11,44 +12,7 @@ import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
       <p class="portadilla__entrada">Mercado, normativa y consejos practicos. Sin relleno y sin copiar notas de prensa.</p>
     </header>
 
-    <div class="bloques" data-revelar>
-      <article class="bloque">
-        <h2>Cuanto tarda hoy en venderse un piso en Madrid</h2>
-        <p>
-          El plazo medio en nuestras zonas y que hace que una vivienda se venda
-          en tres semanas o en ocho meses. Casi siempre es el precio.
-        </p>
-      </article>
-      <article class="bloque">
-        <h2>Los gastos de comprar que nadie te cuenta</h2>
-        <p>
-          Impuestos, notaria, registro y gestoria. Cuanto suman de verdad y
-          cuando hay que tenerlos ahorrados.
-        </p>
-      </article>
-      <article class="bloque">
-        <h2>Alquilar sin sustos: como comprobamos la solvencia</h2>
-        <p>
-          Que documentacion pedimos a un inquilino y por que el seguro de impago
-          no siempre compensa.
-        </p>
-      </article>
-      <article class="bloque">
-        <h2>Reformar antes de vender: cuando sale a cuenta</h2>
-        <p>
-          Que reformas devuelven lo invertido y cuales no. Pintar si, cambiar la
-          cocina casi nunca.
-        </p>
-      </article>
-    </div>
-
-    <div class="prosa" data-revelar>
-      <p>
-        <strong>Nota de la maqueta:</strong> los articulos de esta seccion son
-        titulares de ejemplo para ensenar como quedaria la revista. El contenido
-        real se escribiria con vosotros.
-      </p>
-    </div>
+    <Tablon cuantas={8} titulo="Lo último de las cuatro oficinas" />
 
     <aside class="cierre" data-revelar>
       <h2>Te resolvemos una duda concreta?</h2>

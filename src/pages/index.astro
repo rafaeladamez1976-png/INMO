@@ -6,6 +6,7 @@ import Ficha from '../components/Ficha.astro';
 import Casa from '../components/casa/Casa.astro';
 import Testimonios from '../components/Testimonios.astro';
 import Barrios from '../components/Barrios.astro';
+import Tablon from '../components/Tablon.astro';
 import {
   EMPRESA,
   OFICINAS,
@@ -121,6 +122,10 @@ const seleccion = destacados();
       {seleccion.map((inmueble, i) => <Ficha inmueble={inmueble} retraso={i * 90} />)}
     </div>
   </section>
+
+  <div class="contenedor">
+    <Tablon cuantas={3} titulo="Lo último en nuestras oficinas" />
+  </div>
 
   <Testimonios />
 

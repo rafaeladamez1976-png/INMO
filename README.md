@@ -66,6 +66,32 @@ Abre http://localhost:4322
 - **900 701 034** — general, en cabecera y pie
 - **669 152 412** — WhatsApp de citas, en el boton flotante y la agenda
 
+## Publicar una novedad en el tablon
+
+Cada oficina tiene su tablon de novedades para clientes. Para publicar una,
+se anade una entrada al principio de `src/data/novedades.ts`:
+
+```ts
+{
+  id: 'n-013',
+  oficina: 'aluche',        // o 'todas' para las cuatro
+  tipo: 'cartera',          // cartera | precio | aviso | consejo | zona
+  titulo: 'Entra un piso en la calle Illescas',
+  texto: 'Tres dormitorios, exterior y con ascensor.',
+  fecha: '2026-08-20',
+  inmueble: 'v-004',        // opcional
+},
+```
+
+Aparece sola en la pagina de esa oficina, en /noticias y, si es de las
+ultimas, en la portada. No hay panel que mantener ni base de datos que pagar.
+
+**Por que no hay mensajeria interna aqui.** Para hablar entre oficinas esta
+Google Chat, que la empresa ya tiene con Workspace, y para hablar con clientes
+esta WhatsApp, que es donde ellos escriben. Montar una mensajeria dentro de una
+web publica implicaria servidor, cuentas, permisos y responsabilidad RGPD sobre
+conversaciones de clientes, para dar algo peor de lo que ya existe.
+
 ## Cosas que no son funcionales en la maqueta
 
 - **La politica de privacidad** es un borrador que debe revisar un abogado.
