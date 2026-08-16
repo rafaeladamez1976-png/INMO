@@ -18,7 +18,7 @@ import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empr
       {
         OFICINAS.map((oficina) => (
           <div class="pie__oficina">
-            <p class="pie__titulo">{oficina.nombre}</p>
+            <p class="pie__titulo"><a class="pie__oficina-enlace" href={`/oficina/${oficina.id}`}>{oficina.nombre}</a></p>
             <address class="pie__direccion">
               {oficina.direccion}
               <br />
@@ -72,6 +72,16 @@ import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empr
   .pie__telefono a {
     color: var(--laton-claro);
     text-decoration: none;
+  }
+
+  .pie__oficina-enlace {
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-corta) var(--curva);
+  }
+
+  .pie__oficina-enlace:hover {
+    border-bottom-color: currentColor;
   }
 
   .pie__titulo {

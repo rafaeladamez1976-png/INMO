@@ -54,7 +54,7 @@ const mapa = (direccion: string) =>
             <div class="oficina__cabecera">
               <div>
                 {oficina.sede && <span class="oficina__sede">Sede central</span>}
-                <h2 class="oficina__nombre">{oficina.nombre}</h2>
+                <h2 class="oficina__nombre"><a class="oficina__enlace" href={`/oficina/${oficina.id}`}>{oficina.nombre}</a></h2>
                 <p class="oficina__barrio">{oficina.barrio}</p>
               </div>
               <span class="oficina__numero" aria-hidden="true">
@@ -79,17 +79,11 @@ const mapa = (direccion: string) =>
             <p class="oficina__email">{oficina.email}</p>
 
             <div class="oficina__acciones">
-              <a class="boton" href={mapa(oficina.direccion)} target="_blank" rel="noopener">
-                Cómo llegar
+              <a class="boton" href={`/oficina/${oficina.id}`}>
+                Ver esta oficina
               </a>
-              <a
-                class="boton boton--linea"
-                href={enlaceWhatsApp(
-                  oficina.telefonos[1],
-                  `Hola, escribo desde la web. Quería consultar sobre la oficina de ${oficina.nombre}.`,
-                )}
-              >
-                WhatsApp
+              <a class="boton boton--linea" href={mapa(oficina.direccion)} target="_blank" rel="noopener">
+                Cómo llegar
               </a>
             </div>
           </li>
@@ -209,6 +203,16 @@ const mapa = (direccion: string) =>
 
   .oficina__nombre {
     font-size: var(--t-grande);
+  }
+
+  .oficina__enlace {
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .oficina__enlace:hover {
+      color: var(--laton-hondo);
+    }
   }
 
   .oficina__barrio {

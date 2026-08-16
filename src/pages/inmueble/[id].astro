@@ -190,7 +190,7 @@ const estancias = tourDe(tipo);
 
           <div class="tarjeta__oficina">
             <p class="tarjeta__etiqueta">Lo lleva</p>
-            <p class="tarjeta__nombre">Oficina de {oficina.nombre}</p>
+            <p class="tarjeta__nombre"><a class="tarjeta__enlace-oficina" href={`/oficina/${oficina.id}`}>Oficina de {oficina.nombre}</a></p>
             <address class="tarjeta__direccion">
               {oficina.direccion}<br />
               {oficina.cp} Madrid
@@ -470,6 +470,16 @@ const estancias = tourDe(tipo);
   .tarjeta__nombre {
     margin-top: var(--e-1);
     font-weight: 700;
+  }
+
+  .tarjeta__enlace-oficina {
+    text-decoration: none;
+    border-bottom: 1px solid rgba(244, 240, 233, 0.35);
+  }
+
+  .tarjeta__enlace-oficina:hover {
+    color: var(--laton-claro);
+    border-bottom-color: var(--laton-claro);
   }
 
   .tarjeta__direccion {

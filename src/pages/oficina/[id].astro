@@ -1,0 +1,578 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Ficha from '../../components/Ficha.astro';
+import {
+  OFICINAS,
+  HORARIO,
+  EMPRESA,
+  telefonoLegible,
+  enlaceTelefono,
+  enlaceWhatsApp,
+} from '../../data/empresa';
+import { INMUEBLES, porId } from '../../data/inmuebles';
+import { BARRIOS, precioMetro } from '../../data/barrios';
+
+export function getStaticPaths() {
+  return OFICINAS.map((oficina) => ({
+    params: { id: oficina.id },
+    props: { oficina },
+  }));
+}
+
+const { oficina } = Astro.props;
+
+const fotos = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/inmuebles/*.{jpg,jpeg,png,webp}',
+  { eager: true },
+);
+const foto = fotos[`../../assets/inmuebles/${oficina.foto}.jpg`]?.default;
+
+/** Inmuebles que gestiona esta oficina. */
+const cartera = INMUEBLES.filter((i) => i.oficina === oficina.id);
+const destacado = porId(oficina.destacado);
+
+/** Datos del barrio principal, si lo tenemos comparado. */
+const barrio = BARRIOS.find((b) => b.oficina === oficina.id);
+
+const otras = OFICINAS.filter((o) => o.id !== oficina.id);
+
+const direccionCompleta = `${oficina.direccion}, ${oficina.cp} Madrid`;
+const mapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionCompleta)}`;
+const mapaIncrustado = `https://maps.google.com/maps?q=${encodeURIComponent(direccionCompleta)}&z=16&output=embed`;
+
+const mensaje = `Hola, escribo desde la web sobre la oficina de ${oficina.nombre}.`;
+---
+
+<Base
+  titulo={`Oficina de ${oficina.nombre}, ${oficina.barrio} | Umbral Inmobiliaria`}
+  descripcion={`Inmobiliaria en ${oficina.nombre} (${oficina.barrio}), ${oficina.direccion}. ${oficina.especialidad}. Abierta desde ${oficina.desde}.`}
+>
+  <div class="contenedor">
+    <nav class="miga" aria-label="Dónde estás">
+      <a href="/">Inicio</a>
+      <span aria-hidden="true">›</span>
+      <a href="/oficinas">Oficinas</a>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">{oficina.nombre}</span>
+    </nav>
+
+    <header class="cabeza">
+      <div class="cabeza__texto">
+        {oficina.sede && <p class="cabeza__sede">Sede central</p>}
+        <p class="antetitulo">{oficina.barrio} · Desde {oficina.desde}</p>
+        <h1 class="cabeza__titulo">Oficina de<br /><span class="acento">{oficina.nombre}</span></h1>
+        <p class="cabeza__especialidad">{oficina.especialidad}.</p>
+
+        <div class="cabeza__acciones">
+          <a class="boton boton--laton" href={enlaceWhatsApp(oficina.telefonos[1], mensaje)}>
+            Escribir por WhatsApp
+          </a>
+          <a class="boton boton--linea" href={enlaceTelefono(oficina.telefonos[0])}>
+            {telefonoLegible(oficina.telefonos[0])}
+          </a>
+        </div>
+      </div>
+
+      {
+        foto && (
+          <figure class="cabeza__foto">
+            <Image
+              src={foto}
+              alt={`Interior de la oficina de ${oficina.nombre}`}
+              widths={[600, 1000, 1400]}
+              sizes="(max-width: 60rem) 92vw, 34rem"
+              loading="eager"
+              class="cabeza__imagen"
+            />
+          </figure>
+        )
+      }
+    </header>
+
+    <!-- Datos prácticos -->
+    <section class="practico" aria-labelledby="titulo-practico">
+      <h2 id="titulo-practico" class="solo-lectores">Información práctica</h2>
+
+      <div class="practico__rejilla">
+        <div class="dato">
+          <h3 class="dato__titulo">Dónde</h3>
+          <address class="dato__texto">
+            {oficina.direccion}<br />
+            {oficina.cp} Madrid
+          </address>
+          <a class="dato__enlace" href={mapa} target="_blank" rel="noopener">Cómo llegar</a>
+        </div>
+
+        <div class="dato">
+          <h3 class="dato__titulo">Horario</h3>
+          <dl class="horario">
+            {
+              HORARIO.map((tramo) => (
+                <div class="horario__fila">
+                  <dt>{tramo.dias}</dt>
+                  <dd>{tramo.horas}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+
+        <div class="dato">
+          <h3 class="dato__titulo">Contacto</h3>
+          <ul class="contactos">
+            <li>
+              <a href={enlaceTelefono(oficina.telefonos[0])}>
+                {telefonoLegible(oficina.telefonos[0])}
+              </a>
+              <span>Fijo</span>
+            </li>
+            <li>
+              <a href={enlaceWhatsApp(oficina.telefonos[1], mensaje)}>
+                {telefonoLegible(oficina.telefonos[1])}
+              </a>
+              <span>WhatsApp</span>
+            </li>
+            <li>
+              <span class="contactos__email">{oficina.email}</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="dato">
+          <h3 class="dato__titulo">Equipo</h3>
+          <p class="dato__texto">{oficina.equipo}.</p>
+          <p class="dato__texto dato__texto--suave">
+            Zonas: {oficina.cubre.join(' · ')}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mapa -->
+    <section class="mapa" aria-label="Mapa de la oficina">
+      <iframe
+        src={mapaIncrustado}
+        title={`Mapa de la oficina de ${oficina.nombre}`}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </section>
+
+    <!-- El barrio -->
+    {
+      barrio && (
+        <section class="barrio" aria-labelledby="titulo-barrio">
+          <header class="barrio__cabecera">
+            <p class="antetitulo">El barrio</p>
+            <h2 id="titulo-barrio" class="barrio__titulo" data-titular>
+              Cómo se vive en {barrio.nombre}
+            </h2>
+          </header>
+
+          <div class="barrio__cuerpo">
+            <dl class="barrio__cifras">
+              <div>
+                <dt>Precio de compra</dt>
+                <dd>{precioMetro(barrio.precioVenta)}</dd>
+              </div>
+              <div>
+                <dt>Alquiler 2 dormitorios</dt>
+                <dd>{barrio.alquilerTipo} €</dd>
+              </div>
+              <div>
+                <dt>Hasta Sol</dt>
+                <dd>{barrio.minutosCentro} min</dd>
+              </div>
+            </dl>
+
+            <div class="barrio__juicio">
+              <p><strong>Lo mejor.</strong> {barrio.aFavor}</p>
+              <p class="barrio__contra"><strong>La pega.</strong> {barrio.contra}</p>
+              <a class="dato__enlace" href="/#titulo-comparador">Comparar con los otros barrios</a>
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Cartera de la oficina -->
+    {
+      cartera.length > 0 && (
+        <section class="cartera" aria-labelledby="titulo-cartera">
+          <header class="cartera__cabecera">
+            <p class="antetitulo">Su cartera</p>
+            <h2 id="titulo-cartera" class="cartera__titulo" data-titular>
+              {cartera.length === 1
+                ? 'Inmueble que gestiona esta oficina'
+                : `Los ${cartera.length} inmuebles de esta oficina`}
+            </h2>
+          </header>
+
+          <div class="cartera__rejilla">
+            {cartera.map((inmueble, i) => (
+              <Ficha inmueble={inmueble} retraso={i * 80} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Otras oficinas -->
+    <section class="otras" aria-labelledby="titulo-otras">
+      <h2 id="titulo-otras" class="otras__titulo">¿No es tu barrio?</h2>
+      <ul class="otras__lista">
+        {
+          otras.map((o) => (
+            <li>
+              <a class="otra" href={`/oficina/${o.id}`}>
+                <span class="otra__nombre">{o.nombre}</span>
+                <span class="otra__barrio">{o.barrio}</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .miga {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-2);
+    padding-block: var(--e-6) var(--e-4);
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  .miga a {
+    text-decoration: none;
+  }
+
+  /* ---- Cabeza ---- */
+
+  .cabeza {
+    display: grid;
+    gap: var(--e-8);
+    padding-block: var(--e-8) var(--e-16);
+  }
+
+  @media (min-width: 60rem) {
+    .cabeza {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--e-12);
+      align-items: center;
+    }
+  }
+
+  .cabeza__sede {
+    display: inline-block;
+    margin-bottom: var(--e-3);
+    padding: 0.2em 0.8em;
+    border-radius: var(--radio-pildora);
+    background: var(--laton);
+    color: var(--grafito);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .cabeza__titulo {
+    margin-block: var(--e-3) var(--e-4);
+    font-size: var(--t-heroe);
+  }
+
+  .acento {
+    color: var(--laton-hondo);
+    font-style: italic;
+  }
+
+  .cabeza__especialidad {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .cabeza__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    margin-top: var(--e-8);
+  }
+
+  .cabeza__foto {
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radio-grande);
+    box-shadow: 0 22px 56px var(--sombra);
+  }
+
+  .cabeza__imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: 4 / 3;
+  }
+
+  /* ---- Datos prácticos ---- */
+
+  .practico__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1px;
+    background: var(--arena-honda);
+    border-block: 1px solid var(--arena-honda);
+  }
+
+  .dato {
+    padding: var(--e-6);
+    background: var(--arena);
+  }
+
+  .dato__titulo {
+    margin-bottom: var(--e-3);
+    font-family: var(--fuente-texto);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--laton-hondo);
+  }
+
+  .dato__texto {
+    font-style: normal;
+    font-size: var(--t-pequeno);
+    line-height: 1.7;
+  }
+
+  .dato__texto--suave {
+    margin-top: var(--e-2);
+    color: var(--texto-suave);
+  }
+
+  .dato__enlace {
+    display: inline-block;
+    margin-top: var(--e-3);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    color: var(--texto);
+  }
+
+  .horario__fila {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--e-3);
+    padding-block: var(--e-1);
+    font-size: var(--t-pequeno);
+  }
+
+  .horario__fila dt {
+    color: var(--texto-suave);
+  }
+
+  .horario__fila dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .contactos li {
+    margin-bottom: var(--e-2);
+    font-size: var(--t-pequeno);
+  }
+
+  .contactos a {
+    display: block;
+    font-weight: 700;
+  }
+
+  .contactos span {
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  .contactos__email {
+    word-break: break-all;
+  }
+
+  /* ---- Mapa ---- */
+
+  .mapa {
+    margin-block: var(--e-12);
+    overflow: hidden;
+    border-radius: var(--radio-grande);
+    box-shadow: 0 12px 34px var(--sombra);
+  }
+
+  .mapa iframe {
+    display: block;
+    width: 100%;
+    height: 22rem;
+    border: 0;
+    /* El mapa de Google es muy saturado y rompe la paleta: se apaga un poco
+       para que se integre con el resto. */
+    filter: saturate(0.72) contrast(1.02);
+  }
+
+  /* ---- Barrio ---- */
+
+  .barrio {
+    margin-block: var(--e-16);
+  }
+
+  .barrio__cabecera {
+    margin-bottom: var(--e-8);
+  }
+
+  .barrio__titulo {
+    margin-top: var(--e-3);
+    font-size: var(--t-titulo);
+  }
+
+  .barrio__cuerpo {
+    display: grid;
+    gap: var(--e-8);
+  }
+
+  @media (min-width: 52rem) {
+    .barrio__cuerpo {
+      grid-template-columns: 18rem 1fr;
+      gap: var(--e-12);
+    }
+  }
+
+  .barrio__cifras {
+    display: grid;
+    gap: var(--e-4);
+    align-content: start;
+    padding: var(--e-6);
+    border-radius: var(--radio-grande);
+    background: var(--grafito);
+    color: var(--texto-claro);
+  }
+
+  .barrio__cifras dt {
+    font-size: var(--t-micro);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9a948a;
+  }
+
+  .barrio__cifras dd {
+    margin: 0;
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--laton-claro);
+  }
+
+  .barrio__juicio p {
+    margin-bottom: var(--e-4);
+    color: var(--texto-suave);
+  }
+
+  .barrio__juicio strong {
+    color: var(--texto);
+  }
+
+  .barrio__contra {
+    padding-left: var(--e-4);
+    border-left: 2px solid #d9b7a9;
+  }
+
+  /* ---- Cartera ---- */
+
+  .cartera {
+    margin-block: var(--e-16);
+  }
+
+  .cartera__cabecera {
+    margin-bottom: var(--e-8);
+  }
+
+  .cartera__titulo {
+    margin-top: var(--e-3);
+    font-size: var(--t-titulo);
+  }
+
+  .cartera__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: var(--e-6);
+  }
+
+  /* ---- Otras oficinas ---- */
+
+  .otras {
+    margin-top: var(--e-16);
+    padding-top: var(--e-8);
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .otras__titulo {
+    margin-bottom: var(--e-6);
+    font-size: var(--t-grande);
+  }
+
+  .otras__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--e-3);
+  }
+
+  .otra {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+    padding: var(--e-4) var(--e-6);
+    border: 1px solid var(--arena-honda);
+    border-radius: var(--radio);
+    text-decoration: none;
+    transition: all var(--dur-corta) var(--curva);
+  }
+
+  .otra__nombre {
+    font-weight: 700;
+  }
+
+  .otra__barrio {
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  .otra svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: var(--e-2);
+    color: var(--laton);
+    transition: transform var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .otra:hover {
+      background: var(--grafito);
+      border-color: var(--grafito);
+      color: var(--texto-claro);
+    }
+
+    .otra:hover .otra__barrio {
+      color: #cfc9bd;
+    }
+
+    .otra:hover svg {
+      transform: translateX(5px);
+    }
+  }
+</style>

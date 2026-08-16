@@ -96,7 +96,7 @@ import { OFICINAS } from '../data/empresa';
 
               {
                 oficina && (
-                  <a class="barrio__oficina" href="/oficinas">
+                  <a class="barrio__oficina" href={`/oficina/${oficina.id}`}>
                     Oficina de {oficina.nombre}
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                       <path

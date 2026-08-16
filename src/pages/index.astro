@@ -142,7 +142,12 @@ const seleccion = destacados();
         OFICINAS.map((oficina, i) => (
           <li class="oficina" data-revelar data-revelar-retraso={i * 80}>
             {oficina.sede && <span class="oficina__sede">Sede central</span>}
-            <h3 class="oficina__nombre">{oficina.nombre}</h3>
+            <h3 class="oficina__nombre">
+              <a class="oficina__enlace" href={`/oficina/${oficina.id}`}>
+                {oficina.nombre}
+                <span class="oficina__area" aria-hidden="true" />
+              </a>
+            </h3>
             <p class="oficina__barrio">{oficina.barrio}</p>
             <address class="oficina__direccion">
               {oficina.direccion}
@@ -342,6 +347,9 @@ const seleccion = destacados();
   .oficina {
     position: relative;
     padding: var(--e-6);
+    transition:
+      transform var(--dur-media) var(--curva),
+      box-shadow var(--dur-media) var(--curva);
     border: 1px solid var(--arena-honda);
     border-radius: var(--radio-grande);
     background: var(--papel);
@@ -362,6 +370,27 @@ const seleccion = destacados();
 
   .oficina__nombre {
     font-size: var(--t-medio);
+  }
+
+  .oficina__enlace {
+    text-decoration: none;
+  }
+
+  /* Area de pulsacion que cubre la tarjeta entera. */
+  .oficina__area {
+    position: absolute;
+    inset: 0;
+  }
+
+  @media (hover: hover) {
+    .oficina:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px var(--sombra);
+    }
+
+    .oficina:hover .oficina__enlace {
+      color: var(--laton-hondo);
+    }
   }
 
   .oficina__barrio {

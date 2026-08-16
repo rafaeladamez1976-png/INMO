@@ -29,7 +29,27 @@ export interface Oficina {
   sede?: boolean;
   /** Posición relativa en la maqueta 3D de la ciudad. */
   mapa: { x: number; z: number };
+
+  /** Barrios que cubre esta oficina. */
+  cubre: string[];
+  /** En qué es especialmente fuerte. */
+  especialidad: string;
+  /** Cómo es el equipo, en una frase. */
+  equipo: string;
+  /** Desde cuándo está abierta. */
+  desde: string;
+  /** Nombre del archivo de foto en src/assets/inmuebles. */
+  foto: string;
+  /** Referencia del inmueble destacado de esta oficina. */
+  destacado: string;
 }
+
+/** Horario común a las cuatro oficinas. */
+export const HORARIO = [
+  { dias: 'Lunes a viernes', horas: '10:00 – 14:00 y 17:00 – 20:00' },
+  { dias: 'Sábados', horas: '10:00 – 14:00' },
+  { dias: 'Domingos', horas: 'Cerrado' },
+];
 
 export const EMPRESA = {
   nombre: MARCA.nombre,
@@ -51,6 +71,12 @@ export const EMPRESA = {
 export const OFICINAS: Oficina[] = [
   {
     id: 'parque-europa',
+    cubre: ['Cuatro Vientos', 'Campamento', 'Águilas'],
+    especialidad: 'Chalets y vivienda familiar con jardín',
+    equipo: 'Cuatro personas, tres de ellas viviendo en el barrio',
+    desde: '2009',
+    foto: 'oficina-1',
+    destacado: 'v-001',
     nombre: 'Parque Europa',
     barrio: 'Cuatro Vientos',
     direccion: 'C/ Fuente de Lima 19, Local B',
@@ -62,6 +88,12 @@ export const OFICINAS: Oficina[] = [
   },
   {
     id: 'aluche',
+    cubre: ['Aluche', 'Campamento', 'Lucero'],
+    especialidad: 'Pisos de segunda mano y alquiler de larga duración',
+    equipo: 'Tres personas y la mayor cartera de alquiler del grupo',
+    desde: '2013',
+    foto: 'oficina-2',
+    destacado: 'v-002',
     nombre: 'Aluche',
     barrio: 'Campamento',
     direccion: 'C/ Tembleque 111',
@@ -72,6 +104,12 @@ export const OFICINAS: Oficina[] = [
   },
   {
     id: 'las-aguilas',
+    cubre: ['Las Águilas', 'Carabanchel Alto', 'Puerta Bonita'],
+    especialidad: 'Adosados y unifamiliares dentro de la ciudad',
+    equipo: 'Tres personas especializadas en obra y reforma',
+    desde: '2016',
+    foto: 'oficina-3',
+    destacado: 'v-003',
     nombre: 'Las Águilas',
     barrio: 'Carabanchel',
     direccion: 'C/ José de Cadalso 53',
@@ -82,6 +120,12 @@ export const OFICINAS: Oficina[] = [
   },
   {
     id: 'san-ignacio',
+    cubre: ['San Ignacio', 'Latina', 'Lucero'],
+    especialidad: 'Primera compra y locales comerciales',
+    equipo: 'Dos personas, la oficina más joven del grupo',
+    desde: '2021',
+    foto: 'oficina-4',
+    destacado: 'v-008',
     nombre: 'San Ignacio',
     barrio: 'Latina',
     direccion: 'C/ Oliva de Plasencia 1',
@@ -149,4 +193,9 @@ export function enlaceTelefono(numero: string): string {
 
 export function enlaceWhatsApp(numero: string, mensaje: string): string {
   return `https://wa.me/34${numero}?text=${encodeURIComponent(mensaje)}`;
+}
+
+/** Busca una oficina por su identificador. */
+export function oficinaPorId(id: string): Oficina | undefined {
+  return OFICINAS.find((o) => o.id === id);
 }
