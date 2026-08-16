@@ -36,9 +36,10 @@
   --t-pequeno: 0.88rem;
   --t-base: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
   --t-medio: clamp(1.1rem, 1.04rem + 0.32vw, 1.35rem);
-  --t-grande: clamp(1.45rem, 1.25rem + 1vw, 2.1rem);
-  --t-titulo: clamp(1.9rem, 1.4rem + 2.4vw, 3.3rem);
-  --t-heroe: clamp(2.6rem, 1.5rem + 5.4vw, 6.2rem);
+  --t-grande: clamp(1.5rem, 1.25rem + 1.2vw, 2.3rem);
+  /* Escala editorial: los titulares mandan y el resto se aparta. */
+  --t-titulo: clamp(2.1rem, 1.45rem + 3vw, 4.1rem);
+  --t-heroe: clamp(2.9rem, 1.5rem + 6.4vw, 7.4rem);
 
   --e-1: 0.25rem;
   --e-2: 0.5rem;

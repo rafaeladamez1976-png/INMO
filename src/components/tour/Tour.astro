@@ -1,17 +1,22 @@
 ---
+import type { Estancia } from '../../data/tours';
+
+interface Props {
+  estancias: Estancia[];
+}
+
+const { estancias } = Astro.props;
+const primera = estancias[0];
+
 /**
  * Tour virtual 360.
  *
+ * Las estancias llegan por props: cada tipo de inmueble tiene su recorrido, de
+ * modo que un local no enseña dormitorio y un chalet sí enseña jardín.
+ *
  * Debajo del lienzo hay siempre una fotografía normal, así que quien no reciba
- * el 3D ve la habitación igualmente. El aviso de arrastrar desaparece en cuanto
- * alguien lo hace.
+ * el 3D ve la estancia igualmente.
  */
-
-const ESTANCIAS = [
-  { id: 'salon', nombre: 'Salón' },
-  { id: 'cocina', nombre: 'Cocina' },
-  { id: 'dormitorio', nombre: 'Dormitorio' },
-];
 ---
 
 <section class="tour" data-tour aria-labelledby="titulo-tour">
@@ -23,7 +28,7 @@ const ESTANCIAS = [
 
     <nav class="tour__estancias" aria-label="Estancias">
       {
-        ESTANCIAS.map((estancia, i) => (
+        estancias.map((estancia, i) => (
           <button
             class:list={['tour__estancia', { 'tour__estancia--activa': i === 0 }]}
             type="button"
@@ -40,8 +45,8 @@ const ESTANCIAS = [
   <div class="tour__marco">
     <img
       class="tour__reserva"
-      src="/tour/salon.jpg"
-      alt="Panorámica del salón de la vivienda"
+      src={primera.imagen}
+      alt={`Panorámica del ${primera.nombre.toLowerCase()}`}
       loading="lazy"
       decoding="async"
     />
@@ -64,48 +69,30 @@ const ESTANCIAS = [
     <span class="tour__cargando" data-tour-cargando hidden>Cargando…</span>
   </div>
 
+  <script type="application/json" data-tour-datos set:html={JSON.stringify(estancias)} />
+
   <p class="tour__nota">
-    Panorámicas de ejemplo para la maqueta. En una vivienda real se capturan con
-    cámara 360 en una sola visita.
+    Panorámicas de ejemplo. En una vivienda real se capturan con cámara 360 en
+    una sola visita de media hora.
   </p>
 </section>
 
 <script>
   import type { Tour, Estancia } from './tour';
 
-  const ESTANCIAS: Estancia[] = [
-    {
-      id: 'salon',
-      nombre: 'Salón',
-      imagen: '/tour/salon.jpg',
-      saltos: [
-        { a: 'cocina', etiqueta: 'Cocina', angulo: 60, altura: -6 },
-        { a: 'dormitorio', etiqueta: 'Dormitorio', angulo: -110, altura: -6 },
-      ],
-    },
-    {
-      id: 'cocina',
-      nombre: 'Cocina',
-      imagen: '/tour/cocina.jpg',
-      saltos: [{ a: 'salon', etiqueta: 'Salón', angulo: -140, altura: -6 }],
-    },
-    {
-      id: 'dormitorio',
-      nombre: 'Dormitorio',
-      imagen: '/tour/dormitorio.jpg',
-      saltos: [{ a: 'salon', etiqueta: 'Salón', angulo: 150, altura: -6 }],
-    },
-  ];
-
   let vivo: Tour | null = null;
 
   function montar() {
     const raiz = document.querySelector<HTMLElement>('[data-tour]');
     const lienzo = raiz?.querySelector<HTMLCanvasElement>('[data-tour-lienzo]');
-    if (!raiz || !lienzo || vivo) return;
+    const datos = raiz?.querySelector<HTMLElement>('[data-tour-datos]');
+    if (!raiz || !lienzo || !datos || vivo) return;
 
-    // El tour se carga solo cuando el visitante llega a él: son tres
-    // panorámicas y no tiene sentido descargarlas si nunca baja hasta aquí.
+    const estancias = JSON.parse(datos.textContent ?? '[]') as Estancia[];
+    if (!estancias.length) return;
+
+    // El tour se carga solo cuando el visitante llega a el: son varias
+    // panoramicas y no tiene sentido descargarlas si nunca baja hasta aqui.
     const observador = new IntersectionObserver(
       async ([entrada]) => {
         if (!entrada.isIntersecting || vivo) return;
@@ -120,7 +107,7 @@ const ESTANCIAS = [
         lienzo.hidden = false;
         raiz.classList.add('tour--vivo');
 
-        vivo = crearTour(lienzo, ESTANCIAS, (id) => {
+        vivo = crearTour(lienzo, estancias, (id) => {
           for (const boton of raiz.querySelectorAll<HTMLElement>('[data-estancia]')) {
             const suya = boton.dataset.estancia === id;
             boton.classList.toggle('tour__estancia--activa', suya);
@@ -133,7 +120,6 @@ const ESTANCIAS = [
         const pista = raiz.querySelector<HTMLElement>('[data-tour-pista]');
         if (pista) pista.hidden = false;
 
-        // La pista sobra en cuanto alguien arrastra.
         lienzo.addEventListener(
           'pointerdown',
           () => {

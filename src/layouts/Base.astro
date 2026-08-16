@@ -5,6 +5,7 @@ import Cabecera from '../components/Cabecera.astro';
 import Pie from '../components/Pie.astro';
 import AvisoMaqueta from '../components/AvisoMaqueta.astro';
 import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import Grano from '../components/Grano.astro';
 import { EMPRESA } from '../data/empresa';
 
 interface Props {
@@ -56,6 +57,7 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
     </main>
     <Pie />
     <BotonWhatsApp />
+    <Grano />
 
     <script>
       import { activarAnimaciones } from '../scripts/animaciones';

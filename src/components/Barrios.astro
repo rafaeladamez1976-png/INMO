@@ -1,0 +1,332 @@
+---
+import { BARRIOS, ASPECTOS, precioMetro } from '../data/barrios';
+import { OFICINAS } from '../data/empresa';
+
+/**
+ * Comparador de barrios.
+ *
+ * Lo que ninguna inmobiliaria española tiene, y lo que de verdad busca quien
+ * se plantea comprar: no "qué piso me llevo" sino "en qué barrio quiero vivir".
+ *
+ * Cada barrio dice su pega en voz alta. Una comparativa donde los cuatro salen
+ * estupendos no la cree nadie y no sirve para decidir.
+ */
+---
+
+<section class="barrios" aria-labelledby="titulo-comparador">
+  <div class="contenedor">
+    <header class="barrios__cabecera">
+      <p class="antetitulo">Comparador</p>
+      <h2 id="titulo-comparador" class="barrios__titulo" data-titular>
+        Antes de elegir piso,<br />elige barrio
+      </h2>
+      <p class="barrios__entrada">
+        Los cuatro barrios donde trabajamos, comparados de verdad. Con lo bueno
+        y con lo que no nos gusta de cada uno.
+      </p>
+    </header>
+
+    <div class="barrios__tabla">
+      {
+        BARRIOS.map((barrio, i) => {
+          const oficina = OFICINAS.find((o) => o.id === barrio.oficina);
+          return (
+            <article class="barrio" data-revelar data-revelar-retraso={i * 90}>
+              <header class="barrio__cabeza">
+                <span class="barrio__indice" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 class="barrio__nombre">{barrio.nombre}</h3>
+                <p class="barrio__distrito">Distrito {barrio.distrito}</p>
+              </header>
+
+              <dl class="barrio__cifras">
+                <div>
+                  <dt>Compra</dt>
+                  <dd>{precioMetro(barrio.precioVenta)}</dd>
+                </div>
+                <div>
+                  <dt>Alquiler 2 dorm.</dt>
+                  <dd>{barrio.alquilerTipo} €</dd>
+                </div>
+                <div>
+                  <dt>Hasta Sol</dt>
+                  <dd>{barrio.minutosCentro} min</dd>
+                </div>
+              </dl>
+
+              <ul class="barrio__notas">
+                {
+                  ASPECTOS.map((aspecto) => {
+                    const valor = barrio[aspecto.id];
+                    return (
+                      <li class="nota">
+                        <span class="nota__nombre">{aspecto.nombre}</span>
+                        <span
+                          class="nota__barras"
+                          role="img"
+                          aria-label={`${valor} sobre 5`}
+                        >
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <span
+                              class:list={['nota__barra', { 'nota__barra--llena': n <= valor }]}
+                            />
+                          ))}
+                        </span>
+                      </li>
+                    );
+                  })
+                }
+              </ul>
+
+              <div class="barrio__juicio">
+                <p class="barrio__para">
+                  <span class="barrio__etiqueta">Encaja si</span>
+                  {barrio.paraQuien}
+                </p>
+                <p class="barrio__favor">
+                  <span class="barrio__etiqueta barrio__etiqueta--bien">Lo mejor</span>
+                  {barrio.aFavor}
+                </p>
+                <p class="barrio__contra">
+                  <span class="barrio__etiqueta barrio__etiqueta--mal">La pega</span>
+                  {barrio.contra}
+                </p>
+              </div>
+
+              {
+                oficina && (
+                  <a class="barrio__oficina" href="/oficinas">
+                    Oficina de {oficina.nombre}
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        d="M5 12h14M13 6l6 6-6 6"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </a>
+                )
+              }
+            </article>
+          );
+        })
+      }
+    </div>
+
+    <p class="barrios__fuente">
+      Precios orientativos de referencia interna. Actualizados cada trimestre
+      con operaciones cerradas en nuestras oficinas.
+    </p>
+  </div>
+</section>
+
+<style>
+  .barrios {
+    padding-block: var(--e-24);
+    background: var(--arena);
+  }
+
+  .barrios__cabecera {
+    max-width: 44rem;
+    margin-bottom: var(--e-16);
+  }
+
+  .barrios__titulo {
+    margin-block: var(--e-4) var(--e-4);
+    font-size: var(--t-titulo);
+    letter-spacing: -0.03em;
+  }
+
+  .barrios__entrada {
+    font-size: var(--t-medio);
+    color: var(--texto-suave);
+  }
+
+  .barrios__tabla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1px;
+    /* El fondo se ve por las juntas: hace de filete entre columnas, como en
+       una tabla impresa. */
+    background: var(--arena-honda);
+    border-block: 1px solid var(--arena-honda);
+  }
+
+  .barrio {
+    display: flex;
+    flex-direction: column;
+    padding: var(--e-8) var(--e-6);
+    background: var(--arena);
+    transition: background-color var(--dur-media) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .barrio:hover {
+      background: var(--papel);
+    }
+  }
+
+  .barrio__cabeza {
+    margin-bottom: var(--e-6);
+  }
+
+  .barrio__indice {
+    display: block;
+    font-family: var(--fuente-titular);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--laton);
+  }
+
+  .barrio__nombre {
+    margin-top: var(--e-2);
+    font-size: var(--t-grande);
+    letter-spacing: -0.02em;
+  }
+
+  .barrio__distrito {
+    font-size: var(--t-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .barrio__cifras {
+    display: grid;
+    gap: var(--e-2);
+    margin-bottom: var(--e-6);
+    padding-bottom: var(--e-6);
+    border-bottom: 1px solid var(--arena-honda);
+  }
+
+  .barrio__cifras > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-3);
+  }
+
+  .barrio__cifras dt {
+    font-size: var(--t-micro);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .barrio__cifras dd {
+    margin: 0;
+    font-family: var(--fuente-titular);
+    font-variation-settings: 'SOFT' 10, 'opsz' 96;
+    font-size: 1.15rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .barrio__notas {
+    display: grid;
+    gap: var(--e-2);
+    margin-bottom: var(--e-6);
+  }
+
+  .nota {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-3);
+  }
+
+  .nota__nombre {
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  .nota__barras {
+    display: flex;
+    gap: 3px;
+  }
+
+  .nota__barra {
+    width: 0.85rem;
+    height: 3px;
+    border-radius: 1px;
+    background: var(--arena-honda);
+  }
+
+  .nota__barra--llena {
+    background: var(--laton);
+  }
+
+  .barrio__juicio {
+    display: grid;
+    gap: var(--e-4);
+    margin-bottom: var(--e-6);
+    font-size: var(--t-pequeno);
+    line-height: 1.6;
+  }
+
+  .barrio__etiqueta {
+    display: block;
+    margin-bottom: 0.2em;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .barrio__etiqueta--bien {
+    color: var(--laton-hondo);
+  }
+
+  /* La pega se marca en rojo apagado: se lee como advertencia sincera, no
+     como alarma. */
+  .barrio__etiqueta--mal {
+    color: #a1553f;
+  }
+
+  .barrio__contra {
+    padding-left: var(--e-4);
+    border-left: 2px solid #d9b7a9;
+  }
+
+  .barrio__oficina {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-2);
+    margin-top: auto;
+    padding-top: var(--e-4);
+    border-top: 1px solid var(--arena-honda);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    color: var(--texto);
+  }
+
+  .barrio__oficina svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform var(--dur-corta) var(--curva);
+  }
+
+  @media (hover: hover) {
+    .barrio__oficina:hover {
+      color: var(--laton-hondo);
+    }
+
+    .barrio__oficina:hover svg {
+      transform: translateX(4px);
+    }
+  }
+
+  .barrios__fuente {
+    margin-top: var(--e-6);
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+</style>

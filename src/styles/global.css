@@ -51,9 +51,16 @@ h3 {
   font-family: var(--fuente-titular);
   font-variation-settings: 'SOFT' 20, 'WONK' 0, 'opsz' 96;
   font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  /* Interlineado cerrado y tracking negativo: asi compone una revista de
+     arquitectura, y es lo que separa un titular de un parrafo grande. */
+  line-height: 0.98;
+  letter-spacing: -0.035em;
   text-wrap: balance;
+}
+
+h3 {
+  line-height: 1.12;
+  letter-spacing: -0.02em;
 }
 
 h1 {

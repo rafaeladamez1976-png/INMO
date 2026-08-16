@@ -1,0 +1,69 @@
+---
+/**
+ * Grano de película sobre toda la web.
+ *
+ * Es el detalle que separa una pantalla de una página impresa. Sin él, los
+ * fondos planos se ven digitales; con él, el arena parece papel y el grafito
+ * parece tinta.
+ *
+ * Va como SVG en línea, no como imagen: pesa unos cientos de bytes y no
+ * cuesta ni una petición de red.
+ */
+---
+
+<div class="grano" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <filter id="ruido">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.82"
+        numOctaves="3"
+        stitchTiles="stitch"></feTurbulence>
+      <feColorMatrix type="saturate" values="0"></feColorMatrix>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#ruido)"></rect>
+  </svg>
+</div>
+
+<style>
+  .grano {
+    position: fixed;
+    inset: -50%;
+    z-index: 999;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+  }
+
+  .grano svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Deriva lentísima: el grano vivo se percibe como película, el fijo como
+     suciedad en la pantalla. */
+  @media (prefers-reduced-motion: no-preference) {
+    .grano {
+      animation: derivar 8s steps(6) infinite;
+    }
+  }
+
+  @keyframes derivar {
+    0% { transform: translate(0, 0); }
+    16% { transform: translate(-2%, -1%); }
+    33% { transform: translate(1%, -2%); }
+    50% { transform: translate(-1%, 2%); }
+    66% { transform: translate(2%, 1%); }
+    83% { transform: translate(-2%, 1%); }
+    100% { transform: translate(0, 0); }
+  }
+
+  /* En pantallas pequeñas se atenúa: sobre poco espacio ensucia. */
+  @media (max-width: 34rem) {
+    .grano {
+      opacity: 0.035;
+    }
+  }
+</style>

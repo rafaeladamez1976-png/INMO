@@ -18,6 +18,7 @@ import {
   enlaceWhatsApp,
 } from '../../data/empresa';
 import { calcular, euros } from '../../lib/hipoteca';
+import { tourDe } from '../../data/tours';
 
 export function getStaticPaths() {
   return INMUEBLES.map((inmueble) => ({
@@ -61,9 +62,8 @@ const hipoteca =
 
 const mensajeVisita = `Hola, me interesa el inmueble ${inmueble.id} (${inmueble.titulo}, ${inmueble.zona}). Quería concertar una visita.`;
 
-// El tour solo se muestra en el inmueble destacado: en una maqueta, tenerlo en
-// los doce daría a entender que todos están grabados.
-const conTour = inmueble.id === 'v-001';
+/** Recorrido 360 propio de cada tipo: un local no enseña dormitorio. */
+const estancias = tourDe(tipo);
 ---
 
 <Base
@@ -156,7 +156,7 @@ const conTour = inmueble.id === 'v-001';
           </ul>
         </section>
 
-        {conTour && <Tour />}
+        <Tour estancias={estancias} />
       </div>
 
       <!-- Columna de contacto -->
