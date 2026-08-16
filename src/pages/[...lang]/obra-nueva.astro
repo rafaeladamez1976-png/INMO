@@ -59,7 +59,8 @@ const totales = PROMOCIONES.reduce(
     <div class="promociones">
       {
         PROMOCIONES.map((promocion, i) => {
-          const foto = fotos[`../assets/inmuebles/${promocion.imagen}.jpg`]?.default;
+          // La clave tiene que coincidir con la del glob: si no, no hay foto.
+          const foto = fotos[`../../assets/inmuebles/${promocion.imagen}.jpg`]?.default;
           const estado = ESTADOS[promocion.estado];
           const d = disponibilidad(promocion);
           const oficina = OFICINAS.find((o) => o.id === promocion.oficina);
