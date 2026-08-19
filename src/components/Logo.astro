@@ -1,0 +1,33 @@
+---
+/**
+ * Logotipo GESPAIN.
+ *
+ * Es el archivo oficial de la empresa (grupogespain.com/img/header/logo.png),
+ * recortado, escalado para pantallas retina y con el fondo blanco convertido
+ * en transparencia. No es un redibujo: el trazo es el del logotipo original,
+ * con su «G»-llave, la casa y el ojo de cerradura calado.
+ *
+ * Incluye el wordmark, así que donde se ponga este logo NO hace falta repetir
+ * el nombre al lado.
+ */
+import { Image } from 'astro:assets';
+import logo from '../assets/logo-gespain.png';
+import { EMPRESA } from '../data/empresa';
+
+interface Props {
+  class?: string;
+  /** Ancho al que se pinta. El alto sale solo por proporción. */
+  ancho?: number;
+}
+
+const { class: clase, ancho = 200 } = Astro.props;
+---
+
+<Image
+  class={clase}
+  src={logo}
+  alt={EMPRESA.nombreCompleto}
+  width={ancho}
+  densities={[1, 2]}
+  loading="eager"
+/>

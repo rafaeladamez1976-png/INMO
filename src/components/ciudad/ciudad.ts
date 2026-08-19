@@ -33,7 +33,7 @@ export function crearCiudad(lienzo: HTMLCanvasElement, nivel: Nivel = 'alta'): C
   const d = DETALLE[nivel];
 
   const escena = new THREE.Scene();
-  escena.fog = new THREE.Fog(0x14171c, 16, 42);
+  escena.fog = new THREE.Fog(0x101830, 16, 42);
 
   const camara = new THREE.PerspectiveCamera(38, 1, 0.1, 90);
 
@@ -199,9 +199,9 @@ export function crearCiudad(lienzo: HTMLCanvasElement, nivel: Nivel = 'alta'): C
 
   // ---- Marcadores de las cuatro oficinas ----
   const marcadores: THREE.Group[] = [];
-  const materialMarcador = new THREE.MeshBasicMaterial({ color: 0xb8935a });
+  const materialMarcador = new THREE.MeshBasicMaterial({ color: 0x5a6fc8 });
   const materialHalo = new THREE.MeshBasicMaterial({
-    color: 0xd8b984,
+    color: 0x8fa0e0,
     transparent: true,
     opacity: 0.28,
   });
@@ -228,7 +228,7 @@ export function crearCiudad(lienzo: HTMLCanvasElement, nivel: Nivel = 'alta'): C
     const anillo = new THREE.Mesh(
       new THREE.RingGeometry(0.4, 0.52, 28),
       new THREE.MeshBasicMaterial({
-        color: 0xb8935a,
+        color: 0x5a6fc8,
         transparent: true,
         opacity: 0.5,
         side: THREE.DoubleSide,

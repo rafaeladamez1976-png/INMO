@@ -1,6 +1,7 @@
 ---
 import { EMPRESA, OFICINAS, telefonoLegible, enlaceTelefono } from '../data/empresa';
 import { textos, ruta as enlaceDe, type Idioma } from '../i18n';
+import Logo from './Logo.astro';
 
 interface Props {
   idioma?: Idioma;
@@ -14,7 +15,11 @@ const t = textos(idioma);
   <div class="contenedor">
     <div class="pie__rejilla">
       <div class="pie__marca">
-        <p class="pie__nombre">{EMPRESA.nombre}</p>
+        <!-- El logotipo es azul sobre blanco: sobre el marino del pie va en
+             su placa blanca, como el logo impreso. -->
+        <span class="pie__placa">
+          <Logo class="pie__logo" ancho={220} />
+        </span>
         <p class="pie__descriptor">{EMPRESA.descriptor}</p>
         <p class="pie__telefono">
           <a href={enlaceTelefono(EMPRESA.telefonoGratuito)}>
@@ -62,10 +67,19 @@ const t = textos(idioma);
     gap: var(--e-8);
   }
 
-  .pie__nombre {
-    font-family: var(--fuente-titular);
-    font-size: 1.7rem;
-    font-weight: 600;
+  .pie__placa {
+    display: inline-grid;
+    place-items: center;
+    padding: var(--e-3) var(--e-4);
+    margin-bottom: var(--e-4);
+    border-radius: var(--radio-grande);
+    background: #fff;
+  }
+
+  /* :global porque la imagen la pinta el componente Logo. */
+  .pie__placa :global(.pie__logo) {
+    width: auto;
+    height: 3.4rem;
   }
 
   .pie__descriptor {
@@ -124,7 +138,7 @@ const t = textos(idioma);
     max-width: none;
     margin-top: var(--e-16);
     padding-top: var(--e-6);
-    border-top: 1px solid rgba(244, 240, 233, 0.14);
+    border-top: 1px solid rgba(246, 248, 252, 0.14);
     font-size: var(--t-micro);
     opacity: 0.6;
   }

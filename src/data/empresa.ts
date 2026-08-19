@@ -1,21 +1,16 @@
 /**
- * Datos de la maqueta.
+ * Datos de la empresa.
  *
- * MAQUETA DE DEMOSTRACIÓN. El nombre comercial es inventado a propósito, para
- * que quede claro que esto no es la web de nadie ni la suplanta.
- *
- * Las oficinas, teléfonos y zonas sí son los reales del negocio al que se le
- * va a enseñar, para que reconozca su empresa de un vistazo. Los datos de
- * contacto de una empresa son información factual y no propiedad intelectual;
- * sus textos de marketing y sus fotografías sí lo son, y por eso aquí no hay
- * ni uno solo: todo lo que se lee está escrito de cero para esta maqueta.
+ * Marca real del cliente: GESPAIN Actividades Inmobiliarias
+ * (grupogespain.com). Las oficinas, teléfonos y zonas son los reales. Los
+ * inmuebles siguen siendo ejemplos de demostración y la web lo avisa.
  *
  * Para cambiar el nombre comercial basta con tocar MARCA, aquí debajo.
  */
 
 const MARCA = {
-  nombre: 'Umbral',
-  descriptor: 'Inmobiliaria',
+  nombre: 'Gespain',
+  descriptor: 'Actividades Inmobiliarias',
 } as const;
 
 export interface Oficina {
@@ -59,7 +54,7 @@ export const EMPRESA = {
 
   telefonoGratuito: '900701034',
   telefonoMovil: '648900215',
-  emailGeneral: 'info@umbralinmobiliaria.es',
+  emailGeneral: 'info@grupogespain.com',
 
   /** WhatsApp de citas: el que atiende la agenda. */
   whatsappCitas: '669152412',
@@ -82,7 +77,7 @@ export const OFICINAS: Oficina[] = [
     direccion: 'C/ Fuente de Lima 19, Local B',
     cp: '28024',
     telefonos: ['917060416', '615750579'],
-    email: 'info@umbralinmobiliaria.es',
+    email: 'info@grupogespain.com',
     sede: true,
     mapa: { x: -3.2, z: -2.4 },
   },
@@ -99,7 +94,7 @@ export const OFICINAS: Oficina[] = [
     direccion: 'C/ Tembleque 111',
     cp: '28024',
     telefonos: ['915099717', '660857803'],
-    email: 'campamento@umbralinmobiliaria.es',
+    email: 'campamento@grupogespain.com',
     mapa: { x: 2.6, z: -3.1 },
   },
   {
@@ -115,7 +110,7 @@ export const OFICINAS: Oficina[] = [
     direccion: 'C/ José de Cadalso 53',
     cp: '28044',
     telefonos: ['911377269', '648714915'],
-    email: 'lasaguilas@umbralinmobiliaria.es',
+    email: 'lasaguilas@grupogespain.com',
     mapa: { x: -2.1, z: 3.0 },
   },
   {
@@ -131,7 +126,7 @@ export const OFICINAS: Oficina[] = [
     direccion: 'C/ Oliva de Plasencia 1',
     cp: '28044',
     telefonos: ['910149563', '638499936'],
-    email: 'sanignacio@umbralinmobiliaria.es',
+    email: 'sanignacio@grupogespain.com',
     mapa: { x: 3.4, z: 2.2 },
   },
 ];

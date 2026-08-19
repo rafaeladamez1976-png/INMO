@@ -114,7 +114,7 @@ export const es = {
       antetitulo: 'Nuestro territorio',
       titulo: 'Trabajamos donde vives',
       entrada:
-        'Sobrevuela nuestros cuatro barrios. Cada aguja dorada es una oficina con la puerta abierta.',
+        'Sobrevuela nuestros cuatro barrios. Cada aguja azul es una oficina con la puerta abierta.',
       pista: 'Baja para sobrevolar',
     },
     destacados: {
@@ -202,9 +202,9 @@ export const es = {
   tour: {
     antetitulo: 'Visita virtual',
     titulo: 'Entra sin moverte de casa',
-    arrastra: 'Arrastra para mirar',
+    arrastra: 'Arrastra para mirar · rueda para acercar',
     empezar: 'Empezar la visita',
-    pie: 'Panorámicas de ejemplo. En una vivienda real se capturan con cámara 360 en una sola visita de media hora.',
+    pie: 'Vistas de ejemplo. En una vivienda real se capturan con cámara 360 en una sola visita de media hora, y entonces el recorrido gira por completo.',
   },
 
   fotos: 'Fotografías del inmueble',

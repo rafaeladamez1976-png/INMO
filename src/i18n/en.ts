@@ -118,7 +118,7 @@ export const en: Textos = {
       antetitulo: 'Our patch',
       titulo: 'We work where you live',
       entrada:
-        'Fly over our four neighbourhoods. Each brass spire is an office with its door open.',
+        'Fly over our four neighbourhoods. Each blue spire is an office with its door open.',
       pista: 'Scroll to fly over',
     },
     destacados: {
@@ -207,9 +207,9 @@ export const en: Textos = {
   tour: {
     antetitulo: 'Virtual tour',
     titulo: 'Step inside without leaving home',
-    arrastra: 'Drag to look around',
+    arrastra: 'Drag to look · scroll to zoom',
     empezar: 'Start the tour',
-    pie: 'Sample panoramas. In a real home these are shot with a 360 camera in a single half-hour visit.',
+    pie: 'Sample views. In a real home these are shot with a 360 camera in a single half-hour visit, and the tour then turns all the way around.',
   },
 
   fotos: 'Photographs of the property',

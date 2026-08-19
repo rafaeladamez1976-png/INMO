@@ -1,33 +1,38 @@
 /*
-  Sistema visual de la maqueta.
+  Sistema visual de la marca GESPAIN.
 
-  Paleta de inmobiliaria premium: grafito profundo como base, arena cálida como
-  papel y latón como acento. Nada de azul corporativo ni degradados morados,
-  que es donde acaban todas las webs del sector.
+  El azul del logotipo manda: es el acento de toda la web. La base es un azul
+  marino casi negro (el mismo azul, oscurecido) y el papel es un blanco frío
+  con un punto de azul, para que las fotografías y el logo respiren.
+
+  Nota de mantenimiento: los nombres de los tokens (--laton, --grafito,
+  --arena) se conservan de la primera maqueta para no tocar cada componente.
+  Hoy «latón» ES el azul Gespain y «arena» es el porcelana frío.
 */
 
 :root {
-  --grafito: #14171c;
-  --grafito-medio: #232830;
-  --grafito-suave: #3c434f;
+  --grafito: #1c2554;
+  --grafito-medio: #27336e;
+  --grafito-suave: #46538f;
 
-  --arena: #f4f0e9;
-  --arena-honda: #e6dfd3;
-  --papel: #fbf9f5;
+  --arena: #f6f8fc;
+  --arena-honda: #dbe2f0;
+  --papel: #ffffff;
 
-  --laton: #b8935a;
-  --laton-claro: #d8b984;
-  --laton-hondo: #8f6f3d;
+  /* Azul medido pixel a pixel sobre el logotipo oficial. */
+  --laton: #2e4591;
+  --laton-claro: #8fa0e0;
+  --laton-hondo: #223470;
 
   --oliva: #5c6b4a;
   --terracota: #a55c42;
 
-  --texto: #14171c;
-  --texto-suave: #5a616c;
-  --texto-claro: #f4f0e9;
+  --texto: #182046;
+  --texto-suave: #4f5a80;
+  --texto-claro: #f6f8fc;
 
-  --sombra: rgba(20, 23, 28, 0.1);
-  --sombra-honda: rgba(20, 23, 28, 0.28);
+  --sombra: rgba(24, 32, 70, 0.1);
+  --sombra-honda: rgba(24, 32, 70, 0.28);
 
   --fuente-titular: 'Fraunces Variable', Georgia, serif;
   --fuente-texto: 'Karla', system-ui, sans-serif;

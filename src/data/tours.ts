@@ -33,11 +33,16 @@ function recorrido(estancias: Array<{ id: string; nombre: string }>): Estancia[]
     const siguiente = estancias[(i + 1) % estancias.length];
     const anterior = estancias[(i - 1 + estancias.length) % estancias.length];
 
+    /*
+     * Los ángulos caen dentro del arco que abarca la fotografía (unos 124
+     * grados). Antes uno de ellos iba a -125, o sea justo a la espalda: con
+     * el visor de 360 quedaba detrás y no se encontraba nunca.
+     */
     if (siguiente.id !== estancia.id) {
-      saltos.push({ a: siguiente.id, etiqueta: siguiente.nombre, angulo: 55, altura: -6 });
+      saltos.push({ a: siguiente.id, etiqueta: siguiente.nombre, angulo: 38, altura: -6 });
     }
     if (anterior.id !== estancia.id && anterior.id !== siguiente.id) {
-      saltos.push({ a: anterior.id, etiqueta: anterior.nombre, angulo: -125, altura: -6 });
+      saltos.push({ a: anterior.id, etiqueta: anterior.nombre, angulo: -38, altura: -6 });
     }
 
     return {

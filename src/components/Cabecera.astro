@@ -2,6 +2,7 @@
 import { EMPRESA, telefonoLegible, enlaceTelefono } from '../data/empresa';
 import { PRINCIPALES, SECUNDARIOS, LEGALES } from '../data/navegacion';
 import { textos, ruta as enlaceDe, mismaPaginaEn, type Idioma } from '../i18n';
+import Logo from './Logo.astro';
 
 interface Props {
   idioma?: Idioma;
@@ -37,19 +38,11 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
 
 <header class="cabecera">
   <div class="contenedor cabecera__interior">
-    <a class="marca" href={enlaceDe(idioma, '/')}>
-      <svg class="marca__icono" viewBox="0 0 32 32" aria-hidden="true">
-        <path
-          d="M4 15 16 5l12 10v13a1 1 0 0 1-1 1h-7v-9h-8v9H5a1 1 0 0 1-1-1z"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linejoin="round"></path>
-      </svg>
-      <span class="marca__texto">
-        <span class="marca__nombre">{EMPRESA.nombre}</span>
-        <span class="marca__bajada">{EMPRESA.descriptor}</span>
-      </span>
+    <a class="marca" href={enlaceDe(idioma, '/')} aria-label={EMPRESA.nombreCompleto}>
+      <!-- El logotipo ya trae el nombre dentro: al lado solo va el
+           descriptor, para no escribir «Gespain» dos veces. -->
+      <Logo class="marca__logo" ancho={190} />
+      <span class="marca__bajada">{EMPRESA.descriptor}</span>
     </a>
 
     <div class="cabecera__acciones">
@@ -172,7 +165,10 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
 <!-- Menú de móvil: todas las secciones, sin nada escondido -->
 <div class="panel" id="menu-movil" data-panel hidden>
   <div class="panel__cabeza">
-    <p class="panel__marca">{EMPRESA.nombre}</p>
+    <!-- Sobre el marino del panel, el logo azul va en su placa blanca. -->
+    <span class="panel__placa">
+      <Logo class="panel__logo" ancho={180} />
+    </span>
     <button class="panel__cerrar" type="button" data-cerrar aria-label={t.nav.cerrar}>
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -347,7 +343,8 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
     position: sticky;
     top: 0;
     z-index: 30;
-    background: rgba(244, 240, 233, 0.95);
+    /* Blanco puro: el logo azul sobre blanco, como manda la marca. */
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--arena-honda);
     transition:
@@ -371,29 +368,40 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
     line-height: 1;
   }
 
-  .marca__icono {
-    width: 1.9rem;
-    height: 1.9rem;
-    color: var(--laton);
+  /* :global porque la imagen la pinta el componente Logo, y el estilo con
+     ámbito de Astro no alcanza dentro de otro componente. */
+  .marca :global(.marca__logo) {
+    width: auto;
+    /* Alto pensado para que se lea «GESPAIN» dentro del logotipo. */
+    height: 3.3rem;
     flex-shrink: 0;
+    transition: height var(--dur-media) var(--curva);
   }
 
-  .marca__nombre {
-    display: block;
-    font-family: var(--fuente-titular);
-    font-variation-settings: 'SOFT' 10, 'opsz' 96;
-    font-size: 1.45rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+  /* Al compactarse la cabecera, el logotipo encoge con ella. */
+  :global(.cabecera--compacta) .marca :global(.marca__logo) {
+    height: 2.6rem;
   }
 
   .marca__bajada {
     display: block;
-    margin-top: 0.2em;
+    padding-left: var(--e-3);
+    border-left: 1px solid var(--arena-honda);
     font-size: 0.55rem;
-    letter-spacing: 0.26em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
     color: var(--laton-hondo);
+  }
+
+  /* En pantalla estrecha manda el logotipo: el descriptor sobra. */
+  @media (max-width: 42rem) {
+    .marca__bajada {
+      display: none;
+    }
+
+    .marca :global(.marca__logo) {
+      height: 2.2rem;
+    }
   }
 
   .cabecera__acciones {
@@ -462,7 +470,7 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
     padding-inline: 0.25em;
     border-radius: var(--radio-pildora);
     background: var(--laton);
-    color: var(--grafito);
+    color: #fff;
     font-size: 0.62rem;
     font-weight: 700;
   }
@@ -475,8 +483,8 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
     min-height: 2.6rem;
     padding: var(--e-2) var(--e-4);
     border-radius: var(--radio-pildora);
-    background: var(--grafito);
-    color: var(--texto-claro);
+    background: var(--laton);
+    color: #fff;
     font-size: var(--t-pequeno);
     font-weight: 700;
     text-decoration: none;
@@ -491,8 +499,8 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
 
   @media (hover: hover) {
     .telefono:hover {
-      background: var(--laton);
-      color: var(--grafito);
+      background: var(--laton-hondo);
+      color: #fff;
     }
   }
 
@@ -699,14 +707,20 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
     align-items: center;
     justify-content: space-between;
     padding: var(--e-4) var(--e-6);
-    border-bottom: 1px solid rgba(244, 240, 233, 0.16);
+    border-bottom: 1px solid rgba(246, 248, 252, 0.16);
   }
 
-  .panel__marca {
-    font-family: var(--fuente-titular);
-    font-variation-settings: 'SOFT' 10, 'opsz' 96;
-    font-size: 1.5rem;
-    font-weight: 600;
+  .panel__placa {
+    display: inline-grid;
+    place-items: center;
+    padding: var(--e-2) var(--e-3);
+    border-radius: var(--radio);
+    background: #fff;
+  }
+
+  .panel__placa :global(.panel__logo) {
+    width: auto;
+    height: 2.1rem;
   }
 
   .panel__cerrar {
@@ -714,7 +728,7 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
     place-items: center;
     width: 2.8rem;
     height: 2.8rem;
-    border: 1px solid rgba(244, 240, 233, 0.28);
+    border: 1px solid rgba(246, 248, 252, 0.28);
     border-radius: 50%;
     background: none;
     color: inherit;
@@ -742,13 +756,13 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
 
   .panel__lista {
     margin-bottom: var(--e-8);
-    border-top: 1px solid rgba(244, 240, 233, 0.14);
+    border-top: 1px solid rgba(246, 248, 252, 0.14);
   }
 
   .panel__enlace {
     display: block;
     padding-block: var(--e-4);
-    border-bottom: 1px solid rgba(244, 240, 233, 0.14);
+    border-bottom: 1px solid rgba(246, 248, 252, 0.14);
     text-decoration: none;
   }
 
@@ -765,7 +779,7 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
     margin-top: 0.15em;
     font-style: normal;
     font-size: var(--t-micro);
-    color: #9a948a;
+    color: #8d96b4;
   }
 
   .panel__enlace--activa span {
@@ -774,7 +788,7 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
 
   .panel__pie {
     padding-top: var(--e-6);
-    border-top: 1px solid rgba(244, 240, 233, 0.16);
+    border-top: 1px solid rgba(246, 248, 252, 0.16);
   }
 
   .panel__cta {
@@ -799,6 +813,6 @@ const etiquetaOtro = otro === 'en' ? 'EN' : 'ES';
   }
 
   .panel__legal a {
-    color: #9a948a;
+    color: #8d96b4;
   }
 </style>

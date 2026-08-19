@@ -7,3 +7,6 @@ dist/
 # Claves y configuracion local: nunca al repositorio
 .mcp.json
 .env*
+
+# Configuracion local de herramientas
+.claude/

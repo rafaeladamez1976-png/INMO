@@ -174,6 +174,7 @@ ol {
 
 /* ---- Botones ---- */
 
+/* Los botones van en el azul del logotipo: es el color de la marca. */
 .boton {
   display: inline-flex;
   align-items: center;
@@ -183,8 +184,8 @@ ol {
   padding: var(--e-3) var(--e-6);
   border: 0;
   border-radius: var(--radio);
-  background: var(--grafito);
-  color: var(--texto-claro);
+  background: var(--laton);
+  color: #fff;
   font-weight: 700;
   font-size: var(--t-pequeno);
   letter-spacing: 0.03em;
@@ -197,19 +198,19 @@ ol {
 
 @media (hover: hover) {
   .boton:hover {
-    background: var(--grafito-medio);
+    background: var(--laton-hondo);
     transform: translateY(-2px);
   }
 }
 
 .boton--laton {
   background: var(--laton);
-  color: var(--grafito);
+  color: #fff;
 }
 
 @media (hover: hover) {
   .boton--laton:hover {
-    background: var(--laton-claro);
+    background: var(--laton-hondo);
   }
 }
 
@@ -236,7 +237,7 @@ ol {
   font-weight: 700;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--laton-hondo);
+  color: var(--laton);
 }
 
 .antetitulo::before {
