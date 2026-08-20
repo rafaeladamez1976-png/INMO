@@ -141,6 +141,12 @@ export const es = {
     oMas: 'o más',
     precioMaximo: 'Precio máximo',
     limpiar: 'Quitar filtros',
+    orden: 'Ordenar por',
+    ordenRelevancia: 'Los últimos',
+    ordenPrecioAsc: 'Precio: de menor a mayor',
+    ordenPrecioDesc: 'Precio: de mayor a menor',
+    ordenMetros: 'Superficie',
+    ordenMetroUtil: 'Precio por m²',
     uno: '1 inmueble',
     varios: 'inmuebles',
     vacioAntes: 'No hay nada con esos filtros. Prueba a ampliar el precio o la zona, o',
@@ -205,6 +211,49 @@ export const es = {
     arrastra: 'Arrastra para mirar · rueda para acercar',
     empezar: 'Empezar la visita',
     pie: 'Vistas de ejemplo. En una vivienda real se capturan con cámara 360 en una sola visita de media hora, y entonces el recorrido gira por completo.',
+  },
+
+  comparar: {
+    antetitulo: 'Comparador',
+    titulo: 'Uno al lado del otro',
+    descripcion:
+      'Compara los inmuebles que has guardado: precio, superficie, precio por metro y consumo, en la misma pantalla.',
+    entrada:
+      'Se comparan los inmuebles que tengas guardados. Lo mejor de cada fila va marcado, pero el barrio y la luz no salen en ninguna tabla: eso se ve en la visita.',
+    vacioTitulo: 'Aún no has guardado nada',
+    vacioTexto:
+      'Guarda inmuebles con el corazón y vuelve aquí para verlos comparados.',
+    vacioBoton: 'Ver viviendas en venta',
+    unoTitulo: 'Solo tienes uno guardado',
+    unoTexto: 'Guarda al menos dos inmuebles para poder compararlos.',
+    filas: {
+      precio: 'Precio',
+      metros: 'Superficie',
+      metroUtil: 'Precio por m²',
+      habitaciones: 'Habitaciones',
+      banos: 'Baños',
+      planta: 'Planta',
+      energia: 'Energía',
+      zona: 'Zona',
+    },
+    mejor: 'Mejor valor de la fila',
+    quitar: 'Quitar de la comparación',
+  },
+
+  visor: {
+    abrir: 'Ver todas las fotos',
+    cerrar: 'Cerrar',
+    anterior: 'Foto anterior',
+    siguiente: 'Foto siguiente',
+    de: 'de',
+    ayuda: 'Flechas para pasar · doble clic para acercar · Esc para salir',
+  },
+
+  compartir: {
+    accion: 'Compartir este inmueble',
+    copiado: 'Enlace copiado',
+    mensaje: (titulo: string, precio: string, referencia: string) =>
+      `${titulo} — ${precio}. Referencia ${referencia}.`,
   },
 
   fotos: 'Fotografías del inmueble',

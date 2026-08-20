@@ -73,6 +73,17 @@ const maximo = Math.max(...precios);
           }
         </select>
       </label>
+
+      <label class="filtro">
+        <span class="filtro__nombre">{t.orden}</span>
+        <select class="filtro__control" name="orden">
+          <option value="">{t.ordenRelevancia}</option>
+          <option value="precio-asc">{t.ordenPrecioAsc}</option>
+          <option value="precio-desc">{t.ordenPrecioDesc}</option>
+          <option value="metros">{t.ordenMetros}</option>
+          <option value="metro-util">{t.ordenMetroUtil}</option>
+        </select>
+      </label>
     </div>
 
     <label class="filtro filtro--precio">
@@ -106,6 +117,7 @@ const maximo = Math.max(...precios);
           data-zona={inmueble.zona}
           data-habitaciones={inmueble.habitaciones}
           data-precio={inmueble.precio}
+          data-metros={inmueble.metros}
         >
           <Ficha inmueble={inmueble} retraso={(i % 3) * 80} idioma={idioma} />
         </div>

@@ -113,11 +113,6 @@ ol {
   list-style: none;
 }
 
-:focus-visible {
-  outline: 3px solid var(--laton);
-  outline-offset: 3px;
-}
-
 /* ---- Estructura ---- */
 
 .contenedor {
@@ -344,4 +339,198 @@ ol {
   transition:
     background-color var(--dur-corta) var(--curva),
     transform 380ms var(--curva);
+}
+
+/* ---- Acabado de marca ---- */
+
+/*
+ * Detalles que no se piden pero se notan: el texto seleccionado, la barra de
+ * desplazamiento y los controles de formulario salen en el azul de Gespain en
+ * lugar del azul del sistema, que es de otra marca.
+ */
+
+::selection {
+  background: var(--laton);
+  color: #fff;
+}
+
+:root {
+  /* Casillas, radios y barras nativas en el color de la casa. */
+  accent-color: var(--laton);
+  scrollbar-color: var(--laton-claro) var(--arena-honda);
+}
+
+/* WebKit no entiende scrollbar-color, así que va aparte. */
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--arena-honda);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid var(--arena-honda);
+    border-radius: var(--radio-pildora);
+    background: var(--laton-claro);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--laton);
+  }
+}
+
+/*
+ * El foco del teclado, visible de verdad. Dos sombras en lugar de un borde:
+ * así se ve tanto sobre fondo claro como sobre el azul marino del pie, sin
+ * mover ni un píxel el elemento enfocado.
+ */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--papel),
+    0 0 0 4px var(--laton);
+  border-radius: var(--radio);
+}
+
+/* ---- Impresión ---- */
+
+/*
+ * Ficha imprimible.
+ *
+ * En una inmobiliaria se imprimen fichas todos los días: para el escaparate,
+ * para dársela al cliente en la visita y para el archivo de la operación. Sin
+ * esto salía la web entera, con el menú, el pie, el botón de WhatsApp y las
+ * fotos recortadas en negro, gastando tinta en lo que no interesa.
+ *
+ * Se imprime lo que sirve en papel: título, precio, datos, descripción,
+ * características y la oficina que lo lleva.
+ */
+@media print {
+  /* Fuera todo lo que solo tiene sentido en pantalla. */
+  .cabecera,
+  .nav,
+  .panel,
+  .pie,
+  .flotante,
+  .grano,
+  .avance,
+  .aviso,
+  .saltar,
+  .acciones,
+  .tour,
+  .parecidos,
+  .ficha__paso,
+  .ficha__puntos,
+  .favorito,
+  .galeria__todas,
+  .galeria__lupa,
+  .visor,
+  canvas {
+    display: none !important;
+  }
+
+  /* Tinta: fondo blanco y texto negro, sin sombras ni velos. */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+
+  /* La galería se reduce a las cuatro primeras, en una fila. */
+  .galeria {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: auto !important;
+    gap: 0.3cm;
+    margin-bottom: 0.6cm;
+  }
+
+  .galeria__hueco {
+    aspect-ratio: 4 / 3 !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    break-inside: avoid;
+  }
+
+  .galeria__hueco:nth-child(n + 5) {
+    display: none;
+  }
+
+  /* Nada de titulares gigantes: en papel se come media hoja. */
+  h1 {
+    font-size: 20pt;
+  }
+
+  h2 {
+    font-size: 14pt;
+  }
+
+  h3 {
+    font-size: 12pt;
+  }
+
+  /* Un apartado no se parte entre dos hojas si cabe entero. */
+  .apartado,
+  .caracteristicas,
+  .datos,
+  .energia,
+  .gastos {
+    break-inside: avoid;
+  }
+
+  /* En papel el enlace no se puede pulsar: se escribe la dirección al lado. */
+  #contenido a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 9pt;
+    word-break: break-all;
+  }
+
+  /* Para volver a encontrar el inmueble desde la hoja impresa. */
+  main::after {
+    content: 'Gespain Actividades Inmobiliarias · ' attr(data-url);
+    display: block;
+    margin-top: 0.8cm;
+    padding-top: 0.3cm;
+    border-top: 1px solid #999;
+    font-size: 9pt;
+  }
+}
+
+/* Confirmación al copiar el enlace de un inmueble. */
+.acciones--hecho {
+  position: relative;
+  background: var(--laton) !important;
+  color: #fff !important;
+}
+
+.acciones--hecho::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  z-index: 5;
+  padding: var(--e-2) var(--e-3);
+  border-radius: var(--radio);
+  background: var(--grafito);
+  color: var(--texto-claro);
+  font-size: var(--t-micro);
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
 }

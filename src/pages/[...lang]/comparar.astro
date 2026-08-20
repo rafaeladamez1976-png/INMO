@@ -1,0 +1,336 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Energia from '../../components/Energia.astro';
+import { INMUEBLES, TIPOS } from '../../data/inmuebles';
+import { EMPRESA } from '../../data/empresa';
+import { textos, ruta as enlaceDe, rutasDeIdioma, type Idioma } from '../../i18n';
+import { tituloDe, tipoDe, precioDe, plantaDe } from '../../i18n/datos';
+
+export function getStaticPaths() {
+  return rutasDeIdioma();
+}
+
+const { idioma } = Astro.props as { idioma: Idioma };
+const todo = textos(idioma);
+const t = todo.comparar;
+
+/**
+ * Comparador.
+ *
+ * Quien busca casa acaba con tres o cuatro candidatas y una libreta. Ponerlas
+ * en columnas, con el mejor dato de cada fila marcado, es la diferencia entre
+ * decidir y seguir dándole vueltas.
+ *
+ * Mismo método que en favoritos: se pintan todas las columnas y el navegador
+ * esconde las que no estén guardadas. Sin servidor, sin cuenta y sin datos
+ * personales que custodiar.
+ */
+
+const fotos = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/inmuebles/*.{jpg,jpeg,png,webp}',
+  { eager: true },
+);
+
+const columnas = INMUEBLES.map((inmueble) => ({
+  inmueble,
+  foto: fotos[`../../assets/inmuebles/${inmueble.imagen}.jpg`]?.default,
+  metroUtil: inmueble.metros > 0 ? Math.round(inmueble.precio / inmueble.metros) : 0,
+}));
+
+const numero = (n: number) =>
+  idioma === 'en' ? n.toLocaleString('en-GB') : n.toLocaleString('es-ES');
+---
+
+<Base
+  idioma={idioma}
+  titulo={`${t.titulo} | ${EMPRESA.nombreCompleto}`}
+  descripcion={t.descripcion}
+>
+  <div class="contenedor">
+    <header class="portadilla" data-revelar>
+      <p class="antetitulo">{t.antetitulo}</p>
+      <h1>{t.titulo}</h1>
+      <p class="portadilla__entrada">{t.entrada}</p>
+    </header>
+
+    <section
+      class="comparador"
+      data-comparador
+      data-idioma={idioma}
+      data-texto-mejor={t.mejor}
+    >
+      <!-- Sin nada guardado. -->
+      <div class="hueco" data-vacio hidden>
+        <h2>{t.vacioTitulo}</h2>
+        <p>{t.vacioTexto}</p>
+        <a class="boton" href={enlaceDe(idioma, '/venta')}>{t.vacioBoton}</a>
+      </div>
+
+      <!-- Con uno solo no hay nada que comparar. -->
+      <div class="hueco" data-uno hidden>
+        <h2>{t.unoTitulo}</h2>
+        <p>{t.unoTexto}</p>
+        <a class="boton" href={enlaceDe(idioma, '/venta')}>{t.vacioBoton}</a>
+      </div>
+
+      <div class="tabla" data-tabla hidden>
+        <div class="tabla__pista">
+          {
+            columnas.map(({ inmueble, foto, metroUtil }) => (
+              <article
+                class="columna"
+                data-columna={inmueble.id}
+                data-precio={inmueble.precio}
+                data-metros={inmueble.metros}
+                data-metro-util={metroUtil}
+                data-habitaciones={inmueble.habitaciones}
+                data-banos={inmueble.banos}
+                hidden
+              >
+                <div class="columna__foto">
+                  {foto && (
+                    <Image
+                      src={foto}
+                      alt={tituloDe(inmueble, idioma)}
+                      widths={[300, 500]}
+                      sizes="16rem"
+                      loading="lazy"
+                      class="columna__imagen"
+                    />
+                  )}
+                  <button
+                    class="columna__quitar"
+                    type="button"
+                    data-favorito={inmueble.id}
+                    aria-pressed="true"
+                    aria-label={t.quitar}
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        d="m6 6 12 12M18 6 6 18"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <h2 class="columna__titulo">
+                  <a href={enlaceDe(idioma, `/inmueble/${inmueble.id}`)}>
+                    {tituloDe(inmueble, idioma)}
+                  </a>
+                </h2>
+                <p class="columna__tipo">{tipoDe(inmueble.tipo, TIPOS[inmueble.tipo], idioma)}</p>
+
+                <dl class="columna__datos">
+                  <div class="dato" data-dato="precio">
+                    <dt>{t.filas.precio}</dt>
+                    <dd>{precioDe(inmueble.precio, idioma)}</dd>
+                  </div>
+
+                  <div class="dato" data-dato="metros">
+                    <dt>{t.filas.metros}</dt>
+                    <dd>{inmueble.metros} m²</dd>
+                  </div>
+
+                  <div class="dato" data-dato="metro-util">
+                    <dt>{t.filas.metroUtil}</dt>
+                    <dd>{metroUtil > 0 ? `${numero(metroUtil)} €` : '—'}</dd>
+                  </div>
+
+                  <div class="dato" data-dato="habitaciones">
+                    <dt>{t.filas.habitaciones}</dt>
+                    <dd>{inmueble.habitaciones > 0 ? inmueble.habitaciones : '—'}</dd>
+                  </div>
+
+                  <div class="dato" data-dato="banos">
+                    <dt>{t.filas.banos}</dt>
+                    <dd>{inmueble.banos}</dd>
+                  </div>
+
+                  <div class="dato">
+                    <dt>{t.filas.planta}</dt>
+                    <dd>{inmueble.planta ? plantaDe(inmueble.planta, idioma) : '—'}</dd>
+                  </div>
+
+                  <div class="dato">
+                    <dt>{t.filas.energia}</dt>
+                    <dd><Energia energia={inmueble.energia} forma="sello" idioma={idioma} /></dd>
+                  </div>
+
+                  <div class="dato">
+                    <dt>{t.filas.zona}</dt>
+                    <dd>{inmueble.zona}</dd>
+                  </div>
+                </dl>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import { activarComparador } from '../../scripts/comparador';
+
+  activarComparador();
+  document.addEventListener('astro:after-swap', activarComparador);
+</script>
+
+<style>
+  .portadilla {
+    margin-block: var(--e-12) var(--e-8);
+  }
+
+  .portadilla h1 {
+    margin-top: var(--e-3);
+  }
+
+  .portadilla__entrada {
+    margin-top: var(--e-4);
+    color: var(--texto-suave);
+  }
+
+  .hueco {
+    padding: var(--e-16) var(--e-4);
+    border: 1px dashed var(--arena-honda);
+    border-radius: var(--radio-grande);
+    text-align: center;
+  }
+
+  .hueco p {
+    max-width: 40ch;
+    margin: var(--e-3) auto var(--e-6);
+    color: var(--texto-suave);
+  }
+
+  /* En móvil las columnas se deslizan en horizontal: apilarlas destruiría
+     la comparación, que es justo poder mirar de una a otra. */
+  .tabla__pista {
+    display: flex;
+    gap: var(--e-4);
+    padding-bottom: var(--e-4);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+
+  .columna {
+    flex: 0 0 16rem;
+    scroll-snap-align: start;
+    padding-bottom: var(--e-4);
+    border-radius: var(--radio-grande);
+    background: var(--papel);
+    box-shadow: 0 10px 30px var(--sombra);
+    overflow: hidden;
+  }
+
+  .columna__foto {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--grafito-medio);
+  }
+
+  .columna__imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .columna__quitar {
+    position: absolute;
+    top: var(--e-2);
+    right: var(--e-2);
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: var(--radio-pildora);
+    background: rgba(24, 32, 70, 0.75);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color var(--dur-corta) var(--curva);
+  }
+
+  .columna__quitar svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (hover: hover) {
+    .columna__quitar:hover {
+      background: var(--terracota);
+    }
+  }
+
+  .columna__titulo {
+    margin: var(--e-4) var(--e-4) var(--e-1);
+    font-size: var(--t-medio);
+    line-height: 1.2;
+  }
+
+  .columna__titulo a {
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .columna__titulo a:hover {
+      color: var(--laton);
+    }
+  }
+
+  .columna__tipo {
+    margin: 0 var(--e-4) var(--e-4);
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .columna__datos {
+    margin: 0;
+  }
+
+  .dato {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-3);
+    padding: var(--e-2) var(--e-4);
+    border-top: 1px solid var(--arena-honda);
+  }
+
+  .dato dt {
+    font-size: var(--t-micro);
+    color: var(--texto-suave);
+  }
+
+  .dato dd {
+    margin: 0;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  /* El mejor dato de cada fila, marcado en el azul de la casa. */
+  .dato--mejor {
+    background: color-mix(in srgb, var(--laton) 10%, transparent);
+  }
+
+  .dato--mejor dd {
+    color: var(--laton-hondo);
+  }
+
+  .dato--mejor dd::after {
+    content: '★';
+    margin-left: 0.35em;
+    font-size: 0.8em;
+  }
+</style>

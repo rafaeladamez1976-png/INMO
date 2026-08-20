@@ -145,6 +145,12 @@ export const en: Textos = {
     oMas: 'or more',
     precioMaximo: 'Maximum price',
     limpiar: 'Clear filters',
+    orden: 'Sort by',
+    ordenRelevancia: 'Latest',
+    ordenPrecioAsc: 'Price: low to high',
+    ordenPrecioDesc: 'Price: high to low',
+    ordenMetros: 'Floor area',
+    ordenMetroUtil: 'Price per m²',
     uno: '1 property',
     varios: 'properties',
     vacioAntes: 'Nothing matches those filters. Try widening the price or the area, or',
@@ -210,6 +216,48 @@ export const en: Textos = {
     arrastra: 'Drag to look · scroll to zoom',
     empezar: 'Start the tour',
     pie: 'Sample views. In a real home these are shot with a 360 camera in a single half-hour visit, and the tour then turns all the way around.',
+  },
+
+  comparar: {
+    antetitulo: 'Compare',
+    titulo: 'Side by side',
+    descripcion:
+      'Compare the properties you have saved: price, floor area, price per square metre and energy use, all on one screen.',
+    entrada:
+      'This compares the properties you have saved. The best figure in each row is marked, but the neighbourhood and the light do not show up in any table: that is what the viewing is for.',
+    vacioTitulo: 'You have not saved anything yet',
+    vacioTexto: 'Save properties with the heart and come back here to see them compared.',
+    vacioBoton: 'See homes for sale',
+    unoTitulo: 'You only have one saved',
+    unoTexto: 'Save at least two properties to compare them.',
+    filas: {
+      precio: 'Price',
+      metros: 'Floor area',
+      metroUtil: 'Price per m²',
+      habitaciones: 'Bedrooms',
+      banos: 'Bathrooms',
+      planta: 'Floor',
+      energia: 'Energy',
+      zona: 'Area',
+    },
+    mejor: 'Best figure in this row',
+    quitar: 'Remove from comparison',
+  },
+
+  visor: {
+    abrir: 'View all photos',
+    cerrar: 'Close',
+    anterior: 'Previous photo',
+    siguiente: 'Next photo',
+    de: 'of',
+    ayuda: 'Arrows to browse · double-click to zoom · Esc to exit',
+  },
+
+  compartir: {
+    accion: 'Share this property',
+    copiado: 'Link copied',
+    mensaje: (titulo: string, precio: string, referencia: string) =>
+      `${titulo} — ${precio}. Reference ${referencia}.`,
   },
 
   fotos: 'Photographs of the property',

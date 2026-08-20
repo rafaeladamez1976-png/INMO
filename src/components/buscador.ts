@@ -41,6 +41,7 @@ export function iniciarBuscador(): void {
     const zona = String(datos.get('zona') ?? '');
     const habitaciones = Number(datos.get('habitaciones') ?? 0);
     const precio = Number(datos.get('precio') ?? maximo);
+    const orden = String(datos.get('orden') ?? '');
 
     salidaPrecio.textContent =
       precio >= maximo ? dice.sinLimite : `${dice.hasta} ${euros(precio)}`;
@@ -58,10 +59,52 @@ export function iniciarBuscador(): void {
       if (encaja) visibles++;
     }
 
+    ordenar(orden);
+
     cuenta.textContent =
       visibles === 0 ? dice.ninguno : visibles === 1 ? dice.uno : `${visibles} ${dice.varios}`;
 
     vacio.hidden = visibles > 0;
+  }
+
+  /**
+   * Ordena con la propiedad `order` del CSS en lugar de mover los nodos.
+   *
+   * Moverlos volvería a disparar el revelado de cada tarjeta, y la rejilla
+   * entera parpadearía cada vez que se toca un filtro. Así solo cambia el
+   * sitio donde se pinta cada una.
+   */
+  function ordenar(criterio: string): void {
+    if (!criterio) {
+      for (const hueco of huecos) hueco.style.order = '';
+      return;
+    }
+
+    const valor = (hueco: HTMLElement): number => {
+      const precio = Number(hueco.dataset.precio ?? 0);
+      const metros = Number(hueco.dataset.metros ?? 0);
+
+      switch (criterio) {
+        case 'precio-asc':
+          return precio;
+        case 'precio-desc':
+          return -precio;
+        case 'metros':
+          return -metros;
+        case 'metro-util':
+          // Sin metros no hay precio por metro: van al final en vez de
+          // colarse los primeros con un cero.
+          return metros > 0 ? precio / metros : Number.MAX_SAFE_INTEGER;
+        default:
+          return 0;
+      }
+    };
+
+    [...huecos]
+      .sort((a, b) => valor(a) - valor(b))
+      .forEach((hueco, i) => {
+        hueco.style.order = String(i);
+      });
   }
 
   form.addEventListener('input', filtrar);

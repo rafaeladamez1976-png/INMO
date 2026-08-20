@@ -1,0 +1,477 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { textos, type Idioma } from '../i18n';
+
+interface Props {
+  fotos: Array<{ nombre: string; imagen: ImageMetadata }>;
+  alt: string;
+  idioma?: Idioma;
+}
+
+const { fotos, alt, idioma = 'es' } = Astro.props;
+const todo = textos(idioma);
+const t = todo.visor;
+
+/**
+ * Galería con visor a pantalla completa.
+ *
+ * Antes las fotografías se veían solo del tamaño de su hueco en la rejilla,
+ * que en una web inmobiliaria es como enseñar el piso por la mirilla. Quien
+ * compra quiere mirar la cocina de cerca antes de pedir la visita.
+ *
+ * El visor va en un <dialog> nativo: el navegador ya se encarga de la capa
+ * superior, de atrapar el tabulador dentro y de cerrar con Esc. Escribir eso
+ * a mano es lo que suele dejar visores que no se cierran con teclado.
+ */
+
+/** Versiones grandes, solo para el visor: la rejilla no necesita este peso. */
+const grandes = await Promise.all(
+  fotos.map((f) => getImage({ src: f.imagen, width: 1800, format: 'webp', quality: 80 })),
+);
+const fuentes = grandes.map((g) => g.src);
+---
+
+<section class="galeria" aria-label={todo.fotos}>
+  {
+    fotos.map((foto, i) => (
+      <figure class:list={['galeria__hueco', { 'galeria__hueco--principal': i === 0 }]}>
+        <button class="galeria__boton" type="button" data-abrir-visor={i}>
+          <Image
+            src={foto.imagen}
+            alt={alt}
+            widths={[600, 1000, 1600]}
+            sizes={i === 0 ? '(max-width: 60rem) 92vw, 60vw' : '(max-width: 60rem) 46vw, 20vw'}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            class="galeria__imagen"
+          />
+          <span class="galeria__lupa" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.9" />
+              <path
+                d="m16 16 4.5 4.5M11 8.6v4.8M8.6 11h4.8"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+              />
+            </svg>
+          </span>
+          <span class="solo-lectores">{t.abrir}</span>
+        </button>
+      </figure>
+    ))
+  }
+
+  <button class="galeria__todas" type="button" data-abrir-visor="0">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3 5h8v6H3zM13 5h8v6h-8zM3 13h8v6H3zM13 13h8v6h-8z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linejoin="round"></path>
+    </svg>
+    {t.abrir} · {fotos.length}
+  </button>
+</section>
+
+<dialog class="visor" data-visor aria-label={todo.fotos}>
+  <div class="visor__barra">
+    <p class="visor__cuenta"><span data-visor-actual>1</span> {t.de} {fotos.length}</p>
+    <p class="visor__ayuda">{t.ayuda}</p>
+    <button class="visor__cerrar" type="button" data-visor-cerrar aria-label={t.cerrar}>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="m6 6 12 12M18 6 6 18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="visor__escena" data-visor-escena>
+    <img class="visor__foto" data-visor-foto alt={alt} />
+
+    <button
+      class="visor__paso visor__paso--atras"
+      type="button"
+      data-visor-atras
+      aria-label={t.anterior}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="m15 5-7 7 7 7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+
+    <button
+      class="visor__paso visor__paso--adelante"
+      type="button"
+      data-visor-adelante
+      aria-label={t.siguiente}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="m9 5 7 7-7 7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="visor__tira" data-visor-tira>
+    {
+      fotos.map((foto, i) => (
+        <button
+          class="visor__mini"
+          type="button"
+          data-visor-ir={i}
+          aria-label={`${i + 1} ${t.de} ${fotos.length}`}
+        >
+          <Image src={foto.imagen} alt="" widths={[160]} sizes="80px" loading="lazy" />
+        </button>
+      ))
+    }
+  </div>
+
+  <script type="application/json" data-visor-fuentes set:html={JSON.stringify(fuentes)} />
+</dialog>
+
+<script>
+  import { activarVisor } from './visor';
+
+  activarVisor();
+  document.addEventListener('astro:after-swap', activarVisor);
+</script>
+
+<style>
+  /* ---- Rejilla ---- */
+
+  .galeria {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--e-2);
+    margin-bottom: var(--e-12);
+  }
+
+  @media (min-width: 56rem) {
+    .galeria {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .galeria__hueco--principal {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  }
+
+  .galeria__hueco {
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radio);
+    aspect-ratio: 4 / 3;
+    background: var(--grafito-medio);
+  }
+
+  .galeria__hueco--principal {
+    grid-column: span 2;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: 56rem) {
+    .galeria__hueco--principal {
+      aspect-ratio: auto;
+    }
+  }
+
+  .galeria__boton {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+
+  .galeria__imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s var(--curva);
+  }
+
+  /* La lupa aparece al pasar por encima: avisa de que la foto se abre. */
+  .galeria__lupa {
+    position: absolute;
+    inset-block-start: var(--e-3);
+    inset-inline-end: var(--e-3);
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: var(--radio-pildora);
+    background: rgba(24, 32, 70, 0.66);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.85);
+    transition:
+      opacity var(--dur-corta) var(--curva),
+      transform var(--dur-corta) var(--curva);
+  }
+
+  .galeria__lupa svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  @media (hover: hover) {
+    .galeria__hueco:hover .galeria__imagen {
+      transform: scale(1.05);
+    }
+
+    .galeria__hueco:hover .galeria__lupa,
+    .galeria__boton:focus-visible .galeria__lupa {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .galeria__todas {
+    position: absolute;
+    inset-block-end: var(--e-3);
+    inset-inline-end: var(--e-3);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-2);
+    min-height: 2.6rem;
+    padding: var(--e-2) var(--e-4);
+    border: 0;
+    border-radius: var(--radio-pildora);
+    background: rgba(24, 32, 70, 0.82);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color var(--dur-corta) var(--curva);
+  }
+
+  .galeria__todas svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  @media (hover: hover) {
+    .galeria__todas:hover {
+      background: var(--laton);
+    }
+  }
+
+  /* ---- Visor ---- */
+
+  .visor {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 0;
+    border: 0;
+    background: var(--grafito);
+    color: var(--texto-claro);
+    overflow: hidden;
+  }
+
+  .visor::backdrop {
+    background: rgba(16, 22, 56, 0.92);
+    backdrop-filter: blur(6px);
+  }
+
+  .visor[open] {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .visor[open] {
+      animation: visorEntra var(--dur-media) var(--curva) both;
+    }
+  }
+
+  @keyframes visorEntra {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+
+  .visor__barra {
+    display: flex;
+    align-items: center;
+    gap: var(--e-4);
+    padding: var(--e-3) var(--e-4);
+    border-block-end: 1px solid rgba(246, 248, 252, 0.14);
+  }
+
+  .visor__cuenta {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: var(--t-pequeno);
+    letter-spacing: 0.06em;
+  }
+
+  .visor__ayuda {
+    flex: 1;
+    text-align: center;
+    font-size: var(--t-micro);
+    opacity: 0.62;
+  }
+
+  @media (max-width: 48rem) {
+    .visor__ayuda {
+      display: none;
+    }
+  }
+
+  .visor__cerrar {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    margin-inline-start: auto;
+    border: 0;
+    border-radius: var(--radio-pildora);
+    background: rgba(246, 248, 252, 0.1);
+    color: inherit;
+    cursor: pointer;
+    transition: background-color var(--dur-corta) var(--curva);
+  }
+
+  .visor__cerrar svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  @media (hover: hover) {
+    .visor__cerrar:hover {
+      background: var(--laton);
+    }
+  }
+
+  .visor__escena {
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+
+  .visor__foto {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    cursor: zoom-in;
+    transition: transform var(--dur-media) var(--curva);
+    will-change: transform;
+  }
+
+  .visor__foto[data-cerca] {
+    cursor: grab;
+  }
+
+  .visor__paso {
+    position: absolute;
+    inset-block-start: 50%;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin-block-start: -1.5rem;
+    border: 0;
+    border-radius: var(--radio-pildora);
+    background: rgba(24, 32, 70, 0.7);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-corta) var(--curva),
+      transform var(--dur-corta) var(--curva);
+  }
+
+  .visor__paso svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+
+  .visor__paso--atras {
+    inset-inline-start: var(--e-3);
+  }
+
+  .visor__paso--adelante {
+    inset-inline-end: var(--e-3);
+  }
+
+  @media (hover: hover) {
+    .visor__paso:hover {
+      background: var(--laton);
+      transform: scale(1.06);
+    }
+  }
+
+  .visor__tira {
+    display: flex;
+    gap: var(--e-2);
+    padding: var(--e-3) var(--e-4);
+    overflow-x: auto;
+    border-block-start: 1px solid rgba(246, 248, 252, 0.14);
+    scrollbar-width: thin;
+  }
+
+  .visor__mini {
+    flex: 0 0 auto;
+    width: 5rem;
+    height: 3.4rem;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: var(--radio);
+    background: none;
+    opacity: 0.5;
+    cursor: pointer;
+    transition:
+      opacity var(--dur-corta) var(--curva),
+      border-color var(--dur-corta) var(--curva);
+  }
+
+  .visor__mini :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .visor__mini[aria-current='true'] {
+    border-color: var(--laton-claro);
+    opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .visor__mini:hover {
+      opacity: 1;
+    }
+  }
+</style>

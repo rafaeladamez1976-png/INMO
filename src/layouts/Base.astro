@@ -75,7 +75,9 @@ const alternativas = [
     <div class="avance" aria-hidden="true"><span data-avance></span></div>
     <AvisoMaqueta idioma={idioma} />
     <Cabecera idioma={idioma} />
-    <main id="contenido">
+    <!-- data-url sale impreso al pie de la hoja: sin eso, una ficha en
+         papel no lleva de vuelta al anuncio. -->
+    <main id="contenido" data-url={canonica.href}>
       <slot />
     </main>
     <Pie idioma={idioma} />
@@ -85,10 +87,14 @@ const alternativas = [
     <script>
       import { activarAnimaciones } from '../scripts/animaciones';
       import { activarPremium } from '../scripts/premium';
+      import { activarCarruseles } from '../scripts/carrusel';
+      import { activarCompartir } from '../scripts/compartir';
 
       const arrancar = () => {
         activarAnimaciones();
         activarPremium();
+        activarCarruseles();
+        activarCompartir();
       };
 
       arrancar();

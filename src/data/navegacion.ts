@@ -39,6 +39,14 @@ export const SECUNDARIOS: Enlace[] = [
     },
   },
   {
+    href: '/comparar',
+    texto: { es: 'Comparador', en: 'Compare' },
+    descripcion: {
+      es: 'Tus inmuebles guardados, uno al lado del otro',
+      en: 'The properties you saved, side by side',
+    },
+  },
+  {
     href: '/alertas',
     texto: { es: 'Avisos de inmuebles', en: 'Property alerts' },
     descripcion: {
