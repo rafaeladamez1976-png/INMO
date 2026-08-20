@@ -47,13 +47,20 @@ export function crearTour(
    * los bordes izquierdo y derecho no casan, y el suelo no se comprime hacia
    * el polo como haría una panorámica de verdad.
    *
-   * Estirarlas sobre los 360 grados completos las ampliaba trece veces (con
+   * Estirarlas sobre los 360 grados completos las ampliaba varias veces (con
    * 72 de campo visual solo se veía una quinta parte del ancho), y de ahí
-   * venía el emborronado. Proyectadas sobre el arco que realmente abarcan,
-   * cada píxel de la foto cae casi sobre un píxel de pantalla.
+   * venía el emborronado. Proyectadas sobre media vuelta, cada píxel de la
+   * foto cae sobre un píxel de pantalla o menos.
    */
-  /** Arco horizontal que abarca la toma. */
-  const ARCO_GRADOS = 124;
+  /*
+   * Arco horizontal que abarca la toma. Media vuelta.
+   *
+   * Con 124 grados la vista solo podia girar 23 a cada lado y se sentia
+   * encajonada, poco panoramica. Con 180 el recorrido pasa a 51 grados por
+   * lado y sigue habiendo pixeles de sobra, porque la fotografia se amplia
+   * a cuatro veces su tamano.
+   */
+  const ARCO_GRADOS = 180;
   /*
    * El alto sale de la proporción de la fotografía (2:1), no de un número
    * elegido a ojo: si no coincide, la habitación sale estirada o achatada.
@@ -116,6 +123,15 @@ export function crearTour(
   let automatico = true;
   /** Sentido del vaivén de bienvenida. */
   let sentido = 1;
+
+  /*
+   * Inercia. Al soltar, la vista sigue girando y frena sola, como en
+   * cualquier visor de calles. Sin esto el giro se corta en seco y delata
+   * que no es un visor de verdad.
+   */
+  let velocidadX = 0;
+  let velocidadY = 0;
+  const ROCE = 0.94;
 
   /**
    * En Three.js `fov` es el ángulo VERTICAL. El horizontal depende además de
@@ -238,6 +254,9 @@ export function crearTour(
 
   function alPulsar(evento: PointerEvent): void {
     automatico = false;
+    // Al volver a tocar, la inercia se corta: manda el dedo.
+    velocidadX = 0;
+    velocidadY = 0;
     punteros.set(evento.pointerId, { x: evento.clientX, y: evento.clientY });
     lienzo.setPointerCapture(evento.pointerId);
 
@@ -288,6 +307,8 @@ export function crearTour(
       -topeY,
       topeY,
     );
+    velocidadX = -(evento.clientX - ultimoX) * paso;
+    velocidadY = (evento.clientY - ultimoY) * paso;
     ultimoX = evento.clientX;
     ultimoY = evento.clientY;
   }
@@ -352,6 +373,19 @@ export function crearTour(
         lonObjetivo = -tope;
         sentido = 1;
       }
+    }
+
+    // Inercia: al soltar, la vista sigue y frena sola contra el roce.
+    if (!girando && (Math.abs(velocidadX) > 0.01 || Math.abs(velocidadY) > 0.01)) {
+      const tope = topeGiro();
+      const topeY = topeAlto();
+      lonObjetivo = THREE.MathUtils.clamp(lonObjetivo + velocidadX, -tope, tope);
+      latObjetivo = THREE.MathUtils.clamp(latObjetivo + velocidadY, -topeY, topeY);
+      // Contra el borde no rebota: se para, que es lo que espera la mano.
+      if (lonObjetivo === tope || lonObjetivo === -tope) velocidadX = 0;
+      if (latObjetivo === topeY || latObjetivo === -topeY) velocidadY = 0;
+      velocidadX *= ROCE;
+      velocidadY *= ROCE;
     }
 
     lon += (lonObjetivo - lon) * 0.09;
